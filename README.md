@@ -17,6 +17,18 @@
 - Rilis perdana aplikasi.
 - Implementasi fitur notifikasi status dan manajemen daftar aplikasi.
 
+## Preview
+
+<p align="center">
+  <img src="screenshots/Screenshot_20260927-173129_App%20Slayer.png" width="220">
+  <img src="screenshots/Screenshot_20260927-173302_App%20Slayer.png" width="220">
+</p>
+
+<p align="center">
+  <img src="screenshots/Screenshot_20260927-173314_App%20Slayer.png" width="220">
+  <img src="screenshots/Screenshot_20260927-173318_App%20Slayer.png" width="220">
+</p>
+
 ## Lisensi
 
 > Proyek ini dikembangkan untuk penggunaan pribadi. Mohon untuk tidak mendistribusikan atau memperjualbelikan aplikasi ini tanpa izin resmi dari pengembang. HARAM!!!
