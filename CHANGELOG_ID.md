@@ -2,6 +2,11 @@
 
 # Catatan Rilis
 
+## 6.3.3
+- Info Baterai tampilannya baru: kartu-kartu, header level besar, plus baris tegangan.
+- Tes root sekarang benar bilangnya kalau su tidak bisa jalan sama sekali — cek daftar Superuser di Magisk/KernelSU.
+- Bisa langsung ditimpa dari 6.3.2, tidak perlu uninstall.
+
 ## 6.3.2
 - Baru: Tombol Tes semua fungsi di Diagnostik. Ngetes root, overlay, sensor suhu, FPS, proses, baterai, file modul, salinan log, dan notifikasi satu-satu.
 - Root belum aktif sekarang ada peringatan di layar utama, plus tombol buat minta akses.

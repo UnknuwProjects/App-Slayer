@@ -2,6 +2,11 @@
 
 # Changelog
 
+## 6.3.3
+- Battery Information has a new look: cards, a big level header, and a voltage row.
+- Root test now says it right when su cannot run at all — check the Superuser list in Magisk/KernelSU.
+- Installs over 6.3.2, no need to uninstall.
+
 ## 6.3.2
 - New: Test all functions button in Diagnostics. Tests root, overlay, temperature sensors, FPS, processes, battery, module files, log copy, and notifications one by one.
 - Root is not active now shows a warning on the main screen, with a button to request access.
