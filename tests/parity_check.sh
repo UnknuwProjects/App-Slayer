@@ -200,9 +200,54 @@ check_absent "no version entries left in README" "README.md" '### 6.'
 check_absent "no version entries left in README_ID" "README_ID.md" '### 6.'
 check "README links the changelog" "README.md" '[CHANGELOG.md](CHANGELOG.md)'
 check "README_ID links the changelog" "README_ID.md" '[CHANGELOG_ID.md](CHANGELOG_ID.md)'
-check "CHANGELOG has the 6.3.1 entry" "CHANGELOG.md" '### 6.3.1'
-check "CHANGELOG_ID has the 6.3.1 entry" "CHANGELOG_ID.md" '### 6.3.1'
+check "CHANGELOG has the 6.3.1 entry" "CHANGELOG.md" '## 6.3.1'
+check "CHANGELOG_ID has the 6.3.1 entry" "CHANGELOG_ID.md" '## 6.3.1'
 check "LICENSE is the GPL text" "LICENSE" 'GNU GENERAL PUBLIC LICENSE'
+
+# 6.3.2: function self-test ("Tes Fungsi") — the sandbox the user
+# asked for: every capability exercised for real, per-function
+# verdicts, results also in the diagnostic log.
+check "function tester exists" "$SRC/FunctionTester.java" 'class FunctionTester'
+check "function test activity exists" "$SRC/FunctionTestActivity.java" 'class FunctionTestActivity'
+check "test activity in manifest" "src/main/AndroidManifest.xml" 'FunctionTestActivity'
+check "test button in layout" "src/main/res/layout/activity_floating_monitor.xml" 'btnTestFunctions'
+check "test button in v21 layout" "src/main/res/layout-v21/activity_floating_monitor.xml" 'btnTestFunctions'
+check "test button wired" "$SRC/FloatingMonitorActivity.java" 'R.id.btnTestFunctions'
+check "tests logged as TEST" "$SRC/FunctionTester.java" 'DiagLog.log("TEST"'
+check "module write-back test uses AppPaths" "$SRC/FunctionTester.java" 'AppPaths.MODE_FILE'
+check "mirror test uses sync flush" "$SRC/FunctionTester.java" 'DiagLog.flushMirrorSync'
+check "sync mirror flush exists" "$SRC/DiagLog.java" 'flushMirrorSync'
+
+# 6.3.2: root access is visible and retryable — a fresh su -c id
+# probe, a verified-handshake persistent shell that cannot latch
+# dead, retry kicks, and the main-screen warning row.
+check "fresh root probe exists" "$SRC/SystemStats.java" 'probeRootFresh'
+check "fresh probe runs su -c id" "$SRC/SystemStats.java" '"su", "-c", "id"'
+check "shell verified getter" "$SRC/SystemStats.java" 'isShellVerified()'
+check "shell reset exists" "$SRC/SystemStats.java" 'resetShell()'
+check "shell retry kick exists" "$SRC/SystemStats.java" 'kickRootShell()'
+check "shell handshake verify" "$SRC/SystemStats.java" 'runHandshake'
+check "overlay service kicks the shell" "$SRC/FloatingOverlayService.java" 'SystemStats.kickRootShell()'
+check "main screen kicks the shell" "$SRC/MainActivity.java" 'SystemStats.kickRootShell()'
+check "root row in main layout" "src/main/res/layout/main.xml" 'rowRootWarning'
+check "root row in v21 main layout" "src/main/res/layout-v21/main.xml" 'rowRootWarning'
+check "request root button in main layout" "src/main/res/layout/main.xml" 'btnRequestRoot'
+check "request root handler" "$SRC/MainActivity.java" 'requestRootAccess()'
+check "main su open split out" "$SRC/MainActivity.java" 'tryOpenSu()'
+check "plain thermal enumeration split out" "$SRC/SystemStats.java" 'readPlainThermalSensors()'
+check "fps source tracked" "$SRC/SystemStats.java" 'getLastFpsSource()'
+
+# 6.3.2: classic overlay stacking — measured heights via PureCalc,
+# re-stacked on rebuild and on line-count changes, dragged windows
+# left alone.
+check "stack offsets in PureCalc" "$SRC/PureCalc.java" 'public static int[] stackOffsets'
+check "service restacks classic windows" "$SRC/FloatingOverlayService.java" 'restackClassicWindows()'
+check_count "restack called on rebuild and on text change" "$SRC/FloatingOverlayService.java" 'restackClassicWindows();' 2
+check "drag marks a window custom" "$SRC/FloatingOverlayService.java" '"_custompos"'
+
+# 6.3.2: changelog entries.
+check "CHANGELOG has the 6.3.2 entry" "CHANGELOG.md" '## 6.3.2'
+check "CHANGELOG_ID has the 6.3.2 entry" "CHANGELOG_ID.md" '## 6.3.2'
 
 # String parity between the two locales.
 ID_COUNT=$(grep -c '<string ' src/main/res/values/strings.xml)

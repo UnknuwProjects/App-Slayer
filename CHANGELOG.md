@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 6.3.2
+- New: Test all functions button in Diagnostics. Tests root, overlay, temperature sensors, FPS, processes, battery, module files, log copy, and notifications one by one.
+- Root is not active now shows a warning on the main screen, with a button to request access.
+- Fixed classic overlay windows piling up on top of each other.
+- Installs over 6.3.1, no need to uninstall.
+
 ## 6.3.1
 - Fixed the overlay not showing even with the switches on.
 - Diagnosis block now updates live, with the active monitor count and the last error.

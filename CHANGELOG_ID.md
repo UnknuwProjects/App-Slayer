@@ -2,6 +2,12 @@
 
 # Catatan Rilis
 
+## 6.3.2
+- Baru: Tombol Tes semua fungsi di Diagnostik. Ngetes root, overlay, sensor suhu, FPS, proses, baterai, file modul, salinan log, dan notifikasi satu-satu.
+- Root belum aktif sekarang ada peringatan di layar utama, plus tombol buat minta akses.
+- Fix jendela overlay klasik yang numpuk satu sama lain.
+- Bisa langsung ditimpa dari 6.3.1, tidak perlu uninstall.
+
 ## 6.3.1
 - Fix overlay tidak muncul padahal switch sudah nyala.
 - Blok diagnosis sekarang update langsung, ada info jumlah monitor aktif dan error terakhir.
