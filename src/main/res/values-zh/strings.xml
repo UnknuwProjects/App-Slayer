@@ -109,7 +109,7 @@
     <string name="diag_test_fail">悬浮窗尚未显示。请检查此应用的悬浮窗权限和弹窗权限。</string>
     <string name="diag_enabled_service">已启用的监视器（服务视图）：%1$d</string>
     <string name="diag_last_add">上次添加窗口结果：%1$s</string>
-    <string name="battery_history_hint">通知服务运行时会记录电池历史。在主屏幕启用通知以填充图表。</string>
+    <string name="battery_history_hint">电池历史由记录服务在应用使用期间自动记录 — 无需开启通知。</string>
     <string name="diag_run_checks">运行检查</string>
     <string name="diag_share_log">分享日志</string>
     <string name="diag_clear_log">清除日志</string>
@@ -199,7 +199,6 @@
     <string name="battery_notes">注意：\n- （实际）估算值在设备开机状态下充电达到至少 95% 后计算。\n- 设备关机时充电（关机充电）不计入。</string>
     <string name="waiting_data">等待数据...</string>
     <string name="not_available_yet">尚不可用</string>
-    <string name="dialog_close">关闭</string>
     <string name="toast_permission_granted">位置权限已授予</string>
     <string name="toast_permission_denied">位置权限被拒绝。无法读取信号。</string>
 
@@ -251,4 +250,22 @@
     <string name="action_resume_overlay">继续悬浮窗</string>
     <string name="signal_format">信号：%1$d dBm（%2$d%%）</string>
     <string name="signal_na">信号：n/a</string>
+
+    <!-- 6.3.7: battery logging service, MediaProjection FPS, thermal status -->
+    <string name="battery_logging_channel">电池历史记录</string>
+    <string name="battery_logging_notif">正在记录电池历史</string>
+    <string name="fps_capture_channel">FPS 测量</string>
+    <string name="fps_capture_notif">正在通过屏幕捕获测量 FPS</string>
+    <string name="fps_capture_denied">录制 FPS 需要屏幕捕获权限或 root 权限。两者都没有时，无法测量 FPS。</string>
+    <string name="fps_session_no_data">无数据 — 录制期间未读到 FPS</string>
+    <string name="temp_thermal_status">系统热状态：%1$s</string>
+    <string name="thermal_status_normal">正常</string>
+    <string name="thermal_status_light">轻微</string>
+    <string name="thermal_status_moderate">中等</string>
+    <string name="thermal_status_severe">严重</string>
+    <string name="thermal_status_critical">危急</string>
+    <string name="thermal_status_emergency">紧急</string>
+    <string name="thermal_status_shutdown">接近关机</string>
+    <string name="thermal_status_unknown">未知</string>
+    <string name="test_thermal_api_detail">分区传感器：0 · 系统热状态：%1$s（Thermal API）</string>
 </resources>

@@ -109,7 +109,7 @@
     <string name="diag_test_fail">ओवरले अभी नहीं दिख रहा। इस ऐप के लिए ओवरले अनुमति और पॉप-अप विंडो अनुमति जाँचें।</string>
     <string name="diag_enabled_service">सक्रिय मॉनिटर (सेवा दृश्य): %1$d</string>
     <string name="diag_last_add">अंतिम विंडो जोड़ परिणाम: %1$s</string>
-    <string name="battery_history_hint">सूचना सेवा चलने के दौरान बैटरी इतिहास रिकॉर्ड होता है। ग्राफ़ भरने के लिए मुख्य स्क्रीन पर सूचनाएँ चालू करें।</string>
+    <string name="battery_history_hint">बैटरी इतिहास ऐप के उपयोग के दौरान लॉगिंग सेवा द्वारा अपने आप रिकॉर्ड होता है — नोटिफिकेशन चालू करने की ज़रूरत नहीं।</string>
     <string name="diag_run_checks">जाँच चलाएँ</string>
     <string name="diag_share_log">लॉग साझा करें</string>
     <string name="diag_clear_log">लॉग साफ़ करें</string>
@@ -199,7 +199,6 @@
     <string name="battery_notes">नोट:\n- (वास्तविक) अनुमान डिवाइस चालू रहने पर कम से कम 95% तक चार्ज होने के बाद गणना किया जाता है।\n- डिवाइस बंद होने पर चार्जिंग (पावर-ऑफ़ चार्जिंग) गिनी नहीं जाती।</string>
     <string name="waiting_data">डेटा की प्रतीक्षा...</string>
     <string name="not_available_yet">अभी उपलब्ध नहीं</string>
-    <string name="dialog_close">बंद करें</string>
     <string name="toast_permission_granted">स्थान अनुमति दी गई</string>
     <string name="toast_permission_denied">स्थान अनुमति अस्वीकृत। सिग्नल नहीं पढ़ा जा सकता।</string>
 
@@ -251,4 +250,22 @@
     <string name="action_resume_overlay">ओवरले जारी रखें</string>
     <string name="signal_format">सिग्नल: %1$d dBm (%2$d%%)</string>
     <string name="signal_na">सिग्नल: n/a</string>
+
+    <!-- 6.3.7: battery logging service, MediaProjection FPS, thermal status -->
+    <string name="battery_logging_channel">बैटरी इतिहास लॉगिंग</string>
+    <string name="battery_logging_notif">बैटरी इतिहास रिकॉर्ड हो रहा है</string>
+    <string name="fps_capture_channel">FPS माप</string>
+    <string name="fps_capture_notif">स्क्रीन कैप्चर से FPS मापा जा रहा है</string>
+    <string name="fps_capture_denied">FPS रिकॉर्डिंग के लिए स्क्रीन-कैप्चर अनुमति या रूट एक्सेस चाहिए। दोनों के बिना FPS नहीं मापा जा सकता।</string>
+    <string name="fps_session_no_data">कोई डेटा नहीं — रिकॉर्डिंग के दौरान FPS नहीं पढ़ा गया</string>
+    <string name="temp_thermal_status">सिस्टम थर्मल स्थिति: %1$s</string>
+    <string name="thermal_status_normal">सामान्य</string>
+    <string name="thermal_status_light">हल्की</string>
+    <string name="thermal_status_moderate">मध्यम</string>
+    <string name="thermal_status_severe">गंभीर</string>
+    <string name="thermal_status_critical">नाज़ुक</string>
+    <string name="thermal_status_emergency">आपातकालीन</string>
+    <string name="thermal_status_shutdown">बंद होने के करीब</string>
+    <string name="thermal_status_unknown">अज्ञात</string>
+    <string name="test_thermal_api_detail">प्रति-ज़ोन सेंसर: 0 · सिस्टम थर्मल स्थिति: %1$s (Thermal API)</string>
 </resources>

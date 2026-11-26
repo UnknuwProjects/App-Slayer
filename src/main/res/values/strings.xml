@@ -109,7 +109,7 @@
     <string name="diag_test_fail">Overlay belum tampil. Cek izin overlay dan izin jendela pop-up untuk aplikasi ini.</string>
     <string name="diag_enabled_service">Monitor aktif menurut service: %1$d</string>
     <string name="diag_last_add">Hasil tambah jendela terakhir: %1$s</string>
-    <string name="battery_history_hint">Riwayat baterai dicatat selama service notifikasi berjalan. Aktifkan notifikasi di layar utama biar grafiknya terisi.</string>
+    <string name="battery_history_hint">Riwayat baterai dicatat otomatis oleh service pencatat selama aplikasi dipakai — tidak perlu menyalakan notifikasi.</string>
     <string name="diag_run_checks">Jalankan cek</string>
     <string name="diag_share_log">Bagikan log</string>
     <string name="diag_clear_log">Hapus log</string>
@@ -199,7 +199,6 @@
     <string name="battery_notes">Catatan:\n- Estimasi (Real) dihitung setelah pengisian yang mencapai minimal 95% saat perangkat dalam keadaan aktif.\n- Pengisian saat perangkat mati (power-off charging) tidak termasuk dalam perhitungan.</string>
     <string name="waiting_data">Menunggu data...</string>
     <string name="not_available_yet">Belum tersedia</string>
-    <string name="dialog_close">Tutup</string>
     <string name="toast_permission_granted">Izin lokasi diberikan</string>
     <string name="toast_permission_denied">Izin lokasi ditolak. Sinyal tidak dapat dibaca.</string>
 
@@ -251,4 +250,22 @@
     <string name="action_resume_overlay">Lanjutkan Overlay</string>
     <string name="signal_format">Sinyal: %1$d dBm (%2$d%%)</string>
     <string name="signal_na">Sinyal: n/a</string>
+
+    <!-- 6.3.7: battery logging service, MediaProjection FPS, thermal status -->
+    <string name="battery_logging_channel">Pencatatan riwayat baterai</string>
+    <string name="battery_logging_notif">Mencatat riwayat baterai</string>
+    <string name="fps_capture_channel">Pengukuran FPS</string>
+    <string name="fps_capture_notif">Mengukur FPS dari tangkapan layar</string>
+    <string name="fps_capture_denied">Rekam FPS butuh izin tangkapan layar atau akses root. Tanpa keduanya, FPS tidak bisa diukur.</string>
+    <string name="fps_session_no_data">Tidak ada data — FPS tidak terbaca saat merekam</string>
+    <string name="temp_thermal_status">Status termal sistem: %1$s</string>
+    <string name="thermal_status_normal">Normal</string>
+    <string name="thermal_status_light">Ringan</string>
+    <string name="thermal_status_moderate">Sedang</string>
+    <string name="thermal_status_severe">Berat</string>
+    <string name="thermal_status_critical">Kritis</string>
+    <string name="thermal_status_emergency">Darurat</string>
+    <string name="thermal_status_shutdown">Nyaris mati (shutdown)</string>
+    <string name="thermal_status_unknown">Tidak diketahui</string>
+    <string name="test_thermal_api_detail">Sensor per zona: 0 · Status termal sistem: %1$s (Thermal API)</string>
 </resources>

@@ -109,7 +109,7 @@
     <string name="diag_test_fail">La superposición aún no se ve. Revisa el permiso de superposición y el de ventanas emergentes para esta app.</string>
     <string name="diag_enabled_service">Monitores activos (vista del servicio): %1$d</string>
     <string name="diag_last_add">Última ventana añadida: %1$s</string>
-    <string name="battery_history_hint">El historial de batería se registra mientras el servicio de notificaciones está activo. Activa las notificaciones en la pantalla principal para llenar el gráfico.</string>
+    <string name="battery_history_hint">El historial de batería lo registra automáticamente el servicio de registro mientras la app está en uso; no hace falta activar las notificaciones.</string>
     <string name="diag_run_checks">Ejecutar comprobaciones</string>
     <string name="diag_share_log">Compartir registro</string>
     <string name="diag_clear_log">Borrar registro</string>
@@ -199,7 +199,6 @@
     <string name="battery_notes">Notas:\n- La estimación (real) se calcula tras una carga que alcanza al menos el 95% con el dispositivo encendido.\n- La carga con el dispositivo apagado (carga apagado) no se cuenta.</string>
     <string name="waiting_data">Esperando datos...</string>
     <string name="not_available_yet">Aún no disponible</string>
-    <string name="dialog_close">Cerrar</string>
     <string name="toast_permission_granted">Permiso de ubicación concedido</string>
     <string name="toast_permission_denied">Permiso de ubicación denegado. No se puede leer la señal.</string>
 
@@ -251,4 +250,22 @@
     <string name="action_resume_overlay">Reanudar superposición</string>
     <string name="signal_format">Señal: %1$d dBm (%2$d%%)</string>
     <string name="signal_na">Señal: n/a</string>
+
+    <!-- 6.3.7: battery logging service, MediaProjection FPS, thermal status -->
+    <string name="battery_logging_channel">Registro del historial de batería</string>
+    <string name="battery_logging_notif">Registrando el historial de batería</string>
+    <string name="fps_capture_channel">Medición de FPS</string>
+    <string name="fps_capture_notif">Midiendo FPS desde la captura de pantalla</string>
+    <string name="fps_capture_denied">Grabar FPS necesita permiso de captura de pantalla o acceso root. Sin ninguno de los dos, no se puede medir FPS.</string>
+    <string name="fps_session_no_data">Sin datos: no se leyó FPS durante la grabación</string>
+    <string name="temp_thermal_status">Estado térmico del sistema: %1$s</string>
+    <string name="thermal_status_normal">Normal</string>
+    <string name="thermal_status_light">Ligero</string>
+    <string name="thermal_status_moderate">Moderado</string>
+    <string name="thermal_status_severe">Grave</string>
+    <string name="thermal_status_critical">Crítico</string>
+    <string name="thermal_status_emergency">Emergencia</string>
+    <string name="thermal_status_shutdown">Cerca del apagado</string>
+    <string name="thermal_status_unknown">Desconocido</string>
+    <string name="test_thermal_api_detail">Sensores por zona: 0 · Estado térmico del sistema: %1$s (Thermal API)</string>
 </resources>

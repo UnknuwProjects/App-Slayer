@@ -109,7 +109,7 @@
     <string name="diag_test_fail">التراكب لا يظهر بعد. تحقق من إذن التراكب وإذن النوافذ المنبثقة لهذا التطبيق.</string>
     <string name="diag_enabled_service">الشاشات المفعّلة (عرض الخدمة): %1$d</string>
     <string name="diag_last_add">نتيجة آخر إضافة نافذة: %1$s</string>
-    <string name="battery_history_hint">يتم تسجيل سجل البطارية أثناء عمل خدمة الإشعارات. فعّل الإشعارات في الشاشة الرئيسية لملء الرسم البياني.</string>
+    <string name="battery_history_hint">يُسجَّل سجل البطارية تلقائيًا بواسطة خدمة التسجيل أثناء استخدام التطبيق — لا حاجة لتفعيل الإشعارات.</string>
     <string name="diag_run_checks">تشغيل الفحوصات</string>
     <string name="diag_share_log">مشاركة السجل</string>
     <string name="diag_clear_log">مسح السجل</string>
@@ -199,7 +199,6 @@
     <string name="battery_notes">ملاحظات:\n- يُحسب التقدير (الحقيقي) بعد شحنة تصل إلى 95% على الأقل أثناء تشغيل الجهاز.\n- الشحن أثناء إيقاف الجهاز (شحن الإيقاف) لا يُحتسب.</string>
     <string name="waiting_data">بانتظار البيانات...</string>
     <string name="not_available_yet">غير متاح بعد</string>
-    <string name="dialog_close">إغلاق</string>
     <string name="toast_permission_granted">تم منح إذن الموقع</string>
     <string name="toast_permission_denied">تم رفض إذن الموقع. لا يمكن قراءة الإشارة.</string>
 
@@ -251,4 +250,22 @@
     <string name="action_resume_overlay">استئناف التراكب</string>
     <string name="signal_format">الإشارة: %1$d dBm (%2$d%%)</string>
     <string name="signal_na">الإشارة: n/a</string>
+
+    <!-- 6.3.7: battery logging service, MediaProjection FPS, thermal status -->
+    <string name="battery_logging_channel">تسجيل سجل البطارية</string>
+    <string name="battery_logging_notif">جارٍ تسجيل سجل البطارية</string>
+    <string name="fps_capture_channel">قياس FPS</string>
+    <string name="fps_capture_notif">جارٍ قياس FPS من التقاط الشاشة</string>
+    <string name="fps_capture_denied">تسجيل FPS يحتاج إلى إذن التقاط الشاشة أو صلاحية الروت. بدونهما لا يمكن قياس FPS.</string>
+    <string name="fps_session_no_data">لا توجد بيانات — لم تُقرأ FPS أثناء التسجيل</string>
+    <string name="temp_thermal_status">حالة النظام الحرارية: %1$s</string>
+    <string name="thermal_status_normal">عادية</string>
+    <string name="thermal_status_light">خفيفة</string>
+    <string name="thermal_status_moderate">متوسطة</string>
+    <string name="thermal_status_severe">شديدة</string>
+    <string name="thermal_status_critical">حرجة</string>
+    <string name="thermal_status_emergency">طارئة</string>
+    <string name="thermal_status_shutdown">قريبة من الإيقاف</string>
+    <string name="thermal_status_unknown">غير معروفة</string>
+    <string name="test_thermal_api_detail">حساسات المناطق: 0 · حالة النظام الحرارية: %1$s (Thermal API)</string>
 </resources>
