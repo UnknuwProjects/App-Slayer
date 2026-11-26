@@ -2,6 +2,10 @@
 
 # Changelog
 
+## 6.3.5
+- Main screen header is just the title now — the gear and menu buttons are gone. Floating Monitor and Language live in the Features list.
+- Installs over 6.3.4, no need to uninstall.
+
 ## 6.3.4
 - Main screen: the light top bar is gone — the title now sits at the top in the app's dark theme, gear and menu buttons included.
 - Language is picked from a bottom sheet list now, with four new languages: Chinese, Hindi, Spanish, and Arabic.

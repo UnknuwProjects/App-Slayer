@@ -2,6 +2,10 @@
 
 # Catatan Rilis
 
+## 6.3.5
+- Header layar utama sekarang cuma judul — tombol gir dan menu dihapus. Monitor Melayang dan Bahasa ada di daftar Fungsi.
+- Bisa langsung ditimpa dari 6.3.4, tidak perlu uninstall.
+
 ## 6.3.4
 - Layar utama: bar atas yang terang sudah hilang — judul sekarang di atas mengikuti tema gelap aplikasi, tombol gir dan menu tetap ada.
 - Bahasa sekarang dipilih dari daftar bottom sheet, plus empat bahasa baru: Mandarin, Hindi, Spanyol, dan Arab.
