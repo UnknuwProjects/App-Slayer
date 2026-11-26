@@ -12,11 +12,18 @@ import java.util.Locale;
 // FPS session recorder. The state is static (the same pattern as
 // the services' running flags) so a recording started on the
 // Floating Monitor screen keeps going after the user leaves the
-// screen — the overlay service's background scheduler feeds it one
-// sample per second through sampleNow(). Samples land in a ".tmp"
-// file under filesDir/fps_sessions/ and the file is renamed to its
-// final ".csv" name when the recording stops, so the sessions list
-// only ever sees finished sessions.
+// screen. The recorder runs its OWN sampling loop (one sample per
+// second, started and stopped with the recording) — up to 6.3.6
+// the samples were fed by the overlay service's scheduler, so a
+// recording made with the overlay service down collected nothing
+// at all. Samples land in a ".tmp" file under
+// filesDir/fps_sessions/ and the file is renamed to its final
+// ".csv" name when the recording stops, so the sessions list only
+// ever sees finished sessions. EVERY recording produces a session
+// file — including one with zero samples, which the sessions list
+// shows marked as no-data instead of silently vanishing (the old
+// finalize deleted empty files, which is why recordings "never
+// saved" whenever no FPS source answered).
 public class FpsRecorder {
 
     // Hard stop for one session: one hour at the 1 s cadence. Keeps
@@ -40,6 +47,12 @@ public class FpsRecorder {
     private static BufferedWriter writer;
     private static String lastPackage;
     private static int samplesSincePackageCheck;
+
+    // The recorder's own sampling loop and the context it samples
+    // with (the application context captured at start()).
+    private static volatile boolean loopRunning = false;
+    private static Thread loopThread;
+    private static Context appContext;
 
     public static boolean isRecording() {
         return recording;
@@ -84,16 +97,72 @@ public class FpsRecorder {
         lastPackage = null;
         samplesSincePackageCheck = PACKAGE_CHECK_EVERY; // check on the first sample
         recording = true;
+        appContext = context.getApplicationContext();
         DiagLog.log(context, "FPS", "recording started");
         // The FPS sampler is process-wide; make sure it is running
         // even if nothing else started it yet.
         SystemStats.startFpsMonitorThread();
+        startSamplingLoop();
         return true;
     }
 
+    // One sample per second on the recorder's own thread, for as
+    // long as the recording runs — independent of the overlay
+    // windows and of which screen is open. When the session cap
+    // stops the recording from inside sampleNow(), the loop sees
+    // the flag drop and ends; the capture service (if it was
+    // started for this recording) is stopped with it.
+    private static void startSamplingLoop() {
+        if (loopRunning) {
+            return;
+        }
+        loopRunning = true;
+        loopThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (loopRunning && recording) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        return;
+                    }
+                    if (!loopRunning || !recording || appContext == null) {
+                        return;
+                    }
+                    int result = sampleNow(appContext);
+                    if (result == SAMPLE_LIMIT_REACHED) {
+                        DiagLog.log(appContext, "FPS",
+                                "recording stopped by the session cap");
+                        FpsCaptureService.stop(appContext);
+                        final Context toastContext = appContext;
+                        new android.os.Handler(android.os.Looper.getMainLooper())
+                                .post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        android.widget.Toast.makeText(toastContext,
+                                                R.string.toast_recording_limit,
+                                                android.widget.Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                        return;
+                    }
+                }
+            }
+        });
+        loopThread.start();
+    }
+
+    private static void stopSamplingLoop() {
+        loopRunning = false;
+        if (loopThread != null) {
+            loopThread.interrupt();
+            loopThread = null;
+        }
+    }
+
     // Takes one sample from the current readings and appends it.
-    // Runs on the overlay service's background thread — it touches
-    // the root shell (foreground app poll) and the file, so it must
+    // Runs on the recorder's own sampling thread — it touches the
+    // root shell (foreground app poll) and the file, so it must
     // never be called from the UI thread. Returns SAMPLE_LIMIT_REACHED
     // when this sample hit the cap and the recording stopped itself.
     public static synchronized int sampleNow(Context context) {
@@ -175,25 +244,35 @@ public class FpsRecorder {
             return;
         }
         int samples = sampleCount;
+        stopSamplingLoop();
         stopLocked();
-        DiagLog.log(context, "FPS", "recording stopped, " + samples + " samples");
+        DiagLog.log(context, "FPS", "recording stopped, " + samples + " samples"
+                + " (FPS source: " + SystemStats.getLastFpsSource() + ")");
         FpsSession.prune(context);
     }
 
-    // Finalizes the session file: a session with samples is renamed
-    // to ".csv" (visible to the sessions list); an empty one is
-    // dropped instead of cluttering the list with a no-data entry.
+    // Finalizes the session file: stamps the "#end" line and renames
+    // ".tmp" to ".csv" (visible to the sessions list) no matter how
+    // many samples the recording collected. A zero-sample session
+    // stays in the list marked as no-data — the honest record that
+    // a recording happened and no FPS source answered during it —
+    // instead of being deleted without a trace.
     private static void stopLocked() {
         recording = false;
+        stopSamplingLoop();
+        if (writer != null) {
+            try {
+                writer.write("#end," + System.currentTimeMillis());
+                writer.newLine();
+                writer.flush();
+            } catch (Exception ignored) {
+            }
+        }
         closeWriter();
         if (sessionFile != null) {
-            if (sampleCount > 0) {
-                File target = new File(sessionFile.getParent(),
-                        sessionFile.getName().replace(".tmp", ".csv"));
-                if (!sessionFile.renameTo(target)) {
-                    sessionFile.delete();
-                }
-            } else {
+            File target = new File(sessionFile.getParent(),
+                    sessionFile.getName().replace(".tmp", ".csv"));
+            if (!sessionFile.renameTo(target)) {
                 sessionFile.delete();
             }
             sessionFile = null;

@@ -65,7 +65,6 @@ public class FloatingOverlayService extends Service {
     private static final long INTERVAL_SIGNAL = 2000;
     private static final long INTERVAL_FPS = 1000;
     private static final long INTERVAL_PROCESS = 2500;
-    private static final long INTERVAL_RECORD = 1000;
     private static final long SCHEDULER_TICK = 500;
 
     private interface StatSupplier {
@@ -153,7 +152,6 @@ public class FloatingOverlayService extends Service {
     private String lastMiniText = null;
 
     private long nextProcessDueMs = 0;
-    private long nextRecordDueMs = 0;
     private boolean fpsFirstSampleLogged = false;
     private int lastProcessRows = -2; // -2 = never sampled, -1 = empty parse
 
@@ -170,27 +168,10 @@ public class FloatingOverlayService extends Service {
             if (!schedulerRunning) {
                 return;
             }
-            // The FPS recorder is fed before the pause check on
-            // purpose: recording exists for fullscreen games, which
-            // is exactly when the overlays are paused. One sample
-            // per second at the FPS sampler's own cadence.
-            if (FpsRecorder.isRecording()) {
-                long nowRecording = System.currentTimeMillis();
-                if (nowRecording >= nextRecordDueMs) {
-                    nextRecordDueMs = nowRecording + INTERVAL_RECORD;
-                    int result = FpsRecorder.sampleNow(FloatingOverlayService.this);
-                    if (result == FpsRecorder.SAMPLE_LIMIT_REACHED) {
-                        mainHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                android.widget.Toast.makeText(FloatingOverlayService.this,
-                                        R.string.toast_recording_limit,
-                                        android.widget.Toast.LENGTH_LONG).show();
-                            }
-                        });
-                    }
-                }
-            }
+            // The FPS recorder is NOT fed from here anymore: since
+            // 6.3.7 it runs its own sampling loop, so a recording
+            // collects samples even while this service is down or
+            // every monitor window is off.
             if (!fpsFirstSampleLogged) {
                 Double fps = SystemStats.getFpsValue();
                 if (fps != null) {
@@ -1169,12 +1150,9 @@ public class FloatingOverlayService extends Service {
         if (instance == this) {
             instance = null;
         }
-        // A recording in progress belongs to this service's
-        // scheduler; if the service dies, finalize the session file
-        // instead of leaving a half-written ".tmp" behind.
-        if (FpsRecorder.isRecording()) {
-            FpsRecorder.stop(this);
-        }
+        // A recording in progress no longer depends on this
+        // service (it has its own sampling loop since 6.3.7), so it
+        // is deliberately left running when the overlay goes away.
         stopScheduler();
         if (this.telephonyManager != null && this.signalListener != null) {
             try {

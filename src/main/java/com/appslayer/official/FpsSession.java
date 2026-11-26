@@ -13,10 +13,14 @@ import java.util.List;
 //   #start,<millis>                      session start
 //   #app,<millis>,<package>              foreground app segment
 //   <millis>,<fps>,<cpuTemp>,<gpuTemp>,<battLevel>,<currentMa>,<voltageMv>
+//   #end,<millis>                        session stop (6.3.7+)
 // Empty fields mean that reading was unavailable for that sample.
 // While recording, the file carries a ".tmp" suffix and only gets
 // its final ".csv" name when the recording stops, so the sessions
-// list never shows a half-written session.
+// list never shows a half-written session. A finished session with
+// a "#start" but zero samples is a real session (a recording whose
+// FPS sources never answered): it loads with an empty sample list
+// and the UI marks it as no-data instead of hiding it.
 public class FpsSession {
 
     public static final String DIR_NAME = "fps_sessions";
@@ -149,6 +153,7 @@ public class FpsSession {
         List<Long> segmentStarts = new ArrayList<>();
         List<String> segmentPackages = new ArrayList<>();
         long startMs = -1;
+        long endMs = -1;
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new FileReader(file));
@@ -162,6 +167,13 @@ public class FpsSession {
                     Long value = PureCalc.parseRawLong(line.substring("#start,".length()));
                     if (value != null) {
                         startMs = value;
+                    }
+                    continue;
+                }
+                if (line.startsWith("#end,")) {
+                    Long value = PureCalc.parseRawLong(line.substring("#end,".length()));
+                    if (value != null) {
+                        endMs = value;
                     }
                     continue;
                 }
@@ -203,12 +215,26 @@ public class FpsSession {
             }
         }
         if (samples.isEmpty()) {
-            return null;
+            // A no-data session: the recording ran but no FPS
+            // source ever answered. It still loads — with its real
+            // start/end — so the list can show it marked as no-data
+            // instead of the recording vanishing without a trace.
+            // Files with neither samples nor a start line are not
+            // sessions at all and stay skipped.
+            if (startMs < 0) {
+                return null;
+            }
+            if (endMs < startMs) {
+                endMs = startMs;
+            }
+            return new FpsSession(file, startMs, endMs, null, samples);
         }
         if (startMs < 0) {
             startMs = samples.get(0).time;
         }
-        long endMs = samples.get(samples.size() - 1).time;
+        if (endMs < 0) {
+            endMs = samples.get(samples.size() - 1).time;
+        }
         long[] starts = new long[segmentStarts.size()];
         for (int i = 0; i < starts.length; i++) {
             starts[i] = segmentStarts.get(i);

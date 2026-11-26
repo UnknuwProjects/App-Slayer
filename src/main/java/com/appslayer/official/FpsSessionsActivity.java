@@ -71,13 +71,20 @@ public class FpsSessionsActivity extends Activity {
                 TextView subtitle = (TextView) view.findViewById(android.R.id.text2);
                 title.setText(appLabel(FpsSessionsActivity.this, session.packageName));
                 title.setTextColor(android.graphics.Color.WHITE);
-                PureCalc.FpsSummary summary = PureCalc.summarizeFps(session.fpsArray());
-                String avg = Double.isNaN(summary.avg)
-                        ? "—"
-                        : getString(R.string.fps_avg_short, summary.avg);
                 String date = new SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault())
                         .format(new Date(session.startTimeMs));
-                subtitle.setText(date + " · " + formatDuration(session.durationMs()) + " · " + avg);
+                if (session.samples.isEmpty()) {
+                    // A recording whose FPS sources never answered:
+                    // say so on the row instead of inventing figures.
+                    subtitle.setText(date + " · " + formatDuration(session.durationMs())
+                            + " · " + getString(R.string.fps_session_no_data));
+                } else {
+                    PureCalc.FpsSummary summary = PureCalc.summarizeFps(session.fpsArray());
+                    String avg = Double.isNaN(summary.avg)
+                            ? "—"
+                            : getString(R.string.fps_avg_short, summary.avg);
+                    subtitle.setText(date + " · " + formatDuration(session.durationMs()) + " · " + avg);
+                }
                 subtitle.setTextColor(android.graphics.Color.rgb(154, 160, 166));
                 return view;
             }
