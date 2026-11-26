@@ -269,7 +269,7 @@ for batt_id in battLevelText battLevelBar battStatusText battHealthText \
         battDesignValue battFullValue battSysHealthValue battSysHealthBar \
         battLiveStatusValue battCurrentValue battPowerValue battVoltageValue \
         battEstFullValue battEstLeftValue battRealCapValue battRealHealthValue \
-        battLastCalcValue; do
+        battLastCalcValue battScroll battCloseButton; do
     check "battery id in layout: $batt_id" "src/main/res/layout/dialog_battery_info.xml" "@+id/$batt_id"
     check "battery id in v21 layout: $batt_id" "src/main/res/layout-v21/dialog_battery_info.xml" "@+id/$batt_id"
     check "battery id referenced in code: $batt_id" "$SRC/FloatingMonitorActivity.java" "R.id.$batt_id"
@@ -378,6 +378,71 @@ check "CHANGELOG_ID has the 6.3.4 entry" "CHANGELOG_ID.md" '## 6.3.4'
 # 6.3.5: changelog entries.
 check "CHANGELOG has the 6.3.5 entry" "CHANGELOG.md" '## 6.3.5'
 check "CHANGELOG_ID has the 6.3.5 entry" "CHANGELOG_ID.md" '## 6.3.5'
+
+# 6.3.6: the battery dialog is a plain Dialog with a hand-sized
+# window. As a stock alert dialog the custom view measured itself
+# at full content height (taller than the screen), the panel ran
+# off the top of the display, the bars took the theme accent, and
+# the close button sat in the stock grey button strip. Now: the
+# window gets 24 dp side margins and an 88%-of-screen height cap,
+# the content scrolls inside the panel, the close button is a
+# layout view, and both bars carry the app green.
+check "battery dialog built as a plain Dialog" "$SRC/FloatingMonitorActivity.java" 'new Dialog('
+check "battery dialog window sized in code" "$SRC/FloatingMonitorActivity.java" 'sizeBatteryDialogWindow(dialog, content)'
+check "battery dialog height capped at 88 percent" "$SRC/FloatingMonitorActivity.java" 'metrics.heightPixels * 0.88f'
+check "battery dialog side margins in code" "$SRC/FloatingMonitorActivity.java" 'metrics.widthPixels - (int) (48 * metrics.density)'
+check "battery dialog window background transparent" "$SRC/FloatingMonitorActivity.java" 'window.setBackgroundDrawableResource(android.R.color.transparent)'
+check "battery dialog centered" "$SRC/FloatingMonitorActivity.java" 'params.gravity = Gravity.CENTER'
+check_absent "battery dialog no longer an alert dialog" "$SRC/FloatingMonitorActivity.java" 'AlertDialog'
+check_absent "battery dialog no stock positive button" "$SRC/FloatingMonitorActivity.java" 'setPositiveButton'
+check "battery panel drawable is the dark panel" "src/main/res/drawable/bg_battery_dialog.xml" '#111111'
+check "battery panel drawable is rounded" "src/main/res/drawable/bg_battery_dialog.xml" 'android:radius="16dp"'
+check "battery layout uses the panel drawable" "src/main/res/layout/dialog_battery_info.xml" '@drawable/bg_battery_dialog'
+check "battery layout uses the panel drawable (v21)" "src/main/res/layout-v21/dialog_battery_info.xml" '@drawable/bg_battery_dialog'
+check "battery scroll view wraps the content" "src/main/res/layout/dialog_battery_info.xml" '@+id/battScroll'
+check "battery scroll view wraps the content (v21)" "src/main/res/layout-v21/dialog_battery_info.xml" '@+id/battScroll'
+check "battery close button in layout" "src/main/res/layout/dialog_battery_info.xml" '@+id/battCloseButton'
+check "battery close button in layout (v21)" "src/main/res/layout-v21/dialog_battery_info.xml" '@+id/battCloseButton'
+check_count "battery bars tinted green" "src/main/res/layout/dialog_battery_info.xml" 'android:progressTint="#4caf50"' 2
+check_count "battery bars tinted green (v21)" "src/main/res/layout-v21/dialog_battery_info.xml" 'android:progressTint="#4caf50"' 2
+check_count "battery bar tracks tinted" "src/main/res/layout/dialog_battery_info.xml" 'android:progressBackgroundTint="#333333"' 2
+check_count "battery bar tracks tinted (v21)" "src/main/res/layout-v21/dialog_battery_info.xml" 'android:progressBackgroundTint="#333333"' 2
+
+# 6.3.6: the language picker's radio rows are wrap_content. With a
+# match_parent text area, the right-to-left Arabic label aligned
+# to the far side of its row, away from the radio; sized to the
+# label it stays next to the radio in LTR and RTL alike.
+RADIO_OUT=$(python3 - <<'PYEOF'
+import re, sys
+ok = True
+for path in ("src/main/res/layout/dialog_language_picker.xml",
+             "src/main/res/layout-v21/dialog_language_picker.xml"):
+    text = open(path, encoding="utf-8").read()
+    buttons = re.findall(r"<RadioButton\b[^>]*", text)
+    if len(buttons) != 7:
+        print(f"FAIL picker radio count in {path}: {len(buttons)}")
+        ok = False
+        continue
+    for b in buttons:
+        if 'android:layout_width="wrap_content"' not in b:
+            print(f"FAIL picker radio not wrap_content in {path}: {b[:80]}")
+            ok = False
+if ok:
+    print("PASS picker radios wrap_content (7 x 2 layouts)")
+    sys.exit(0)
+sys.exit(1)
+PYEOF
+)
+echo "$RADIO_OUT"
+if echo "$RADIO_OUT" | grep -q '^PASS'; then
+    PASS=$((PASS + 1))
+else
+    FAIL=$((FAIL + 1))
+fi
+
+# 6.3.6: changelog entries.
+check "CHANGELOG has the 6.3.6 entry" "CHANGELOG.md" '## 6.3.6'
+check "CHANGELOG_ID has the 6.3.6 entry" "CHANGELOG_ID.md" '## 6.3.6'
 
 # String parity across ALL locales: same key count everywhere.
 BASE_COUNT=$(grep -c '<string ' src/main/res/values/strings.xml)

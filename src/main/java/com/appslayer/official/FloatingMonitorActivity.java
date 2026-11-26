@@ -1,7 +1,7 @@
 package com.appslayer.official;
 
 import android.app.Activity;
-import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,12 +13,17 @@ import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -38,7 +43,7 @@ public class FloatingMonitorActivity extends Activity {
 
     // Battery Info dialog: single instance, refreshed live while
     // open (see showBatteryStatus).
-    private AlertDialog batteryDialog;
+    private Dialog batteryDialog;
     private volatile boolean batteryDialogRefreshing = false;
     private volatile boolean batteryInfoBusy = false;
 
@@ -62,6 +67,8 @@ public class FloatingMonitorActivity extends Activity {
     private TextView battRealCapValue;
     private TextView battRealHealthValue;
     private TextView battLastCalcValue;
+    private ScrollView battScroll;
+    private Button battCloseButton;
 
     // Temperature sensor list refresher, alive only while this
     // screen is in the foreground.
@@ -1294,16 +1301,23 @@ public class FloatingMonitorActivity extends Activity {
                                 .inflate(R.layout.dialog_battery_info, null);
                         bindBatteryDialogViews(content);
                         applyBatteryInfo(info);
-                        AlertDialog dialog = new AlertDialog.Builder(
-                                FloatingMonitorActivity.this, R.style.BatteryDialogTheme)
-                                .setView(content)
-                                .setPositiveButton(getString(R.string.dialog_close), new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface d, int which) {
-                                        d.dismiss();
-                                    }
-                                })
-                                .create();
+                        // A plain Dialog, sized by hand below: as a
+                        // stock alert dialog's custom view the panel
+                        // measured itself at full content height —
+                        // taller than the screen — and the top of the
+                        // panel slid off the display. The close button
+                        // lives in the layout for the same reason: the
+                        // stock button strip under the panel is not
+                        // ours to style.
+                        final Dialog dialog = new Dialog(
+                                FloatingMonitorActivity.this, R.style.BatteryDialogTheme);
+                        dialog.setContentView(content);
+                        battCloseButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                dialog.dismiss();
+                            }
+                        });
                         dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                             @Override
                             public void onDismiss(DialogInterface d) {
@@ -1315,6 +1329,7 @@ public class FloatingMonitorActivity extends Activity {
                         });
                         batteryDialog = dialog;
                         dialog.show();
+                        sizeBatteryDialogWindow(dialog, content);
                         startBatteryDialogRefresh();
                     }
                 });
@@ -1340,6 +1355,54 @@ public class FloatingMonitorActivity extends Activity {
         battRealCapValue = (TextView) root.findViewById(R.id.battRealCapValue);
         battRealHealthValue = (TextView) root.findViewById(R.id.battRealHealthValue);
         battLastCalcValue = (TextView) root.findViewById(R.id.battLastCalcValue);
+        battScroll = (ScrollView) root.findViewById(R.id.battScroll);
+        battCloseButton = (Button) root.findViewById(R.id.battCloseButton);
+    }
+
+    // Sizes the battery dialog window: 24 dp margins on both sides
+    // and a height cap of 88% of the screen, centered. The panel
+    // starts at the cap; once it has been laid out, if the content
+    // is shorter than the cap the window shrinks to fit it. Taller
+    // content keeps the cap and scrolls inside the panel.
+    private void sizeBatteryDialogWindow(final Dialog dialog, final View content) {
+        final Window window = dialog.getWindow();
+        if (window == null) {
+            return;
+        }
+        window.setBackgroundDrawableResource(android.R.color.transparent);
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        final int maxHeight = (int) (metrics.heightPixels * 0.88f);
+        WindowManager.LayoutParams params = window.getAttributes();
+        params.width = metrics.widthPixels - (int) (48 * metrics.density);
+        params.height = maxHeight;
+        params.gravity = Gravity.CENTER;
+        window.setAttributes(params);
+        content.post(new Runnable() {
+            @Override
+            public void run() {
+                if (!dialog.isShowing() || battScroll == null
+                        || battScroll.getChildCount() == 0) {
+                    return;
+                }
+                // The ScrollView's child is measured at its full
+                // height even while the view itself is capped, so
+                // the wanted height is the child's height plus the
+                // close row (the part of the panel outside the
+                // ScrollView).
+                int wanted = battScroll.getChildAt(0).getHeight()
+                        + (content.getHeight() - battScroll.getHeight());
+                Window w = dialog.getWindow();
+                if (w == null) {
+                    return;
+                }
+                WindowManager.LayoutParams p = w.getAttributes();
+                int target = Math.min(wanted, maxHeight);
+                if (target > 0 && p.height != target) {
+                    p.height = target;
+                    w.setAttributes(p);
+                }
+            }
+        });
     }
 
     // Pushes one snapshot into the dialog's views. UI thread only.
@@ -1392,7 +1455,7 @@ public class FloatingMonitorActivity extends Activity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            AlertDialog dialog = batteryDialog;
+                            Dialog dialog = batteryDialog;
                             if (dialog != null && dialog.isShowing()) {
                                 applyBatteryInfo(info);
                             }
