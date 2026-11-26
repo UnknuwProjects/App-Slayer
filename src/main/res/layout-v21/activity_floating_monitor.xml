@@ -9,7 +9,8 @@
         <TextView android:id="@+id/diagLastAdd" android:textSize="14sp" android:textColor="#ffffff" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="4dp"/>
         <TextView android:id="@+id/diagNotifPermission" android:textSize="14sp" android:textColor="#ffffff" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="4dp"/>
         <TextView android:id="@+id/diagNotifService" android:textSize="14sp" android:textColor="#ffffff" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp"/>
-        <Button android:textSize="14sp" android:id="@+id/btnTestOverlay" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="16dp" android:text="@string/diag_test"/>
+        <Button android:textSize="14sp" android:id="@+id/btnTestOverlay" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="8dp" android:text="@string/diag_test"/>
+        <Button android:textSize="14sp" android:id="@+id/btnTestFunctions" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="16dp" android:text="@string/btn_test_functions"/>
         <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="4dp">
             <Button android:textSize="13sp" android:id="@+id/btnRunChecks" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/diag_run_checks"/>
             <Button android:textSize="13sp" android:id="@+id/btnShareLog" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/diag_share_log"/>

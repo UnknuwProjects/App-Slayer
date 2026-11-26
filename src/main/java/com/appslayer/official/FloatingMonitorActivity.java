@@ -478,6 +478,16 @@ public class FloatingMonitorActivity extends Activity {
                 }
             });
         }
+        Button testFunctionsButton = (Button) findViewById(R.id.btnTestFunctions);
+        if (testFunctionsButton != null) {
+            testFunctionsButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(FloatingMonitorActivity.this,
+                            FunctionTestActivity.class));
+                }
+            });
+        }
         Button runChecksButton = (Button) findViewById(R.id.btnRunChecks);
         if (runChecksButton != null) {
             runChecksButton.setOnClickListener(new View.OnClickListener() {

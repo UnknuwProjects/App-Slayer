@@ -48,6 +48,11 @@
             android:theme="@android:style/Theme.Holo.Light.DarkActionBar" />
 
         <activity
+            android:name="com.appslayer.official.FunctionTestActivity"
+            android:exported="false"
+            android:theme="@android:style/Theme.Holo.Light.DarkActionBar" />
+
+        <activity
             android:name="com.appslayer.official.FpsSessionsActivity"
             android:exported="false"
             android:theme="@android:style/Theme.Holo.Light.DarkActionBar" />

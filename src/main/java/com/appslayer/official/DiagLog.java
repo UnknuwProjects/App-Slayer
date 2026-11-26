@@ -181,10 +181,23 @@ public final class DiagLog {
         }).start();
     }
 
-    private static void flushMirrorNow(Context context) {
+    // Synchronous mirror flush, for the function test: true when
+    // the copy actually landed on shared storage.
+    public static boolean flushMirrorSync(Context context) {
+        if (context == null) {
+            return false;
+        }
+        try {
+            return flushMirrorNow(context.getApplicationContext());
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private static boolean flushMirrorNow(Context context) {
         File primary = file(context);
         if (primary == null || !primary.exists()) {
-            return;
+            return false;
         }
         String out = SystemStats.runShellCommand(
                 "mkdir -p " + MIRROR_DIR + " && cp " + primary.getAbsolutePath()
@@ -194,6 +207,8 @@ public final class DiagLog {
             // through the raw append so a dead shell cannot loop.
             append(context, "SYS",
                     "log mirror to shared storage failed (root shell unavailable)", false);
+            return false;
         }
+        return true;
     }
 }
