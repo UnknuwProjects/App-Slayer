@@ -249,6 +249,50 @@ check "drag marks a window custom" "$SRC/FloatingOverlayService.java" '"_customp
 check "CHANGELOG has the 6.3.2 entry" "CHANGELOG.md" '## 6.3.2'
 check "CHANGELOG_ID has the 6.3.2 entry" "CHANGELOG_ID.md" '## 6.3.2'
 
+# 6.3.3: Battery Information is a structured, themed layout now —
+# header + cards, values updated in place by id on every refresh.
+# The one-big-message-string dialog is gone.
+check "battery dialog layout exists" "src/main/res/layout/dialog_battery_info.xml" 'battLevelText'
+check "battery dialog layout exists (v21)" "src/main/res/layout-v21/dialog_battery_info.xml" 'battLevelText'
+check "battery dialog inflated" "$SRC/FloatingMonitorActivity.java" 'R.layout.dialog_battery_info'
+check "battery dialog dark theme" "$SRC/FloatingMonitorActivity.java" 'R.style.BatteryDialogTheme'
+check "battery dialog theme (Holo)" "src/main/res/values/styles.xml" 'BatteryDialogTheme'
+check "battery dialog theme (Material)" "src/main/res/values-v21/styles.xml" 'BatteryDialogTheme'
+check_count "battery snapshot applied at create and on refresh" "$SRC/FloatingMonitorActivity.java" 'applyBatteryInfo(info)' 2
+check "battery views bound from the layout" "$SRC/FloatingMonitorActivity.java" 'bindBatteryDialogViews(content)'
+check_absent "battery dialog no longer uses setMessage" "$SRC/FloatingMonitorActivity.java" 'setMessage('
+check_absent "old battery text-dump string removed (ID)" "src/main/res/values/strings.xml" 'battery_info_message'
+check_absent "old battery text-dump string removed (EN)" "src/main/res/values-en/strings.xml" 'battery_info_message'
+check "battery voltage row wired" "$SRC/FloatingMonitorActivity.java" 'info.voltageText'
+check "battery health bar hides when not numeric" "$SRC/FloatingMonitorActivity.java" 'battSysHealthBar.setVisibility(View.GONE)'
+for batt_id in battLevelText battLevelBar battStatusText battHealthText \
+        battDesignValue battFullValue battSysHealthValue battSysHealthBar \
+        battLiveStatusValue battCurrentValue battPowerValue battVoltageValue \
+        battEstFullValue battEstLeftValue battRealCapValue battRealHealthValue \
+        battLastCalcValue; do
+    check "battery id in layout: $batt_id" "src/main/res/layout/dialog_battery_info.xml" "@+id/$batt_id"
+    check "battery id in v21 layout: $batt_id" "src/main/res/layout-v21/dialog_battery_info.xml" "@+id/$batt_id"
+    check "battery id referenced in code: $batt_id" "$SRC/FloatingMonitorActivity.java" "R.id.$batt_id"
+done
+
+# 6.3.3: root probe outcomes are split — "su could not even be
+# executed" (error=13) is its own case with its own wording, in the
+# self-test and in the main screen's request-root toast.
+check "probe reports execdenied" "$SRC/SystemStats.java" '"execdenied"'
+check "probe detects error=13" "$SRC/SystemStats.java" 'msg.contains("error=13")'
+check "self-test maps execdenied wording" "$SRC/FunctionTester.java" 'R.string.test_root_exec_denied'
+check "request-root toast maps execdenied" "$SRC/MainActivity.java" 'R.string.toast_root_exec_denied'
+check "request-root toast maps notfound" "$SRC/MainActivity.java" 'R.string.toast_root_notfound'
+check "request-root toast maps timeout" "$SRC/MainActivity.java" 'R.string.toast_root_timeout'
+check "exec-denied string (ID)" "src/main/res/values/strings.xml" 'test_root_exec_denied'
+check "exec-denied string (EN)" "src/main/res/values-en/strings.xml" 'test_root_exec_denied'
+check "exec-denied toast (ID)" "src/main/res/values/strings.xml" 'toast_root_exec_denied'
+check "exec-denied toast (EN)" "src/main/res/values-en/strings.xml" 'toast_root_exec_denied'
+
+# 6.3.3: changelog entries.
+check "CHANGELOG has the 6.3.3 entry" "CHANGELOG.md" '## 6.3.3'
+check "CHANGELOG_ID has the 6.3.3 entry" "CHANGELOG_ID.md" '## 6.3.3'
+
 # String parity between the two locales.
 ID_COUNT=$(grep -c '<string ' src/main/res/values/strings.xml)
 EN_COUNT=$(grep -c '<string ' src/main/res/values-en/strings.xml)

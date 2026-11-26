@@ -428,8 +428,10 @@ public class SystemStats {
 
     // Outcome of a fresh `su -c id` probe. Status is one of:
     // "uid0" (root granted), "denied" (su answered but refused, or
-    // exited non-zero), "notfound" (no su binary), "timeout" (su
-    // never answered — usually a grant prompt nobody approved),
+    // exited non-zero), "execdenied" (the su process could not even
+    // be started — exec error=13, the app is not on the root
+    // manager's allow list), "notfound" (no su binary), "timeout"
+    // (su never answered — usually a grant prompt nobody approved),
     // "error" (anything else). Detail carries the first output
     // line, for the log and the UI.
     public static class RootProbe {
@@ -459,7 +461,17 @@ public class SystemStats {
             String msg = e.getMessage();
             boolean missing = msg != null
                     && (msg.contains("No such file") || msg.contains("error=2"));
-            return new RootProbe(missing ? "notfound" : "error", firstLine(msg));
+            if (missing) {
+                return new RootProbe("notfound", firstLine(msg));
+            }
+            // error=13 starting the process means su exists but the
+            // kernel/root manager will not let this app execute it —
+            // the app simply is not granted root. That is a different
+            // story from su running and refusing, so it gets its own
+            // status and its own wording in the UI.
+            boolean execDenied = msg != null
+                    && (msg.contains("error=13") || msg.contains("Permission denied"));
+            return new RootProbe(execDenied ? "execdenied" : "error", firstLine(msg));
         }
         final Process process = probe;
         final StringBuffer outBuf = new StringBuffer();

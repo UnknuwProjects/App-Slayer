@@ -88,8 +88,11 @@ public final class FunctionTester {
 
     // (a) Root shell: a FRESH `su -c id`, never the cached shell,
     // so a stuck or never-granted persistent shell cannot mask the
-    // real state. The probe reports uid=0 / denied / not found /
-    // timeout in its own words.
+    // real state. Each probe outcome gets its own wording — most
+    // importantly "execdenied" (su could not even be started,
+    // error=13) is NOT lumped in with "denied" (su ran and
+    // refused): the old text claimed su had answered when it had
+    // never run at all.
     private static Result testRoot(Context context) {
         String name = context.getString(R.string.test_name_root);
         try {
@@ -98,7 +101,14 @@ public final class FunctionTester {
                 return new Result(name, true, probe.detail);
             }
             int reasonRes;
-            if ("notfound".equals(probe.status)) {
+            boolean appendDetail = true;
+            if ("execdenied".equals(probe.status)) {
+                reasonRes = R.string.test_root_exec_denied;
+                // The string already says everything; the raw exec
+                // error behind it is just noise ("Cannot run
+                // program...") — it stays in the diagnostic log.
+                appendDetail = false;
+            } else if ("notfound".equals(probe.status)) {
                 reasonRes = R.string.test_root_notfound;
             } else if ("timeout".equals(probe.status)) {
                 reasonRes = R.string.test_root_timeout;
@@ -106,7 +116,7 @@ public final class FunctionTester {
                 reasonRes = R.string.test_root_denied;
             }
             String detail = context.getString(reasonRes);
-            if (!probe.detail.isEmpty()) {
+            if (appendDetail && !probe.detail.isEmpty()) {
                 detail += " (" + probe.detail + ")";
             }
             return new Result(name, false, detail);

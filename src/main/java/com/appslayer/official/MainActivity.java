@@ -447,7 +447,14 @@ public class MainActivity extends Activity {
             }
             this.suError = getString(R.string.error_root_denied);
         } catch (Exception e) {
-            this.suError = e.getMessage();
+            String msg = e.getMessage();
+            // su could not even be executed (error=13): say that in
+            // plain words instead of surfacing the raw exec error.
+            if (msg != null && (msg.contains("error=13") || msg.contains("Permission denied"))) {
+                this.suError = getString(R.string.test_root_exec_denied);
+            } else {
+                this.suError = msg;
+            }
         }
         this.rootAvailable = false;
         return false;
@@ -516,6 +523,22 @@ public class MainActivity extends Activity {
                 }
                 DiagLog.log("SYS", "root probe: " + probe.status
                         + (probe.detail.isEmpty() ? "" : " (" + probe.detail + ")"));
+                // The toast names the actual outcome — granted,
+                // su not executable (not on the Superuser list),
+                // su missing, no answer, or refused — instead of one
+                // generic "not granted" for everything.
+                final int toastRes;
+                if (probe.granted()) {
+                    toastRes = R.string.toast_root_granted;
+                } else if ("execdenied".equals(probe.status)) {
+                    toastRes = R.string.toast_root_exec_denied;
+                } else if ("notfound".equals(probe.status)) {
+                    toastRes = R.string.toast_root_notfound;
+                } else if ("timeout".equals(probe.status)) {
+                    toastRes = R.string.toast_root_timeout;
+                } else {
+                    toastRes = R.string.toast_root_denied;
+                }
                 mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -523,9 +546,7 @@ public class MainActivity extends Activity {
                             button.setEnabled(true);
                         }
                         rootCheckDone = true;
-                        Toast.makeText(MainActivity.this,
-                                probe.granted() ? R.string.toast_root_granted
-                                        : R.string.toast_root_denied,
+                        Toast.makeText(MainActivity.this, toastRes,
                                 Toast.LENGTH_LONG).show();
                         updateRootRow();
                     }
