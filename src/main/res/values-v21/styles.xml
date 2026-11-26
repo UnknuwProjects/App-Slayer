@@ -2,6 +2,17 @@
 <resources>
     <style name="AppTheme" parent="@android:style/Theme.Material.Light">
 	</style>
+    <!-- Main screen only: no stock action bar, and the status bar
+         takes the page background color so the top of the screen is
+         one clean dark surface. -->
+    <style name="MainTheme" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:statusBarColor">#050607</item>
+        <item name="android:windowBackground">#050607</item>
+	</style>
+    <!-- Bottom-sheet language picker: dialog chrome only; the panel
+         itself is drawn by bg_language_sheet. -->
+    <style name="LanguagePickerTheme" parent="@android:style/Theme.Material.Dialog">
+	</style>
     <!-- Dark dialog chrome so the Battery Information dialog matches
          the app's black screens instead of the light app theme. -->
     <style name="BatteryDialogTheme" parent="@android:style/Theme.Material.Dialog">

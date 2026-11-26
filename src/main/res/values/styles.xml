@@ -2,6 +2,15 @@
 <resources>
     <style name="AppTheme" parent="@android:style/Theme.Holo.Light">
 	</style>
+    <!-- Main screen only: no stock action bar. The title and the two
+         header actions live in the layout itself, on the dark page
+         background. Sub-screens keep the app theme untouched. -->
+    <style name="MainTheme" parent="@android:style/Theme.Holo.NoActionBar">
+	</style>
+    <!-- Bottom-sheet language picker: dialog chrome only; the panel
+         itself is drawn by bg_language_sheet. -->
+    <style name="LanguagePickerTheme" parent="@android:style/Theme.Holo.Dialog">
+	</style>
     <!-- Dark dialog chrome so the Battery Information dialog matches
          the app's black screens instead of the light app theme. -->
     <style name="BatteryDialogTheme" parent="@android:style/Theme.Holo.Dialog">

@@ -2,6 +2,7 @@ package com.appslayer.official;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -17,12 +18,18 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -88,6 +95,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        wireHeaderButtons();
         this.textCurrentModeName = (TextView) findViewById(R.id.textCurrentModeName);
         this.textCurrentModeDesc = (TextView) findViewById(R.id.textCurrentModeDesc);
         this.cardModeNormal = findViewById(R.id.cardModeNormal);
@@ -243,7 +251,7 @@ public class MainActivity extends Activity {
         findViewById(R.id.rowLanguage).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                toggleLanguage();
+                showLanguagePicker();
             }
         });
         this.btnCheckUpdate.setOnClickListener(new View.OnClickListener() {
@@ -406,16 +414,120 @@ public class MainActivity extends Activity {
     }
 
     private void updateLanguageRow() {
-        boolean english = "en".equals(LocaleHelper.getEffectiveLanguage(this));
-        this.textLanguageState.setText(english ? R.string.language_name_en : R.string.language_name_id);
+        String saved = LocaleHelper.getSavedLanguage(this);
+        int nameRes;
+        if (saved.isEmpty()) {
+            nameRes = R.string.language_name_system;
+        } else if ("en".equals(saved)) {
+            nameRes = R.string.language_name_en;
+        } else if ("zh".equals(saved)) {
+            nameRes = R.string.language_name_zh;
+        } else if ("hi".equals(saved)) {
+            nameRes = R.string.language_name_hi;
+        } else if ("es".equals(saved)) {
+            nameRes = R.string.language_name_es;
+        } else if ("ar".equals(saved)) {
+            nameRes = R.string.language_name_ar;
+        } else {
+            nameRes = R.string.language_name_id;
+        }
+        this.textLanguageState.setText(nameRes);
     }
 
-    private void toggleLanguage() {
-        String current = LocaleHelper.getEffectiveLanguage(this);
-        String next = "en".equals(current) ? "id" : "en";
-        DiagLog.log("USER", "language: " + current + " -> " + next);
-        LocaleHelper.saveLanguage(this, next);
-        recreate();
+    // Language codes in picker order; "" follows the system language.
+    private static final String[] LANGUAGE_CODES = {"", "id", "en", "zh", "hi", "es", "ar"};
+    private static final int[] LANGUAGE_RADIO_IDS = {
+            R.id.radioLangSystem, R.id.radioLangId, R.id.radioLangEn,
+            R.id.radioLangZh, R.id.radioLangHi, R.id.radioLangEs, R.id.radioLangAr
+    };
+
+    // Bottom-sheet language picker: a dark panel anchored to the
+    // bottom of the screen with a radio list. Picking an entry saves
+    // it through LocaleHelper and recreates, exactly like the old
+    // two-language toggle did; Cancel just closes the sheet.
+    private void showLanguagePicker() {
+        final Dialog dialog = new Dialog(this, R.style.LanguagePickerTheme);
+        dialog.setContentView(R.layout.dialog_language_picker);
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.setBackgroundDrawableResource(android.R.color.transparent);
+            WindowManager.LayoutParams params = window.getAttributes();
+            params.gravity = Gravity.BOTTOM;
+            params.width = WindowManager.LayoutParams.MATCH_PARENT;
+            params.height = WindowManager.LayoutParams.WRAP_CONTENT;
+            window.setAttributes(params);
+        }
+        RadioGroup group = (RadioGroup) dialog.findViewById(R.id.radioLanguages);
+        String saved = LocaleHelper.getSavedLanguage(this);
+        int checkedIndex = 0;
+        for (int i = 0; i < LANGUAGE_CODES.length; i++) {
+            if (LANGUAGE_CODES[i].equals(saved)) {
+                checkedIndex = i;
+                break;
+            }
+        }
+        // Check the current language before the listener is attached,
+        // so opening the sheet never re-applies it.
+        group.check(LANGUAGE_RADIO_IDS[checkedIndex]);
+        group.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
+                for (int i = 0; i < LANGUAGE_RADIO_IDS.length; i++) {
+                    if (LANGUAGE_RADIO_IDS[i] == checkedId) {
+                        String next = LANGUAGE_CODES[i];
+                        String current = LocaleHelper.getSavedLanguage(MainActivity.this);
+                        if (!next.equals(current)) {
+                            DiagLog.log("USER", "language: " + current + " -> " + next);
+                            LocaleHelper.saveLanguage(MainActivity.this, next);
+                            dialog.dismiss();
+                            recreate();
+                        }
+                        return;
+                    }
+                }
+            }
+        });
+        dialog.findViewById(R.id.btnLanguageCancel).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
+    }
+
+    // The main screen has no stock action bar anymore (MainTheme);
+    // the two actions that lived in it sit in the layout's header
+    // row instead and run the exact same code paths: the gear opens
+    // the Floating Monitor, the overflow button pops up the same
+    // main menu and feeds its items to onOptionsItemSelected.
+    private void wireHeaderButtons() {
+        ImageButton btnMonitor = (ImageButton) findViewById(R.id.btnHeaderMonitor);
+        if (btnMonitor != null) {
+            btnMonitor.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(MainActivity.this, FloatingMonitorActivity.class));
+                }
+            });
+        }
+        ImageButton btnOverflow = (ImageButton) findViewById(R.id.btnHeaderOverflow);
+        if (btnOverflow != null) {
+            btnOverflow.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    PopupMenu popup = new PopupMenu(MainActivity.this, v);
+                    popup.getMenuInflater().inflate(R.menu.main_menu, popup.getMenu());
+                    popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            return onOptionsItemSelected(item);
+                        }
+                    });
+                    popup.show();
+                }
+            });
+        }
     }
 
     // Opens MainActivity's own su session (mode writes and the
@@ -915,7 +1027,7 @@ public class MainActivity extends Activity {
             return true;
         }
         if (id == R.id.menu_language) {
-            toggleLanguage();
+            showLanguagePicker();
             return true;
         }
         return super.onOptionsItemSelected(item);

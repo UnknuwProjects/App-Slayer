@@ -293,14 +293,141 @@ check "exec-denied toast (EN)" "src/main/res/values-en/strings.xml" 'toast_root_
 check "CHANGELOG has the 6.3.3 entry" "CHANGELOG.md" '## 6.3.3'
 check "CHANGELOG_ID has the 6.3.3 entry" "CHANGELOG_ID.md" '## 6.3.3'
 
-# String parity between the two locales.
-ID_COUNT=$(grep -c '<string ' src/main/res/values/strings.xml)
-EN_COUNT=$(grep -c '<string ' src/main/res/values-en/strings.xml)
-if [ "$ID_COUNT" = "$EN_COUNT" ]; then
-    echo "PASS string parity ID=EN ($ID_COUNT)"
+# 6.3.4: the main screen loses the stock action bar. MainActivity
+# gets its own NoActionBar theme (sub-screens keep the app theme),
+# the status bar takes the page color, and the title plus the two
+# old bar actions live in an in-layout header row wired to the same
+# handlers: gear -> Floating Monitor, overflow -> the same main
+# menu through a PopupMenu feeding onOptionsItemSelected.
+check "MainActivity uses MainTheme" "src/main/AndroidManifest.xml" '@style/MainTheme'
+check "MainTheme is Holo NoActionBar (base)" "src/main/res/values/styles.xml" 'Theme.Holo.NoActionBar'
+check "MainTheme is Material NoActionBar (v21)" "src/main/res/values-v21/styles.xml" 'Theme.Material.NoActionBar'
+check "status bar takes the page color" "src/main/res/values-v21/styles.xml" 'android:statusBarColor'
+check "header row in main layout" "src/main/res/layout/main.xml" 'headerRow'
+check "header row in v21 main layout" "src/main/res/layout-v21/main.xml" 'headerRow'
+check "centered title in main layout" "src/main/res/layout/main.xml" 'textHeaderTitle'
+check "centered title in v21 main layout" "src/main/res/layout-v21/main.xml" 'textHeaderTitle'
+check "title text is app_name" "src/main/res/layout/main.xml" '@string/app_name'
+check "gear button in main layout" "src/main/res/layout/main.xml" 'btnHeaderMonitor'
+check "gear button in v21 main layout" "src/main/res/layout-v21/main.xml" 'btnHeaderMonitor'
+check "overflow button in main layout" "src/main/res/layout/main.xml" 'btnHeaderOverflow'
+check "overflow button in v21 main layout" "src/main/res/layout-v21/main.xml" 'btnHeaderOverflow'
+check "overflow icon referenced in main layout" "src/main/res/layout/main.xml" '@drawable/ic_overflow'
+check "overflow icon is a vector" "src/main/res/drawable/ic_overflow.xml" '<vector'
+check "header wiring in MainActivity" "$SRC/MainActivity.java" 'wireHeaderButtons()'
+check "gear button wired" "$SRC/MainActivity.java" 'R.id.btnHeaderMonitor'
+check "overflow button wired" "$SRC/MainActivity.java" 'R.id.btnHeaderOverflow'
+check "overflow opens a PopupMenu" "$SRC/MainActivity.java" 'new PopupMenu(MainActivity.this, v)'
+check_count "main menu inflated by bar and popup" "$SRC/MainActivity.java" 'R.menu.main_menu' 2
+check "menu monitor handler kept" "$SRC/MainActivity.java" 'R.id.menu_monitor'
+check "menu language handler kept" "$SRC/MainActivity.java" 'R.id.menu_language'
+
+# 6.3.4: language picking is a bottom sheet now — a dark rounded
+# panel with a radio list (system default + six languages), applied
+# through the same LocaleHelper save + recreate path; the old
+# two-language toggle is gone. Entry points unchanged: the main
+# screen language row and the overflow menu item.
+check "language sheet layout" "src/main/res/layout/dialog_language_picker.xml" 'radioLanguages'
+check "language sheet layout (v21)" "src/main/res/layout-v21/dialog_language_picker.xml" 'radioLanguages'
+check "sheet panel drawable used" "src/main/res/layout/dialog_language_picker.xml" '@drawable/bg_language_sheet'
+check "sheet title from strings" "src/main/res/layout/dialog_language_picker.xml" '@string/language_picker_title'
+check "sheet cancel button" "src/main/res/layout/dialog_language_picker.xml" 'btnLanguageCancel'
+check "sheet drawable is rounded panel" "src/main/res/drawable/bg_language_sheet.xml" 'topLeftRadius="16dp"'
+check "picker theme (base)" "src/main/res/values/styles.xml" 'LanguagePickerTheme'
+check "picker theme (v21)" "src/main/res/values-v21/styles.xml" 'LanguagePickerTheme'
+check "picker shown by MainActivity" "$SRC/MainActivity.java" 'showLanguagePicker()'
+check "picker inflates the sheet layout" "$SRC/MainActivity.java" 'R.layout.dialog_language_picker'
+check "picker anchored to the bottom" "$SRC/MainActivity.java" 'Gravity.BOTTOM'
+check "picker saves through LocaleHelper" "$SRC/MainActivity.java" 'LocaleHelper.saveLanguage(MainActivity.this, next)'
+check "language codes include zh hi es ar" "$SRC/MainActivity.java" '"", "id", "en", "zh", "hi", "es", "ar"'
+check_absent "old language toggle removed" "$SRC/MainActivity.java" 'toggleLanguage'
+check "picker title string (ID)" "src/main/res/values/strings.xml" 'language_picker_title'
+check "picker title string (ZH)" "src/main/res/values-zh/strings.xml" 'language_picker_title'
+check "picker title string (HI)" "src/main/res/values-hi/strings.xml" 'language_picker_title'
+check "picker title string (ES)" "src/main/res/values-es/strings.xml" 'language_picker_title'
+check "picker title string (AR)" "src/main/res/values-ar/strings.xml" 'language_picker_title'
+
+# 6.3.4: README screenshots are the current build's screens.
+check "README shows the main screenshot" "README.md" 'screenshots/main.png'
+check "README shows the language picker shot" "README.md" 'screenshots/language-picker.png'
+check "README_ID shows the main screenshot" "README_ID.md" 'screenshots/main.png'
+check "README_ID shows the language picker shot" "README_ID.md" 'screenshots/language-picker.png'
+check_absent "old screenshots gone from README" "README.md" 'Screenshot_20260927'
+check_absent "old screenshots gone from README_ID" "README_ID.md" 'Screenshot_20260927'
+
+# 6.3.4: changelog entries.
+check "CHANGELOG has the 6.3.4 entry" "CHANGELOG.md" '## 6.3.4'
+check "CHANGELOG_ID has the 6.3.4 entry" "CHANGELOG_ID.md" '## 6.3.4'
+
+# String parity across ALL locales: same key count everywhere.
+BASE_COUNT=$(grep -c '<string ' src/main/res/values/strings.xml)
+PARITY_OK=1
+for loc in values-en values-zh values-hi values-es values-ar; do
+    C=$(grep -c '<string ' "src/main/res/$loc/strings.xml")
+    if [ "$C" != "$BASE_COUNT" ]; then
+        echo "FAIL string count $loc=$C base=$BASE_COUNT"
+        PARITY_OK=0
+    fi
+done
+if [ "$PARITY_OK" = "1" ]; then
+    echo "PASS string parity all locales ($BASE_COUNT)"
     PASS=$((PASS + 1))
 else
-    echo "FAIL string parity ID=$ID_COUNT EN=$EN_COUNT"
+    FAIL=$((FAIL + 1))
+fi
+
+# Per-key format-specifier parity across all locales: every key in
+# every locale must carry the same multiset of format specifiers
+# (index + conversion) as the Indonesian base, so a translation can
+# never drop or reorder a %1$s / %2$d the code fills in.
+SPEC_OUT=$(python3 - <<'PYEOF'
+import re, sys
+from collections import Counter
+
+LOCALES = ["values", "values-en", "values-zh", "values-hi", "values-es", "values-ar"]
+# Only two token kinds are real in this codebase (verified against
+# the base file): indexed specifiers (%1$s, %2$.2f, ...) and the %%
+# literal. A bare "%" in prose ("95% saat") is not a specifier and
+# must not count, or literal-percent notes false-positive.
+SPEC = re.compile(r"%%|%(\d+)\$[-+ 0,(]*\d*(?:\.\d+)?([a-zA-Z])")
+ENTRY = re.compile(r'<string name="([^"]+)">(.*?)</string>', re.S)
+
+def tokens(value):
+    out = Counter()
+    for m in SPEC.finditer(value):
+        if m.group(0) == "%%":
+            out[("%", "%")] += 1
+        else:
+            out[(m.group(1), m.group(2))] += 1
+    return out
+
+def load(loc):
+    with open(f"src/main/res/{loc}/strings.xml", encoding="utf-8") as f:
+        text = f.read()
+    return {k: tokens(v) for k, v in ENTRY.findall(text)}
+
+base = load("values")
+problems = []
+for loc in LOCALES[1:]:
+    other = load(loc)
+    if set(other) != set(base):
+        problems.append(f"{loc}: key set differs (missing={sorted(set(base)-set(other))[:3]} extra={sorted(set(other)-set(base))[:3]})")
+        continue
+    for key in base:
+        if other[key] != base[key]:
+            problems.append(f"{loc}:{key}: base={sorted(base[key])} got={sorted(other[key])}")
+if problems:
+    print("FAIL format-specifier parity")
+    for p in problems[:10]:
+        print("  " + p)
+    sys.exit(1)
+print(f"PASS format-specifier parity ({len(base)} keys x {len(LOCALES)} locales)")
+PYEOF
+)
+echo "$SPEC_OUT"
+if echo "$SPEC_OUT" | grep -q '^PASS'; then
+    PASS=$((PASS + 1))
+else
     FAIL=$((FAIL + 1))
 fi
 

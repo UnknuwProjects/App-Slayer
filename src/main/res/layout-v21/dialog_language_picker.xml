@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Bottom-sheet language picker: a dark rounded panel anchored to
+     the bottom of the screen. Picking a radio applies the language
+     at once; Cancel closes without changing anything. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical" android:background="@drawable/bg_language_sheet" android:padding="20dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+
+    <TextView android:text="@string/language_picker_title" android:textColor="#ffffff" android:textSize="17sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+
+    <RadioGroup android:id="@+id/radioLanguages" android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp">
+        <RadioButton android:id="@+id/radioLangSystem" android:text="@string/language_name_system" android:textColor="#ffffff" android:textSize="15sp" android:buttonTint="#448aff" android:paddingTop="10dp" android:paddingBottom="10dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <RadioButton android:id="@+id/radioLangId" android:text="@string/language_name_id" android:textColor="#ffffff" android:textSize="15sp" android:buttonTint="#448aff" android:paddingTop="10dp" android:paddingBottom="10dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <RadioButton android:id="@+id/radioLangEn" android:text="@string/language_name_en" android:textColor="#ffffff" android:textSize="15sp" android:buttonTint="#448aff" android:paddingTop="10dp" android:paddingBottom="10dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <RadioButton android:id="@+id/radioLangZh" android:text="@string/language_name_zh" android:textColor="#ffffff" android:textSize="15sp" android:buttonTint="#448aff" android:paddingTop="10dp" android:paddingBottom="10dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <RadioButton android:id="@+id/radioLangHi" android:text="@string/language_name_hi" android:textColor="#ffffff" android:textSize="15sp" android:buttonTint="#448aff" android:paddingTop="10dp" android:paddingBottom="10dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <RadioButton android:id="@+id/radioLangEs" android:text="@string/language_name_es" android:textColor="#ffffff" android:textSize="15sp" android:buttonTint="#448aff" android:paddingTop="10dp" android:paddingBottom="10dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <RadioButton android:id="@+id/radioLangAr" android:text="@string/language_name_ar" android:textColor="#ffffff" android:textSize="15sp" android:buttonTint="#448aff" android:paddingTop="10dp" android:paddingBottom="10dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+    </RadioGroup>
+
+    <LinearLayout android:orientation="horizontal" android:gravity="end" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp">
+        <Button android:id="@+id/btnLanguageCancel" android:text="@string/dialog_cancel" android:textColor="#4caf50" android:textSize="14sp" android:textStyle="bold" android:background="?android:attr/selectableItemBackground" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+</LinearLayout>

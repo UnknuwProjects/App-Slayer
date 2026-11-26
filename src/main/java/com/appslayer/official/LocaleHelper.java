@@ -8,7 +8,8 @@ import java.util.Locale;
 
 // Applies the language picked in the main screen (AppSlayerPrefs, key
 // "language"). Empty means: follow the system language. Indonesian is
-// the default resource set, "en" loads values-en.
+// the default resource set; "en", "zh", "hi", "es" and "ar" load the
+// matching values-<code> set.
 public class LocaleHelper {
 
     public static final String PREFS_NAME = PrefsKeys.APP_PREFS;
