@@ -59,6 +59,13 @@
     <string name="btn_check_update">Check for Update</string>
     <string name="language_name_id">Bahasa Indonesia</string>
     <string name="language_name_en">English</string>
+    <string name="language_picker_title">Choose Language</string>
+    <string name="language_name_system">System Default</string>
+    <string name="language_name_zh">中文（简体）</string>
+    <string name="language_name_hi">हिन्दी</string>
+    <string name="language_name_es">Español</string>
+    <string name="language_name_ar">العربية</string>
+    <string name="header_more_options">More options</string>
 
     <!-- Service notification -->
     <string name="notif_channel_name">App Slayer silent channel</string>
