@@ -2,6 +2,15 @@
 
 # Changelog
 
+## 6.3.7
+- Fixed text that was barely readable on the Floating Monitor screen.
+- Battery Status is a full screen now, not a dialog — tap it as many times as you like, it will not stack.
+- Battery history now records on its own while the app is used, no need to turn on the notification feature.
+- FPS recordings are always saved as a session now, even short ones.
+- FPS recording works without root: it asks for screen capture permission once and counts the game's real frames. Root stays as a fallback.
+- Temperature section shows the system thermal status when no sensor can be read.
+- Installs over 6.3.6, no need to uninstall.
+
 ## 6.3.6
 - Fixed the Battery Information dialog running off the screen — it is a proper panel now, the content scrolls inside, and the close button is part of the panel.
 - Battery level and health bars are green now, matching the app.

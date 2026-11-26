@@ -2,6 +2,15 @@
 
 # Catatan Rilis
 
+## 6.3.7
+- Fix teks yang hampir tidak terbaca di layar Monitor Melayang.
+- Status Baterai sekarang layar penuh, bukan dialog — ditekan berkali-kali pun tidak akan menumpuk.
+- Riwayat baterai sekarang terekam sendiri selama aplikasi dipakai, tidak perlu menyalakan fitur notifikasi.
+- Rekaman FPS sekarang selalu tersimpan sebagai sesi, termasuk yang singkat.
+- Rekam FPS bisa tanpa root: minta izin tangkap layar sekali, lalu menghitung frame asli game-nya. Root tetap jadi cadangan.
+- Bagian suhu menampilkan status termal sistem kalau tidak ada sensor yang bisa dibaca.
+- Bisa langsung ditimpa dari 6.3.6, tidak perlu uninstall.
+
 ## 6.3.6
 - Fix dialog Info Baterai yang lari keluar layar — sekarang panelnya pas, isinya bisa di-scroll, tombol tutup menyatu di panel.
 - Bar level dan kesehatan baterai sekarang hijau, ikut tema aplikasi.
