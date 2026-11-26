@@ -35,6 +35,12 @@
             <TextView android:id="@+id/chipModeExtreme" android:text="@string/chip_active" android:textColor="#0b0d0e" android:textSize="11sp" android:textStyle="bold" android:background="@drawable/chip_active" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
         </LinearLayout>
 
+        <LinearLayout android:id="@+id/rowRootWarning" android:orientation="vertical" android:background="@drawable/card_background" android:padding="14dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:visibility="gone">
+            <TextView android:text="@string/root_not_active" android:textColor="#ffb300" android:textSize="15sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            <TextView android:text="@string/root_not_active_desc" android:textColor="#9aa0a6" android:textSize="13sp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp"/>
+            <Button android:id="@+id/btnRequestRoot" android:text="@string/btn_request_root" android:textColor="#4caf50" android:textSize="13sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp"/>
+        </LinearLayout>
+
         <TextView android:text="@string/section_functions" android:textColor="#9aa0a6" android:textSize="13sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="22dp"/>
 
         <LinearLayout android:id="@+id/rowEditGamelist" android:orientation="horizontal" android:background="@drawable/card_background" android:padding="14dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:gravity="center_vertical">

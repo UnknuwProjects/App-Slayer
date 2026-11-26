@@ -100,6 +100,16 @@ public class MainActivity extends Activity {
         this.textToastState = (TextView) findViewById(R.id.textToastState);
         this.textLanguageState = (TextView) findViewById(R.id.textLanguageState);
         this.layoutFileEditor = (LinearLayout) findViewById(R.id.layoutFileEditor);
+        this.rowRootWarning = (LinearLayout) findViewById(R.id.rowRootWarning);
+        Button btnRequestRoot = (Button) findViewById(R.id.btnRequestRoot);
+        if (btnRequestRoot != null) {
+            btnRequestRoot.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    requestRootAccess();
+                }
+            });
+        }
         this.editTextFileContent = (EditText) findViewById(R.id.editTextFileContent);
         this.btnSave = (Button) findViewById(R.id.btnSave);
         this.btnCheckUpdate = (Button) findViewById(R.id.btnCheckUpdate);
@@ -408,43 +418,118 @@ public class MainActivity extends Activity {
         recreate();
     }
 
+    // Opens MainActivity's own su session (mode writes and the
+    // file editor run on it). Blocking; sets rootAvailable and
+    // suError. True when the session answered the ROOT_OK
+    // handshake. Split out of initRootAccess so the "request root
+    // access" flow can reopen the session after a fresh grant
+    // without replaying the startup toasts.
+    private String suError = null;
+
+    private boolean tryOpenSu() {
+        try {
+            Process process = Runtime.getRuntime().exec("su");
+            DataOutputStream output = new DataOutputStream(process.getOutputStream());
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            output.writeBytes("echo ROOT_OK\n");
+            output.flush();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.contains("ROOT_OK")) {
+                    // Hand the session over to runSuCommandWithOutput.
+                    this.suProcess = process;
+                    this.suOutput = output;
+                    this.suReader = reader;
+                    this.rootAvailable = true;
+                    this.suError = null;
+                    return true;
+                }
+            }
+            this.suError = getString(R.string.error_root_denied);
+        } catch (Exception e) {
+            this.suError = e.getMessage();
+        }
+        this.rootAvailable = false;
+        return false;
+    }
+
     private void initRootAccess() {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    suProcess = Runtime.getRuntime().exec("su");
-                    suOutput = new DataOutputStream(suProcess.getOutputStream());
-                    suReader = new BufferedReader(new InputStreamReader(suProcess.getInputStream()));
-                    suOutput.writeBytes("echo ROOT_OK\n");
-                    suOutput.flush();
-                    String line;
-                    while ((line = suReader.readLine()) != null) {
-                        if (line.contains("ROOT_OK")) {
-                            rootAvailable = true;
-                            mainHandler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(MainActivity.this, R.string.toast_root_ok, Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                            break; // hand the reader over to runSuCommandWithOutput
-                        }
-                    }
-                    if (!rootAvailable) {
-                        throw new IOException(getString(R.string.error_root_denied));
-                    }
-                } catch (final Exception e) {
-                    rootAvailable = false;
-                    mainHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
+                final boolean ok = tryOpenSu();
+                mainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        rootCheckDone = true;
+                        if (ok) {
+                            Toast.makeText(MainActivity.this, R.string.toast_root_ok, Toast.LENGTH_SHORT).show();
+                        } else {
                             Toast.makeText(MainActivity.this,
-                                    getString(R.string.toast_root_failed, e.getMessage()),
+                                    getString(R.string.toast_root_failed,
+                                            suError != null ? suError : ""),
                                     Toast.LENGTH_LONG).show();
                         }
-                    });
+                        updateRootRow();
+                    }
+                });
+            }
+        }).start();
+    }
+
+    // The root warning row: shown only once a root check has
+    // actually finished and neither MainActivity's own session nor
+    // the shared SystemStats shell is up. Before the first check
+    // completes it stays hidden, so it never flashes on startup.
+    private LinearLayout rowRootWarning;
+    private boolean rootCheckDone = false;
+
+    private void updateRootRow() {
+        if (this.rowRootWarning == null) {
+            return;
+        }
+        boolean available = this.rootAvailable || SystemStats.isShellVerified();
+        this.rowRootWarning.setVisibility(
+                this.rootCheckDone && !available ? View.VISIBLE : View.GONE);
+    }
+
+    // "Minta akses root": runs a FRESH `su -c id` (SystemStats
+    // probe) — that fresh spawn is what makes Magisk/KernelSU show
+    // its grant prompt. On a grant, both shells are reset/reopened
+    // so every root-backed feature recovers without an app restart.
+    private void requestRootAccess() {
+        DiagLog.log("USER", "request root access pressed");
+        final Button button = (Button) findViewById(R.id.btnRequestRoot);
+        if (button != null) {
+            button.setEnabled(false);
+        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final SystemStats.RootProbe probe = SystemStats.probeRootFresh();
+                if (probe.granted()) {
+                    SystemStats.resetShell();
+                    SystemStats.runShellCommand("echo ROOT_OK");
+                    if (!rootAvailable) {
+                        tryOpenSu();
+                    }
                 }
+                DiagLog.log("SYS", "root probe: " + probe.status
+                        + (probe.detail.isEmpty() ? "" : " (" + probe.detail + ")"));
+                mainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (button != null) {
+                            button.setEnabled(true);
+                        }
+                        rootCheckDone = true;
+                        Toast.makeText(MainActivity.this,
+                                probe.granted() ? R.string.toast_root_granted
+                                        : R.string.toast_root_denied,
+                                Toast.LENGTH_LONG).show();
+                        updateRootRow();
+                    }
+                });
             }
         }).start();
     }
@@ -818,6 +903,17 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        // Retry the shared root shell when the app comes to the
+        // foreground, and refresh the root warning row (the kick
+        // verifies on its own thread, so re-check shortly after).
+        SystemStats.kickRootShell();
+        updateRootRow();
+        mainHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                updateRootRow();
+            }
+        }, 5000);
         // Self-heal the notification toggle: the row reflects the
         // preference, but the service can be dead while the
         // preference says on (fresh install defaults to on, a ROM

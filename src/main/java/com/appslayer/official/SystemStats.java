@@ -58,6 +58,19 @@ public class SystemStats {
         private static BufferedReader stdout;
         private static long lastOpenFailure = 0;
         private static int markerCounter = 0;
+        // True only once the shell has answered the open handshake.
+        // A `su` process can be alive but useless — stuck at a root
+        // prompt nobody approved, or granted to a session that never
+        // replies — so "process exists" is not proof of root. An
+        // unverified shell is treated as dead and reopened, and
+        // reset() lets the app retry on demand: one early failure
+        // must not latch for the whole process lifetime (on the
+        // user's phone it did, and every shell-backed feature —
+        // thermal, FPS, processes, capacities, the log mirror —
+        // stayed dead until the app was restarted).
+        private static boolean verified = false;
+        private static final long OPEN_RETRY_BACKOFF_MS = 10000;
+        private static final long HANDSHAKE_TIMEOUT_MS = 4000;
 
         static synchronized boolean ensureOpen() {
             if (process != null) {
@@ -65,17 +78,26 @@ public class SystemStats {
                     process.exitValue();
                     closeLocked(); // it died, fall through and reopen
                 } catch (IllegalThreadStateException e) {
-                    return true; // still running
+                    if (verified) {
+                        return true; // alive and proven to answer
+                    }
+                    closeLocked(); // alive but never answered: zombie
                 }
             }
             long now = System.currentTimeMillis();
-            if (now - lastOpenFailure < 30000) {
+            if (now - lastOpenFailure < OPEN_RETRY_BACKOFF_MS) {
                 return false;
             }
             try {
                 process = Runtime.getRuntime().exec("su");
                 stdin = new DataOutputStream(process.getOutputStream());
                 stdout = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                verified = runHandshake();
+                if (!verified) {
+                    lastOpenFailure = System.currentTimeMillis();
+                    closeLocked();
+                    return false;
+                }
                 return true;
             } catch (Exception e) {
                 lastOpenFailure = now;
@@ -84,7 +106,66 @@ public class SystemStats {
             }
         }
 
+        // Writes an echo marker and waits (bounded) for it to come
+        // back. The read runs on a helper thread because readLine()
+        // has no timeout: a shell stuck at an unapproved root prompt
+        // would otherwise block the caller forever.
+        private static boolean runHandshake() {
+            final String marker = "__APPSLAYER_READY_" + (++markerCounter) + "__";
+            try {
+                stdin.writeBytes("echo " + marker + "\n");
+                stdin.flush();
+            } catch (Exception e) {
+                return false;
+            }
+            final boolean[] answered = {false};
+            Thread reader = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        String line;
+                        while ((line = stdout.readLine()) != null) {
+                            if (line.trim().equals(marker)) {
+                                answered[0] = true;
+                                return;
+                            }
+                        }
+                    } catch (Exception ignored) {
+                    }
+                }
+            });
+            reader.setDaemon(true);
+            reader.start();
+            try {
+                reader.join(HANDSHAKE_TIMEOUT_MS);
+            } catch (InterruptedException e) {
+                return false;
+            }
+            return answered[0];
+        }
+
+        static synchronized boolean isVerified() {
+            if (process == null || !verified) {
+                return false;
+            }
+            try {
+                process.exitValue();
+                return false; // it died since
+            } catch (IllegalThreadStateException e) {
+                return true;
+            }
+        }
+
+        // Drops the current shell (if any) and clears the failure
+        // backoff, so the next exec opens a fresh one. Called after
+        // a successful fresh root grant and by the retry kicks.
+        static synchronized void reset() {
+            closeLocked();
+            lastOpenFailure = 0;
+        }
+
         private static void closeLocked() {
+            verified = false;
             try {
                 if (stdin != null) stdin.close();
             } catch (Exception ignored) {
@@ -331,6 +412,173 @@ public class SystemStats {
     // both background work, never per-frame.
     public static String runShellCommand(String command) {
         return PersistentShell.exec(command);
+    }
+
+    // Whether the persistent root shell is up and has proven it
+    // answers commands. Cheap: spawns nothing.
+    public static boolean isShellVerified() {
+        return PersistentShell.isVerified();
+    }
+
+    // Drops the persistent shell so the next command reopens it.
+    // Used right after a fresh root grant.
+    public static void resetShell() {
+        PersistentShell.reset();
+    }
+
+    // Outcome of a fresh `su -c id` probe. Status is one of:
+    // "uid0" (root granted), "denied" (su answered but refused, or
+    // exited non-zero), "notfound" (no su binary), "timeout" (su
+    // never answered — usually a grant prompt nobody approved),
+    // "error" (anything else). Detail carries the first output
+    // line, for the log and the UI.
+    public static class RootProbe {
+        public final String status;
+        public final String detail;
+
+        RootProbe(String status, String detail) {
+            this.status = status;
+            this.detail = detail;
+        }
+
+        public boolean granted() {
+            return "uid0".equals(status);
+        }
+    }
+
+    // Spawns a brand-new `su -c id` — never the cached persistent
+    // shell — so it re-triggers the Magisk/KernelSU grant prompt
+    // when the app has not been granted yet. Blocking: call it on a
+    // background thread. Bounded at ~20 s so a prompt the user
+    // ignores cannot hang the caller.
+    public static RootProbe probeRootFresh() {
+        Process probe;
+        try {
+            probe = Runtime.getRuntime().exec(new String[]{"su", "-c", "id"});
+        } catch (Exception e) {
+            String msg = e.getMessage();
+            boolean missing = msg != null
+                    && (msg.contains("No such file") || msg.contains("error=2"));
+            return new RootProbe(missing ? "notfound" : "error", firstLine(msg));
+        }
+        final Process process = probe;
+        final StringBuffer outBuf = new StringBuffer();
+        final StringBuffer errBuf = new StringBuffer();
+        Thread outReader = pump(process.getInputStream(), outBuf);
+        Thread errReader = pump(process.getErrorStream(), errBuf);
+        final boolean[] exited = {false};
+        final int[] exitCode = {-1};
+        Thread waiter = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    exitCode[0] = process.waitFor();
+                    exited[0] = true;
+                } catch (InterruptedException ignored) {
+                }
+            }
+        });
+        waiter.setDaemon(true);
+        waiter.start();
+        try {
+            waiter.join(20000);
+        } catch (InterruptedException ignored) {
+        }
+        if (!exited[0]) {
+            try {
+                process.destroy();
+            } catch (Exception ignored) {
+            }
+            return new RootProbe("timeout", firstLine(outBuf.toString() + errBuf.toString()));
+        }
+        try {
+            outReader.join(500);
+        } catch (Exception ignored) {
+        }
+        try {
+            errReader.join(500);
+        } catch (Exception ignored) {
+        }
+        String combined = outBuf.toString() + "\n" + errBuf.toString();
+        if (combined.contains("uid=0")) {
+            return new RootProbe("uid0", firstLine(outBuf.toString()));
+        }
+        String detail = firstLine(errBuf.length() > 0 ? errBuf.toString() : combined);
+        if (exitCode[0] > 0) {
+            detail = detail.isEmpty() ? "exit " + exitCode[0] : detail + " (exit " + exitCode[0] + ")";
+        }
+        return new RootProbe("denied", detail);
+    }
+
+    private static Thread pump(final java.io.InputStream in, final StringBuffer sink) {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        synchronized (sink) {
+                            sink.append(line).append("\n");
+                        }
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+        });
+        thread.setDaemon(true);
+        thread.start();
+        return thread;
+    }
+
+    private static String firstLine(String text) {
+        if (text == null) {
+            return "";
+        }
+        for (String line : text.split("\n")) {
+            String trimmed = line.trim();
+            if (!trimmed.isEmpty()) {
+                return trimmed.length() > 120 ? trimmed.substring(0, 120) : trimmed;
+            }
+        }
+        return "";
+    }
+
+    private static volatile long lastKickMs = 0;
+    private static volatile Boolean lastRootState = null;
+
+    // Retry kick for the persistent shell, called when a service
+    // starts and when the main screen comes to the foreground: if
+    // the shell never came up, drop the backoff and try once more
+    // instead of staying dead for the process lifetime. Throttled
+    // to one attempt per 15 s; runs on its own thread.
+    public static void kickRootShell() {
+        long now = System.currentTimeMillis();
+        if (now - lastKickMs < 15000) {
+            return;
+        }
+        lastKickMs = now;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (isShellVerified()) {
+                    noteRootState(true);
+                    return;
+                }
+                PersistentShell.reset();
+                String out = PersistentShell.exec("echo APPSLAYER_KICK");
+                noteRootState(out != null && out.contains("APPSLAYER_KICK"));
+            }
+        }).start();
+    }
+
+    private static void noteRootState(boolean available) {
+        if (lastRootState == null || lastRootState != available) {
+            lastRootState = available;
+            DiagLog.log("SYS", available
+                    ? "root shell is available"
+                    : "root shell still unavailable after retry");
+        }
     }
 
     // Reads a file through the shared root shell. Used as the last
@@ -618,13 +866,10 @@ public class SystemStats {
         }
     }
 
-    // Every thermal zone the kernel exposes, sorted by zone index.
-    // Zones whose type or temp cannot be read or parsed are skipped,
-    // so the list only holds sensors that actually answer. When the
-    // plain enumeration finds nothing — SELinux on the user's ROM
-    // denies the app every thermal node — the root-shell dump takes
-    // over so the list (and everything built on it) still works.
-    public static java.util.List<ThermalSensor> getThermalSensors() {
+    // The plain-file thermal enumeration on its own, without the
+    // shell fallback, so the function test can report each path's
+    // sensor count separately.
+    public static java.util.List<ThermalSensor> readPlainThermalSensors() {
         java.util.List<ThermalSensor> sensors = new java.util.ArrayList<>();
         File thermalDir = new File("/sys/class/thermal/");
         File[] files = thermalDir.exists() ? thermalDir.listFiles() : null;
@@ -653,6 +898,17 @@ public class SystemStats {
                 }
             }
         }
+        return sensors;
+    }
+
+    // Every thermal zone the kernel exposes, sorted by zone index.
+    // Zones whose type or temp cannot be read or parsed are skipped,
+    // so the list only holds sensors that actually answer. When the
+    // plain enumeration finds nothing — SELinux on the user's ROM
+    // denies the app every thermal node — the root-shell dump takes
+    // over so the list (and everything built on it) still works.
+    public static java.util.List<ThermalSensor> getThermalSensors() {
+        java.util.List<ThermalSensor> sensors = readPlainThermalSensors();
         if (!sensors.isEmpty()) {
             logSensorOutcome("plain files answered, " + sensors.size() + " sensors");
             return sensors;
@@ -673,6 +929,15 @@ public class SystemStats {
         } catch (Exception e) {
             return Integer.MAX_VALUE;
         }
+    }
+
+    // Which path produced the latest FPS reading ("SurfaceFlinger",
+    // "gfxinfo" or "none"), so the function test can name the path
+    // that answered instead of just reporting a number.
+    private static volatile String lastFpsSource = "none";
+
+    public static String getLastFpsSource() {
+        return lastFpsSource;
     }
 
     public static String getSystemFpsFromSurfaceFlinger() {
@@ -708,6 +973,7 @@ public class SystemStats {
             if (deltaCount == 0) {
                 return getFallbackFps();
             }
+            lastFpsSource = "SurfaceFlinger";
             return String.format(Locale.US, "FPS: %.1f", 1000.0d / ((totalDelta / deltaCount) / 1000000.0d));
         } catch (Exception e) {
             Log.e("FPS_ERROR", "Gagal ambil FPS", e);
@@ -738,6 +1004,7 @@ public class SystemStats {
         try {
             String output = PersistentShell.exec("dumpsys gfxinfo com.appslayer.official");
             if (output == null) {
+                lastFpsSource = "none";
                 return "FPS: n/a";
             }
             double total = 0;
@@ -751,11 +1018,14 @@ public class SystemStats {
                 }
             }
             if (count == 0) {
+                lastFpsSource = "none";
                 return "FPS: n/a";
             }
+            lastFpsSource = "gfxinfo";
             return String.format(Locale.US, "FPS: %.1f", 1000.0d / (total / count));
         } catch (Exception e) {
             Log.e("FPS_FALLBACK", "Gagal fallback FPS", e);
+            lastFpsSource = "none";
             return "FPS: n/a";
         }
     }
