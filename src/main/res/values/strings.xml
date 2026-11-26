@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">App Slayer</string>
+
+    <!-- Layar utama -->
+    <string name="toast_mode_normal">Mode Normal aktif</string>
+    <string name="toast_mode_aggressive">Mode Aggressive aktif</string>
+    <string name="toast_mode_extreme">Mode Extreme aktif</string>
+    <string name="edit_gamelist">Edit Gamelist</string>
+    <string name="edit_whitelist">Edit Whitelist</string>
+    <string name="edit_extreme">Edit Extreme</string>
+    <string name="edit_extrakill">Edit Extrakill</string>
+    <string name="edit_file_hint">Ubah file di sini...</string>
+    <string name="btn_save">Simpan</string>
+    <string name="update_available_title">Versi baru tersedia!</string>
+    <string name="update_available_subtitle">Ketuk untuk mengunduh versi terbaru</string>
+    <string name="toast_file_opened">File dibuka</string>
+    <string name="toast_file_open_failed">Gagal membuka file:\n%1$s</string>
+    <string name="toast_saved">Berhasil disimpan</string>
+    <string name="toast_save_failed">Gagal menyimpan file</string>
+    <string name="toast_root_ok">Akses root berhasil</string>
+    <string name="toast_root_failed">Gagal akses root:\n%1$s</string>
+    <string name="toast_mode_failed">Gagal mengatur mode:\n%1$s</string>
+    <string name="toast_no_internet">Tidak ada koneksi internet</string>
+    <string name="toast_up_to_date">Sudah versi terbaru</string>
+    <string name="toast_overlay_failed">Overlay gagal ditampilkan: %1$s</string>
+    <string name="toast_downloading_update">Mengunduh pembaruan...</string>
+    <string name="toast_failed">Gagal: %1$s</string>
+    <string name="toast_toast_on">Toast dinyalakan</string>
+    <string name="toast_toast_off">Toast dimatikan</string>
+    <string name="toast_enabled">Toast dinyalakan</string>
+    <string name="toast_disabled">Toast dimatikan</string>
+    <string name="now_loading">Memuat...</string>
+    <string name="dialog_update_title">Pembaruan Tersedia</string>
+    <string name="dialog_update_message">Versi terbaru: %1$s\n\n=== Yang baru ===\n%2$s\n=================\n\nVersi kamu saat ini: %3$s\nIngin mengunduh pembaruan sekarang?</string>
+    <string name="dialog_yes">Ya</string>
+    <string name="dialog_no">Tidak</string>
+    <string name="error_root_not_available">Akses root belum tersedia</string>
+    <string name="error_root_denied">Root tidak diizinkan oleh Magisk</string>
+
+    <string name="current_mode_label">Mode saat ini:</string>
+    <string name="mode_name_normal">Normal</string>
+    <string name="mode_name_aggressive">Aggressive</string>
+    <string name="mode_name_extreme">Extreme</string>
+    <string name="mode_desc_normal">Seimbang buat pemakaian harian, hemat baterai.</string>
+    <string name="mode_desc_aggressive">Lebih galak membunuh aplikasi latar, cocok buat gaming.</string>
+    <string name="mode_desc_extreme">Paling maksimal, semua dibabat — notifikasi bisa telat masuk.</string>
+    <string name="chip_active">Aktif</string>
+    <string name="section_modes">Pilih Mode</string>
+    <string name="section_functions">Fungsi</string>
+    <string name="row_floating_monitor">Floating Monitor</string>
+    <string name="row_battery_info">Info Baterai</string>
+    <string name="row_notifications">Notifikasi Status</string>
+    <string name="row_toast">Toast</string>
+    <string name="row_language">Bahasa</string>
+    <string name="row_execute">Eksekusi Sekarang</string>
+    <string name="state_on">Aktif</string>
+    <string name="state_off">Nonaktif</string>
+    <string name="btn_check_update">Cek Update</string>
+    <string name="language_name_id">Bahasa Indonesia</string>
+    <string name="language_name_en">English</string>
+
+    <!-- Notifikasi service -->
+    <string name="notif_channel_name">Kanal senyap App Slayer</string>
+    <string name="notif_status_default">Modul aktif | Selamat bermain 🎮</string>
+    <string name="notif_ram_format">RAM: %1$.2f GB Tersisa | %2$.2f GB Total (%3$d%% Terpakai)</string>
+    <string name="batt_full">Baterai Penuh ✅</string>
+    <string name="batt_turbo">Turbo Charging 🚀</string>
+    <string name="batt_fast">Fast Charging ⚡</string>
+    <string name="batt_charging">Charging</string>
+    <string name="batt_slow">Slow Charging</string>
+    <string name="batt_discharging">Discharging</string>
+    <string name="batt_not_charging">Tidak mengisi</string>
+    <string name="batt_status_unknown">Tidak diketahui</string>
+    <string name="batt_calculating">Menghitung...</string>
+
+    <!-- Floating monitor -->
+    <string name="floating_monitor_title">Floating Monitor</string>
+    <string name="battery_status">Status Baterai</string>
+    <string name="settings_title">Setelan</string>
+    <string name="transparency">Transparansi</string>
+    <string name="text_size">Ukuran Teks</string>
+    <string name="snap_to_bar">Tempel ke status bar</string>
+    <string name="click_through">Klik tembus</string>
+    <string name="disable_fullscreen">Nonaktif di layar penuh</string>
+    <string name="disable_landscape">Nonaktif saat lanskap</string>
+    <string name="dark_text">Teks gelap</string>
+    <string name="text_shadow">Bayangan teks</string>
+    <string name="start_on_boot">Aktif saat boot</string>
+    <string name="diag_title">Diagnostik</string>
+    <string name="diag_notif_permission">Izin notifikasi: %1$s</string>
+    <string name="diag_notif_service">Service notifikasi: %1$s</string>
+    <string name="toast_notif_permission_denied">Izin notifikasi ditolak — notifikasi status tidak akan tampil. Aktifkan dari pengaturan aplikasi.</string>
+    <string name="diag_permission">Izin overlay: %1$s</string>
+    <string name="diag_service">Service overlay: %1$s</string>
+    <string name="diag_windows">Jendela tampil: %1$d</string>
+    <string name="state_granted">Diberikan</string>
+    <string name="state_not_granted">Belum diberikan</string>
+    <string name="state_running">Berjalan</string>
+    <string name="state_not_running">Tidak berjalan</string>
+    <string name="diag_test">Tes Overlay</string>
+    <string name="diag_test_ok">Overlay tampil: %1$d jendela</string>
+    <string name="diag_test_fail">Overlay belum tampil. Cek izin overlay dan izin jendela pop-up untuk aplikasi ini.</string>
+    <string name="diag_enabled_service">Monitor aktif menurut service: %1$d</string>
+    <string name="diag_last_add">Hasil tambah jendela terakhir: %1$s</string>
+    <string name="battery_history_hint">Riwayat baterai dicatat selama service notifikasi berjalan. Aktifkan notifikasi di layar utama biar grafiknya terisi.</string>
+    <string name="diag_run_checks">Jalankan cek</string>
+    <string name="diag_share_log">Bagikan log</string>
+    <string name="diag_clear_log">Hapus log</string>
+    <string name="diag_log_path_hint">Log tersimpan di /storage/emulated/0/AppSlayer/logs/diagnostic_log.txt</string>
+    <string name="diag_log_saved">Snapshot tersimpan. Log ada di /storage/emulated/0/AppSlayer/logs/diagnostic_log.txt</string>
+    <string name="diag_log_cleared">Log dihapus</string>
+    <string name="diag_log_share_chooser">Bagikan log diagnostik</string>
+    <string name="monitor_style_title">Gaya Monitor</string>
+    <string name="monitor_style_classic">Klasik</string>
+    <string name="monitor_style_mini">Mini</string>
+    <string name="temp_sensors_title">Sensor Suhu</string>
+    <string name="temp_sensors_empty">Tidak ada sensor suhu yang bisa dibaca</string>
+    <string name="monitor_title">Monitor</string>
+    <string name="monitor_cpu">Monitor CPU</string>
+    <string name="monitor_temp">Monitor Suhu</string>
+    <string name="monitor_battery">Monitor Baterai</string>
+    <string name="monitor_ram">Monitor RAM</string>
+    <string name="monitor_current">Arus baterai</string>
+    <string name="monitor_signal">Monitor Jaringan</string>
+    <string name="monitor_fps">Monitor FPS</string>
+    <string name="monitor_process">Monitor Proses</string>
+    <string name="reset_settings">Reset Setelan</string>
+    <string name="toast_location_needed">Izin lokasi dibutuhkan untuk membaca sinyal</string>
+    <string name="toast_overlay_permission">Aktifkan izin tampil di atas aplikasi lain</string>
+    <string name="toast_settings_reset">Setelan telah direset</string>
+    <string name="dialog_battery_title">Informasi Baterai</string>
+    <string name="battery_info_message">======================\nLevel: %1$d%%\nKesehatan: %2$s\nKapasitas Asli (sistem): %3$s\nKapasitas Sekarang (sistem): %4$s\nKesehatan Sistem: %5$s\nStatus: %9$s\nArus: %10$s\nDaya: %13$s\nPerkiraan penuh: %11$s\nPerkiraan habis: %12$s\n\nKapasitas Baterai (Real): %6$s\nKesehatan Baterai (Real): %7$s\nTerakhir dihitung: %8$s\n======================\n\nCatatan:\n- Estimasi (Real) hanya dihitung setelah setidaknya 3 kali pengisian saat perangkat dalam keadaan aktif.\n- Pengisian saat perangkat mati (power-off charging) tidak termasuk dalam perhitungan.</string>
+    <string name="waiting_data">Menunggu data...</string>
+    <string name="not_available_yet">Belum tersedia</string>
+    <string name="dialog_close">Tutup</string>
+    <string name="toast_permission_granted">Izin lokasi diberikan</string>
+    <string name="toast_permission_denied">Izin lokasi ditolak. Sinyal tidak dapat dibaca.</string>
+
+    <string name="battery_history_title">Riwayat Baterai (24 jam)</string>
+    <string name="battery_history_empty">Belum ada data baterai</string>
+    <string name="since_last_full_charge">Sejak pengisian penuh terakhir</string>
+    <string name="avg_drain">Rata-rata pemakaian</string>
+    <string name="estimated_time_left">Perkiraan sisa waktu</string>
+    <string name="collecting_battery_data">Mengumpulkan data baterai...</string>
+    <string name="drain_per_hour">%1$.1f%%/jam</string>
+    <string name="duration_hm">%1$d j %2$d m</string>
+    <string name="hours_left">±%1$d jam</string>
+
+    <!-- Perekam FPS -->
+    <string name="fps_record_title">Perekam FPS</string>
+    <string name="record_fps">Rekam FPS</string>
+    <string name="record_fps_hint">Rekam FPS saat bermain, lalu lihat laporannya di daftar sesi. Perekaman tetap jalan setelah layar ini ditutup.</string>
+    <string name="fps_recording_status">● Merekam %1$s · %2$d sampel</string>
+    <string name="fps_record_idle">Tidak merekam</string>
+    <string name="btn_fps_sessions">Sesi FPS</string>
+    <string name="fps_sessions_title">Sesi FPS</string>
+    <string name="fps_sessions_empty">Belum ada sesi terekam</string>
+    <string name="fps_unknown_app">Aplikasi tidak dikenal</string>
+    <string name="fps_avg_short">Rata-rata %1$.1f FPS</string>
+    <string name="fps_report_title">Laporan Sesi FPS</string>
+    <string name="fps_report_message">Aplikasi: %1$s\nWaktu: %2$s\nDurasi: %3$s\nJumlah sampel: %4$d\n\nFPS Maks: %5$s\nFPS Min: %6$s\nFPS Rata-rata: %7$s\n5%% low: %8$s\n1%% low: %9$s\nKelancaran: %10$s\nSuhu CPU rata-rata: %11$s\nSuhu GPU rata-rata: %12$s\nDaya rata-rata: %13$s</string>
+    <string name="fps_smoothness_note">Kelancaran = persen sampel yang waktu framenya berada dalam ±20%% dari median waktu frame sesi ini. Makin tinggi, makin stabil frame rate-nya.</string>
+    <string name="fps_no_samples">Tidak ada sampel FPS yang valid di sesi ini.</string>
+    <string name="graph_fps_title">FPS dari waktu ke waktu</string>
+    <string name="graph_temp_title">Suhu dari waktu ke waktu (CPU / GPU)</string>
+    <string name="graph_frametime_title">Waktu frame dari waktu ke waktu (ms)</string>
+    <string name="fps_delete_confirm">Hapus sesi ini?</string>
+    <string name="dialog_delete">Hapus</string>
+    <string name="dialog_cancel">Batal</string>
+    <string name="toast_recording_started">Perekaman FPS dimulai</string>
+    <string name="toast_recording_stopped">Perekaman berhenti · %1$d sampel tersimpan</string>
+    <string name="toast_recording_limit">Perekaman berhenti: batas sesi 1 jam tercapai</string>
+    <string name="toast_session_deleted">Sesi dihapus</string>
+
+    <!-- Overlay -->
+    <string name="overlay_loading">Loading...</string>
+    <string name="overlay_cpu_loading">CPU: Loading...</string>
+    <string name="overlay_channel_name">Overlay Monitor</string>
+    <string name="overlay_running">Sedang berjalan...</string>
+    <string name="action_close">Tutup</string>
+    <string name="resume_channel_name">Resume Overlay</string>
+    <string name="overlay_paused_title">Overlay Dijeda</string>
+    <string name="overlay_paused_text">Layar penuh terdeteksi. Ketuk untuk melanjutkan.</string>
+    <string name="action_resume_overlay">Lanjutkan Overlay</string>
+    <string name="signal_format">Sinyal: %1$d dBm (%2$d%%)</string>
+    <string name="signal_na">Sinyal: n/a</string>
+</resources>

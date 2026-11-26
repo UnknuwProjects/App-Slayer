@@ -1,0 +1,873 @@
+package com.appslayer.official;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.core.content.FileProvider;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+public class MainActivity extends Activity {
+
+    private static final String UPDATE_API_URL = "https://api.github.com/repos/UnknuwProjects/App-Slayer/releases/latest";
+
+    private View cardModeNormal;
+    private View cardModeAggressive;
+    private View cardModeExtreme;
+    private View chipModeNormal;
+    private View chipModeAggressive;
+    private View chipModeExtreme;
+    private TextView textCurrentModeName;
+    private TextView textCurrentModeDesc;
+    private TextView textNotificationState;
+    private TextView textToastState;
+    private TextView textLanguageState;
+    private Button btnSave;
+    private Button btnCheckUpdate;
+    private String currentFilePath;
+    private String originalFileContent;
+    private String currentMode;
+    private EditText editTextFileContent;
+    private LinearLayout layoutFileEditor;
+    private BroadcastReceiver toastOnlyReceiver;
+    private LinearLayout updateNotice;
+    private Process suProcess;
+    private DataOutputStream suOutput;
+    private BufferedReader suReader;
+    private boolean rootAvailable = false;
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+
+    private interface RootCallback {
+        void run() throws Exception;
+    }
+
+    private interface RootErrorCallback {
+        void onError(Exception e);
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(LocaleHelper.wrap(newBase));
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.main);
+        this.textCurrentModeName = (TextView) findViewById(R.id.textCurrentModeName);
+        this.textCurrentModeDesc = (TextView) findViewById(R.id.textCurrentModeDesc);
+        this.cardModeNormal = findViewById(R.id.cardModeNormal);
+        this.cardModeAggressive = findViewById(R.id.cardModeAggressive);
+        this.cardModeExtreme = findViewById(R.id.cardModeExtreme);
+        this.chipModeNormal = findViewById(R.id.chipModeNormal);
+        this.chipModeAggressive = findViewById(R.id.chipModeAggressive);
+        this.chipModeExtreme = findViewById(R.id.chipModeExtreme);
+        this.textNotificationState = (TextView) findViewById(R.id.textNotificationState);
+        this.textToastState = (TextView) findViewById(R.id.textToastState);
+        this.textLanguageState = (TextView) findViewById(R.id.textLanguageState);
+        this.layoutFileEditor = (LinearLayout) findViewById(R.id.layoutFileEditor);
+        this.editTextFileContent = (EditText) findViewById(R.id.editTextFileContent);
+        this.btnSave = (Button) findViewById(R.id.btnSave);
+        this.btnCheckUpdate = (Button) findViewById(R.id.btnCheckUpdate);
+        this.updateNotice = (LinearLayout) findViewById(R.id.updateNotice);
+        SharedPreferences sharedPreferences = getSharedPreferences(PrefsKeys.APP_PREFS, 0);
+        this.currentMode = sharedPreferences.getString(PrefsKeys.MODE, "normal");
+        updateModeHeader();
+        updateNotificationRow();
+        updateToastRow();
+        updateLanguageRow();
+        initRootAccess();
+        checkUpdate(false);
+        maybeRequestNotificationPermission();
+
+        this.cardModeNormal.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setMode("normal");
+            }
+        });
+        this.cardModeAggressive.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setMode("aggressive");
+            }
+        });
+        this.cardModeExtreme.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setMode("extreme");
+            }
+        });
+        findViewById(R.id.rowNotificationToggle).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences prefs = getSharedPreferences(PrefsKeys.APP_PREFS, 0);
+                boolean enabled = prefs.getBoolean(PrefsKeys.NOTIFICATIONS, true);
+                DiagLog.log("USER", "notifications: " + enabled + " -> " + (!enabled));
+                Intent intent = new Intent(MainActivity.this, MyService.class);
+                if (enabled) {
+                    prefs.edit().putBoolean(PrefsKeys.NOTIFICATIONS, false).apply();
+                    intent.setAction(MyService.ACTION_STOP_NOTIFICATION);
+                    startService(intent);
+                } else {
+                    prefs.edit().putBoolean(PrefsKeys.NOTIFICATIONS, true).apply();
+                    if (Build.VERSION.SDK_INT >= 26) {
+                        startForegroundService(intent);
+                    } else {
+                        startService(intent);
+                    }
+                    maybeRequestNotificationPermission();
+                }
+                updateNotificationRow();
+            }
+        });
+        findViewById(R.id.rowToastToggle).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences prefs = getSharedPreferences(PrefsKeys.APP_PREFS, 0);
+                boolean enabled = !prefs.getBoolean(PrefsKeys.TOAST, false);
+                DiagLog.log("USER", "toast: " + (!enabled) + " -> " + enabled);
+                prefs.edit().putBoolean(PrefsKeys.TOAST, enabled).apply();
+                Intent intent = new Intent("com.appslayer.official.SHOW_TOAST");
+                intent.putExtra("toast", getString(enabled ? R.string.toast_enabled : R.string.toast_disabled));
+                intent.setPackage(getPackageName());
+                sendBroadcast(intent);
+                updateToastRow();
+                Toast.makeText(MainActivity.this,
+                        enabled ? R.string.toast_toast_on : R.string.toast_toast_off,
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+        findViewById(R.id.rowExecuteNow).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DiagLog.log("USER", "manual.sh run pressed");
+                Toast.makeText(MainActivity.this, R.string.now_loading, Toast.LENGTH_SHORT).show();
+                executeRootCommandAsync(new RootCallback() {
+                    @Override
+                    public void run() throws Exception {
+                        runSuCommandWithOutput("sh " + AppPaths.MANUAL_SCRIPT);
+                        DiagLog.log("SYS", "manual.sh finished ok");
+                    }
+                }, new RootErrorCallback() {
+                    @Override
+                    public void onError(Exception e) {
+                        DiagLog.log("SYS", "manual.sh FAILED: " + e.getMessage());
+                        Toast.makeText(MainActivity.this,
+                                getString(R.string.toast_failed, e.getMessage()),
+                                Toast.LENGTH_LONG).show();
+                    }
+                }, null);
+            }
+        });
+        findViewById(R.id.rowEditGamelist).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openFileInEditor(AppPaths.listFile(AppPaths.LIST_GAMELIST));
+            }
+        });
+        findViewById(R.id.rowEditWhitelist).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openFileInEditor(AppPaths.listFile(AppPaths.LIST_WHITELIST));
+            }
+        });
+        findViewById(R.id.rowEditExtreme).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openFileInEditor(AppPaths.listFile(AppPaths.LIST_EXTREME));
+            }
+        });
+        findViewById(R.id.rowEditExtrakill).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openFileInEditor(AppPaths.listFile(AppPaths.LIST_KILL));
+            }
+        });
+        findViewById(R.id.rowFloatingMonitor).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, FloatingMonitorActivity.class));
+            }
+        });
+        findViewById(R.id.rowBatteryInfo).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, FloatingMonitorActivity.class));
+            }
+        });
+        findViewById(R.id.rowLanguage).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleLanguage();
+            }
+        });
+        this.btnCheckUpdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                checkUpdate(true);
+            }
+        });
+        this.btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveCurrentFile();
+            }
+        });
+        registerCustomReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                if ("com.appslayer.official.ACTION_TOAST".equals(action)) {
+                    String message = intent.getStringExtra("toast");
+                    if (message == null) {
+                        message = intent.getStringExtra("msg");
+                    }
+                    if (message != null) {
+                        Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+        }, new IntentFilter("com.appslayer.official.ACTION_TOAST"));
+        registerCustomReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if ("com.appslayer.official.ACTION_TOAST_MODE".equals(intent.getAction())) {
+                    String msg = intent.getStringExtra("msg");
+                    String status = intent.getStringExtra("status");
+                    Toast.makeText(context, (msg != null ? msg : "") + "\n" + (status != null ? status : ""), Toast.LENGTH_LONG).show();
+                }
+            }
+        }, new IntentFilter("com.appslayer.official.ACTION_TOAST_MODE"));
+    }
+
+    // Receivers for the app's own broadcast actions. On Android 13+
+    // these must be registered with an explicit export flag.
+    private void registerCustomReceiver(BroadcastReceiver receiver, IntentFilter filter) {
+        if (Build.VERSION.SDK_INT >= 33) {
+            registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            registerReceiver(receiver, filter);
+        }
+    }
+
+    private void setMode(final String nextMode) {
+        // The daemon reads numbers, not names: 1 = Normal,
+        // 2 = Aggressive, 3 = Extreme. Anything else in mode.txt
+        // silently falls back to Normal on the module side.
+        final String modeNumber = "extreme".equals(nextMode) ? "3"
+                : "aggressive".equals(nextMode) ? "2" : "1";
+        DiagLog.log("USER", "mode tap: " + nextMode + " (writes " + modeNumber + " to mode.txt)");
+        executeRootCommandAsync(new RootCallback() {
+            @Override
+            public void run() throws Exception {
+                runSuCommandWithOutput("echo '" + modeNumber + "' > " + AppPaths.MODE_FILE);
+                DiagLog.log("SYS", "mode write ok: mode.txt=" + modeNumber);
+            }
+        }, new RootErrorCallback() {
+            @Override
+            public void onError(Exception e) {
+                DiagLog.log("SYS", "mode write FAILED: " + e.getMessage());
+                Toast.makeText(MainActivity.this,
+                        getString(R.string.toast_mode_failed, e.getMessage()),
+                        Toast.LENGTH_LONG).show();
+            }
+        }, new RootCallback() {
+            @Override
+            public void run() {
+                currentMode = nextMode;
+                getSharedPreferences(PrefsKeys.APP_PREFS, 0).edit()
+                        .putString(PrefsKeys.MODE, currentMode).apply();
+                updateModeHeader();
+                int toastRes;
+                if ("aggressive".equals(currentMode)) {
+                    toastRes = R.string.toast_mode_aggressive;
+                } else if ("extreme".equals(currentMode)) {
+                    toastRes = R.string.toast_mode_extreme;
+                } else {
+                    toastRes = R.string.toast_mode_normal;
+                }
+                Toast.makeText(MainActivity.this, toastRes, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    // Header text, card highlight and the "active" chip all follow the
+    // mode stored in preferences.
+    private void updateModeHeader() {
+        int nameRes;
+        int descRes;
+        if ("aggressive".equals(this.currentMode)) {
+            nameRes = R.string.mode_name_aggressive;
+            descRes = R.string.mode_desc_aggressive;
+        } else if ("extreme".equals(this.currentMode)) {
+            nameRes = R.string.mode_name_extreme;
+            descRes = R.string.mode_desc_extreme;
+        } else {
+            nameRes = R.string.mode_name_normal;
+            descRes = R.string.mode_desc_normal;
+        }
+        this.textCurrentModeName.setText(nameRes);
+        this.textCurrentModeDesc.setText(descRes);
+        applyModeCard(this.cardModeNormal, this.chipModeNormal, "normal".equals(this.currentMode));
+        applyModeCard(this.cardModeAggressive, this.chipModeAggressive, "aggressive".equals(this.currentMode));
+        applyModeCard(this.cardModeExtreme, this.chipModeExtreme, "extreme".equals(this.currentMode));
+    }
+
+    private void applyModeCard(View card, View chip, boolean active) {
+        card.setBackgroundResource(active ? R.drawable.card_background_active : R.drawable.card_background);
+        chip.setVisibility(active ? View.VISIBLE : View.GONE);
+    }
+
+    private static final int REQUEST_POST_NOTIFICATIONS = 1001;
+
+    // At targetSdk 36 the foreground-service notification stays
+    // hidden until the user grants POST_NOTIFICATIONS at runtime —
+    // declaring it in the manifest alone does nothing on Android 13+.
+    // The app never asked before, so on those versions the status
+    // notification silently never appeared.
+    private void maybeRequestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= 33
+                && checkSelfPermission("android.permission.POST_NOTIFICATIONS") != 0) {
+            DiagLog.log("SYS", "requesting POST_NOTIFICATIONS");
+            requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"},
+                    REQUEST_POST_NOTIFICATIONS);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_POST_NOTIFICATIONS) {
+            boolean granted = grantResults.length > 0 && grantResults[0] == 0;
+            DiagLog.log("SYS", "POST_NOTIFICATIONS result: " + (granted ? "granted" : "DENIED"));
+            if (!granted) {
+                Toast.makeText(this, R.string.toast_notif_permission_denied, Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    private void updateNotificationRow() {
+        boolean enabled = getSharedPreferences(PrefsKeys.APP_PREFS, 0)
+                .getBoolean(PrefsKeys.NOTIFICATIONS, true);
+        this.textNotificationState.setText(enabled ? R.string.state_on : R.string.state_off);
+        this.textNotificationState.setTextColor(enabled ? Color.rgb(76, 175, 80) : Color.rgb(154, 160, 166));
+    }
+
+    private void updateToastRow() {
+        boolean enabled = getSharedPreferences(PrefsKeys.APP_PREFS, 0)
+                .getBoolean(PrefsKeys.TOAST, false);
+        this.textToastState.setText(enabled ? R.string.state_on : R.string.state_off);
+        this.textToastState.setTextColor(enabled ? Color.rgb(76, 175, 80) : Color.rgb(154, 160, 166));
+    }
+
+    private void updateLanguageRow() {
+        boolean english = "en".equals(LocaleHelper.getEffectiveLanguage(this));
+        this.textLanguageState.setText(english ? R.string.language_name_en : R.string.language_name_id);
+    }
+
+    private void toggleLanguage() {
+        String current = LocaleHelper.getEffectiveLanguage(this);
+        String next = "en".equals(current) ? "id" : "en";
+        DiagLog.log("USER", "language: " + current + " -> " + next);
+        LocaleHelper.saveLanguage(this, next);
+        recreate();
+    }
+
+    private void initRootAccess() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    suProcess = Runtime.getRuntime().exec("su");
+                    suOutput = new DataOutputStream(suProcess.getOutputStream());
+                    suReader = new BufferedReader(new InputStreamReader(suProcess.getInputStream()));
+                    suOutput.writeBytes("echo ROOT_OK\n");
+                    suOutput.flush();
+                    String line;
+                    while ((line = suReader.readLine()) != null) {
+                        if (line.contains("ROOT_OK")) {
+                            rootAvailable = true;
+                            mainHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(MainActivity.this, R.string.toast_root_ok, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                            break; // hand the reader over to runSuCommandWithOutput
+                        }
+                    }
+                    if (!rootAvailable) {
+                        throw new IOException(getString(R.string.error_root_denied));
+                    }
+                } catch (final Exception e) {
+                    rootAvailable = false;
+                    mainHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainActivity.this,
+                                    getString(R.string.toast_root_failed, e.getMessage()),
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+            }
+        }).start();
+    }
+
+    private String runSuCommandWithOutput(String command) throws Exception {
+        if (!this.rootAvailable || this.suOutput == null || this.suReader == null) {
+            throw new IOException(getString(R.string.error_root_not_available));
+        }
+        this.suOutput.writeBytes(command + "\n");
+        this.suOutput.writeBytes("echo EXIT:$?\n");
+        this.suOutput.flush();
+        StringBuilder output = new StringBuilder();
+        String line;
+        int exitCode = -1;
+        while ((line = this.suReader.readLine()) != null) {
+            if (line.startsWith("EXIT:")) {
+                try {
+                    exitCode = Integer.parseInt(line.substring(5).trim());
+                } catch (NumberFormatException ignored) {
+                }
+                break;
+            }
+            output.append(line).append("\n");
+        }
+        if (exitCode != 0) {
+            throw new IOException(output.toString().trim());
+        }
+        return output.toString().trim();
+    }
+
+    private void executeRootCommandAsync(final RootCallback task, final RootErrorCallback onError, final RootCallback onSuccess) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    task.run();
+                    if (onSuccess != null) {
+                        mainHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    onSuccess.run();
+                                } catch (Exception ignored) {
+                                }
+                            }
+                        });
+                    }
+                } catch (final Exception e) {
+                    if (onError != null) {
+                        mainHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                onError.onError(e);
+                            }
+                        });
+                    }
+                }
+            }
+        }).start();
+    }
+
+    private void openFileInEditor(final String path) {
+        Toast.makeText(this, R.string.now_loading, Toast.LENGTH_SHORT).show();
+        executeRootCommandAsync(new RootCallback() {
+            @Override
+            public void run() throws Exception {
+                String content = runSuCommandWithOutput("cat " + path + "; echo ===END===");
+                String cleaned = content.replace("===END===", "").trim();
+                currentFilePath = path;
+                originalFileContent = cleaned;
+                final String text = cleaned;
+                mainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        editTextFileContent.setText(text);
+                        layoutFileEditor.setVisibility(View.VISIBLE);
+                        Toast.makeText(MainActivity.this, R.string.toast_file_opened, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        }, new RootErrorCallback() {
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(MainActivity.this,
+                        getString(R.string.toast_file_open_failed, e.getMessage()),
+                        Toast.LENGTH_LONG).show();
+            }
+        }, null);
+    }
+
+    // Line-set diff between the content the editor was opened with
+    // and what is being saved, for the diagnostic log: which entries
+    // were added and which removed, by name.
+    private static String describeListDiff(String before, String after) {
+        java.util.Set<String> oldLines = new java.util.LinkedHashSet<>();
+        java.util.Set<String> newLines = new java.util.LinkedHashSet<>();
+        if (before != null) {
+            for (String line : before.split("\n")) {
+                if (!line.trim().isEmpty()) {
+                    oldLines.add(line.trim());
+                }
+            }
+        }
+        if (after != null) {
+            for (String line : after.split("\n")) {
+                if (!line.trim().isEmpty()) {
+                    newLines.add(line.trim());
+                }
+            }
+        }
+        java.util.List<String> added = new java.util.ArrayList<>(newLines);
+        added.removeAll(oldLines);
+        java.util.List<String> removed = new java.util.ArrayList<>(oldLines);
+        removed.removeAll(newLines);
+        StringBuilder sb = new StringBuilder();
+        sb.append("+").append(added.size()).append(" -").append(removed.size());
+        if (!added.isEmpty()) {
+            sb.append(", added: ").append(summarizeNames(added));
+        }
+        if (!removed.isEmpty()) {
+            sb.append(", removed: ").append(summarizeNames(removed));
+        }
+        return sb.toString();
+    }
+
+    private static String summarizeNames(java.util.List<String> names) {
+        StringBuilder sb = new StringBuilder();
+        int shown = Math.min(names.size(), 10);
+        for (int i = 0; i < shown; i++) {
+            if (i > 0) {
+                sb.append(", ");
+            }
+            sb.append(names.get(i));
+        }
+        if (names.size() > shown) {
+            sb.append(", +").append(names.size() - shown).append(" more");
+        }
+        return sb.toString();
+    }
+
+    private void saveCurrentFile() {
+        if (this.currentFilePath != null) {
+            String content = this.editTextFileContent.getText().toString();
+            DiagLog.log("USER", "list save: " + new File(this.currentFilePath).getName()
+                    + " (" + describeListDiff(this.originalFileContent, content) + ")");
+            StringBuilder command = new StringBuilder();
+            command.append("> ").append(this.currentFilePath).append("\n");
+            if (!content.trim().isEmpty()) {
+                for (String line : content.split("\n")) {
+                    command.append("echo '").append(line.replace("'", "'\\''")).append("' >> ")
+                            .append(this.currentFilePath).append("\n");
+                }
+            }
+            final String fullCommand = command.toString();
+            final String savedPath = this.currentFilePath;
+            executeRootCommandAsync(new RootCallback() {
+                @Override
+                public void run() throws Exception {
+                    for (String line : fullCommand.split("\n")) {
+                        if (!line.trim().isEmpty()) {
+                            runSuCommandWithOutput(line);
+                        }
+                    }
+                    DiagLog.log("SYS", "list write ok: " + savedPath);
+                }
+            }, new RootErrorCallback() {
+                @Override
+                public void onError(Exception e) {
+                    DiagLog.log("SYS", "list write FAILED: " + savedPath + ": " + e.getMessage());
+                    Toast.makeText(MainActivity.this, R.string.toast_save_failed, Toast.LENGTH_LONG).show();
+                }
+            }, new RootCallback() {
+                @Override
+                public void run() {
+                    Toast.makeText(MainActivity.this, R.string.toast_saved, Toast.LENGTH_SHORT).show();
+                    layoutFileEditor.setVisibility(View.GONE);
+                }
+            });
+        }
+    }
+
+    private String getCurrentVersion() {
+        try {
+            return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            return "0.0.0";
+        }
+    }
+
+    private boolean isNetworkAvailable() {
+        try {
+            ConnectivityManager manager = (ConnectivityManager) getSystemService("connectivity");
+            if (manager == null) {
+                return false;
+            }
+            NetworkInfo activeNetworkInfo = manager.getActiveNetworkInfo();
+            return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+        } catch (SecurityException e) {
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // Numeric, part-by-part version comparison ("6.0.1" > "6.0.0").
+    // Returns a negative value when a < b, 0 when equal, positive when
+    // a > b. Non-numeric parts count as 0.
+    // The comparison itself lives in PureCalc so the JVM tests in
+    // tests/ cover the exact code the update checker runs.
+    private static int compareVersions(String a, String b) {
+        return PureCalc.compareVersions(a, b);
+    }
+
+    // The automatic check on launch stays silent unless a real upgrade
+    // exists. A manual check (CEK UPDATE button) also tells the user
+    // when everything is already up to date.
+    private void checkUpdate(final boolean manual) {
+        if (!isNetworkAvailable()) {
+            if (manual) {
+                Toast.makeText(this, R.string.toast_no_internet, Toast.LENGTH_SHORT).show();
+            }
+            return;
+        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    HttpURLConnection connection = (HttpURLConnection) new URL(UPDATE_API_URL).openConnection();
+                    connection.setRequestProperty("User-Agent", "AppSlayer");
+                    connection.setConnectTimeout(5000);
+                    connection.setReadTimeout(5000);
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    StringBuilder response = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+                    reader.close();
+                    JSONObject json = new JSONObject(response.toString());
+                    String tag = json.optString("tag_name");
+                    final String latest = tag.startsWith("v") ? tag.substring(1) : tag;
+                    final String changelog = json.optString("body");
+                    final String releaseUrl = json.optString("html_url");
+                    String apkUrl = null;
+                    JSONArray assets = json.optJSONArray("assets");
+                    if (assets != null) {
+                        for (int i = 0; i < assets.length(); i++) {
+                            JSONObject asset = assets.optJSONObject(i);
+                            if (asset != null && asset.optString("name").endsWith(".apk")) {
+                                apkUrl = asset.optString("browser_download_url");
+                                break;
+                            }
+                        }
+                    }
+                    final String downloadUrl = apkUrl;
+                    if (!latest.isEmpty() && compareVersions(latest, getCurrentVersion()) > 0) {
+                        mainHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                updateNotice.setVisibility(View.VISIBLE);
+                                updateNotice.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        showUpdateDialog(latest, changelog, downloadUrl, releaseUrl);
+                                    }
+                                });
+                            }
+                        });
+                    } else if (manual) {
+                        mainHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(MainActivity.this, R.string.toast_up_to_date, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                } catch (Exception ignored) {
+                    // No update info is not an error worth showing.
+                }
+            }
+        }).start();
+    }
+
+    private void showUpdateDialog(final String latest, String changelog, final String apkUrl, final String releaseUrl) {
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.dialog_update_title))
+                .setMessage(getString(R.string.dialog_update_message, latest, changelog, getCurrentVersion()))
+                .setPositiveButton(getString(R.string.dialog_yes), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (!isNetworkAvailable()) {
+                            Toast.makeText(MainActivity.this, R.string.toast_no_internet, Toast.LENGTH_SHORT).show();
+                        } else if (apkUrl != null && !apkUrl.isEmpty()) {
+                            Toast.makeText(MainActivity.this, R.string.toast_downloading_update, Toast.LENGTH_SHORT).show();
+                            downloadApk(apkUrl);
+                        } else if (releaseUrl != null && !releaseUrl.isEmpty()) {
+                            // No APK attached to the release: open its page instead.
+                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(releaseUrl)));
+                        }
+                    }
+                })
+                .setNegativeButton(getString(R.string.dialog_no), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .show();
+    }
+
+    private void downloadApk(String apkUrl) {
+        final String filePath = new File(getExternalFilesDir(null), "update.apk").getAbsolutePath();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    HttpURLConnection connection = (HttpURLConnection) new URL(apkUrl).openConnection();
+                    connection.connect();
+                    InputStream input = connection.getInputStream();
+                    FileOutputStream output = new FileOutputStream(filePath);
+                    byte[] buffer = new byte[4096];
+                    int count;
+                    while ((count = input.read(buffer)) != -1) {
+                        output.write(buffer, 0, count);
+                    }
+                    output.close();
+                    input.close();
+                    mainHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            installApk(filePath);
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    private void installApk(String filePath) {
+        // A file:// Uri crashes with FileUriExposedException on modern
+        // Android; hand the installer a content:// Uri instead.
+        Uri uri = FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", new File(filePath));
+        Intent intent = new Intent("android.intent.action.VIEW");
+        intent.setDataAndType(uri, "application/vnd.android.package-archive");
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivity(intent);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.menu_monitor) {
+            startActivity(new Intent(this, FloatingMonitorActivity.class));
+            return true;
+        }
+        if (id == R.id.menu_language) {
+            toggleLanguage();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Self-heal the notification toggle: the row reflects the
+        // preference, but the service can be dead while the
+        // preference says on (fresh install defaults to on, a ROM
+        // can kill the service, ...). That state used to be a silent
+        // dead end — the row said ON, nothing ran, no battery
+        // history was collected. If the preference is on and the
+        // service is not running, start it.
+        if (getSharedPreferences(PrefsKeys.APP_PREFS, 0).getBoolean(PrefsKeys.NOTIFICATIONS, true)
+                && !MyService.isRunning()) {
+            DiagLog.log("SYS", "notification preference on but service not running — restarting it");
+            Intent intent = new Intent(this, MyService.class);
+            try {
+                if (Build.VERSION.SDK_INT >= 26) {
+                    startForegroundService(intent);
+                } else {
+                    startService(intent);
+                }
+            } catch (Exception e) {
+                DiagLog.log("SYS", "notification service restart FAILED: "
+                        + e.getClass().getSimpleName() + ": " + e.getMessage());
+            }
+        }
+        this.toastOnlyReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                if ("com.appslayer.official.SHOW_TOAST".equals(action)) {
+                    String toast = intent.getStringExtra("toast");
+                    if (toast != null && getSharedPreferences(PrefsKeys.APP_PREFS, 0).getBoolean(PrefsKeys.TOAST, false)) {
+                        Toast.makeText(context, toast, Toast.LENGTH_SHORT).show();
+                    }
+                } else if ("com.appslayer.official.ACTION_TOAST_MODE".equals(action)) {
+                    String msg = intent.getStringExtra("msg");
+                    String status = intent.getStringExtra("status");
+                    Toast.makeText(context, (msg != null ? msg : "") + "\n" + (status != null ? status : ""), Toast.LENGTH_LONG).show();
+                }
+            }
+        };
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("com.appslayer.official.SHOW_TOAST");
+        filter.addAction("com.appslayer.official.ACTION_TOAST_MODE");
+        registerCustomReceiver(this.toastOnlyReceiver, filter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        DiagLog.flushMirrorAsync(this);
+        if (this.toastOnlyReceiver != null) {
+            unregisterReceiver(this.toastOnlyReceiver);
+        }
+    }
+}

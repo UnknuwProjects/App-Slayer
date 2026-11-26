@@ -1,0 +1,61 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.13.0'
+    }
+}
+
+apply plugin: 'com.android.application'
+
+android {
+    namespace 'com.appslayer.official'
+    compileSdk 36
+
+    defaultConfig {
+        applicationId 'com.appslayer.official'
+        minSdk 24
+        targetSdk 36
+        versionCode 704
+        versionName '6.3.1'
+    }
+
+    // Release signing with the owner's key. The keystore and its
+    // credentials come from the environment (GitHub Actions secrets)
+    // — nothing secret lives in the repo. Without the env vars the
+    // release build stays unsigned, like a plain local build.
+    signingConfigs {
+        release {
+            if (System.getenv('KEYSTORE_PATH')) {
+                storeFile file(System.getenv('KEYSTORE_PATH'))
+                storePassword System.getenv('KEYSTORE_PASSWORD')
+                keyAlias System.getenv('KEY_ALIAS')
+                keyPassword System.getenv('KEY_PASSWORD')
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            if (System.getenv('KEYSTORE_PATH')) {
+                signingConfig signingConfigs.release
+            }
+            minifyEnabled false
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    // Only for FileProvider, used to hand the downloaded update APK
+    // to the package installer.
+    implementation 'androidx.core:core:1.13.1'
+}

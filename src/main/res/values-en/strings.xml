@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">App Slayer</string>
+
+    <!-- Main screen -->
+    <string name="toast_mode_normal">Normal mode active</string>
+    <string name="toast_mode_aggressive">Aggressive mode active</string>
+    <string name="toast_mode_extreme">Extreme mode active</string>
+    <string name="edit_gamelist">Edit Gamelist</string>
+    <string name="edit_whitelist">Edit Whitelist</string>
+    <string name="edit_extreme">Edit Extreme</string>
+    <string name="edit_extrakill">Edit Extrakill</string>
+    <string name="edit_file_hint">Edit the file here...</string>
+    <string name="btn_save">Save</string>
+    <string name="update_available_title">New version available!</string>
+    <string name="update_available_subtitle">Tap to download the latest version</string>
+    <string name="toast_file_opened">File opened</string>
+    <string name="toast_file_open_failed">Couldn\'t open the file:\n%1$s</string>
+    <string name="toast_saved">Saved</string>
+    <string name="toast_save_failed">Couldn\'t save the file</string>
+    <string name="toast_root_ok">Root access granted</string>
+    <string name="toast_root_failed">Root access failed:\n%1$s</string>
+    <string name="toast_mode_failed">Couldn\'t set the mode:\n%1$s</string>
+    <string name="toast_no_internet">No internet connection</string>
+    <string name="toast_up_to_date">You are on the latest version</string>
+    <string name="toast_overlay_failed">Could not show the overlay: %1$s</string>
+    <string name="toast_downloading_update">Downloading update...</string>
+    <string name="toast_failed">Failed: %1$s</string>
+    <string name="toast_toast_on">Toast turned on</string>
+    <string name="toast_toast_off">Toast turned off</string>
+    <string name="toast_enabled">Toast turned on</string>
+    <string name="toast_disabled">Toast turned off</string>
+    <string name="now_loading">Loading...</string>
+    <string name="dialog_update_title">Update Available</string>
+    <string name="dialog_update_message">Latest version: %1$s\n\n=== What\'s new ===\n%2$s\n=================\n\nYour current version: %3$s\nDownload the update now?</string>
+    <string name="dialog_yes">Yes</string>
+    <string name="dialog_no">No</string>
+    <string name="error_root_not_available">Root access is not available yet</string>
+    <string name="error_root_denied">Root access denied by Magisk</string>
+
+    <string name="current_mode_label">Current mode:</string>
+    <string name="mode_name_normal">Normal</string>
+    <string name="mode_name_aggressive">Aggressive</string>
+    <string name="mode_name_extreme">Extreme</string>
+    <string name="mode_desc_normal">Balanced for everyday use, easy on the battery.</string>
+    <string name="mode_desc_aggressive">Kills background apps harder, made for gaming.</string>
+    <string name="mode_desc_extreme">Maximum killing, everything gets cut — notifications may be delayed.</string>
+    <string name="chip_active">Active</string>
+    <string name="section_modes">Choose Mode</string>
+    <string name="section_functions">Features</string>
+    <string name="row_floating_monitor">Floating Monitor</string>
+    <string name="row_battery_info">Battery Info</string>
+    <string name="row_notifications">Status Notifications</string>
+    <string name="row_toast">Toast</string>
+    <string name="row_language">Language</string>
+    <string name="row_execute">Run Now</string>
+    <string name="state_on">On</string>
+    <string name="state_off">Off</string>
+    <string name="btn_check_update">Check for Update</string>
+    <string name="language_name_id">Bahasa Indonesia</string>
+    <string name="language_name_en">English</string>
+
+    <!-- Service notification -->
+    <string name="notif_channel_name">App Slayer silent channel</string>
+    <string name="notif_status_default">Module active | Enjoy your gaming 🎮</string>
+    <string name="notif_ram_format">RAM: %1$.2f GB free | %2$.2f GB total (%3$d%% used)</string>
+    <string name="batt_full">Battery Full ✅</string>
+    <string name="batt_turbo">Turbo Charging 🚀</string>
+    <string name="batt_fast">Fast Charging ⚡</string>
+    <string name="batt_charging">Charging</string>
+    <string name="batt_slow">Slow Charging</string>
+    <string name="batt_discharging">Discharging</string>
+    <string name="batt_not_charging">Not charging</string>
+    <string name="batt_status_unknown">Unknown</string>
+    <string name="batt_calculating">Calculating...</string>
+
+    <!-- Floating monitor -->
+    <string name="floating_monitor_title">Floating Monitor</string>
+    <string name="battery_status">Battery Status</string>
+    <string name="settings_title">Settings</string>
+    <string name="transparency">Transparency</string>
+    <string name="text_size">Text size</string>
+    <string name="snap_to_bar">Snap to status bar</string>
+    <string name="click_through">Click through</string>
+    <string name="disable_fullscreen">Disable in fullscreen</string>
+    <string name="disable_landscape">Disable in landscape</string>
+    <string name="dark_text">Dark text</string>
+    <string name="text_shadow">Text shadow</string>
+    <string name="start_on_boot">Start on boot</string>
+    <string name="diag_title">Diagnostics</string>
+    <string name="diag_notif_permission">Notification permission: %1$s</string>
+    <string name="diag_notif_service">Notification service: %1$s</string>
+    <string name="toast_notif_permission_denied">Notification permission denied — the status notification will not appear. Enable it from the app settings.</string>
+    <string name="diag_permission">Overlay permission: %1$s</string>
+    <string name="diag_service">Overlay service: %1$s</string>
+    <string name="diag_windows">Windows shown: %1$d</string>
+    <string name="state_granted">Granted</string>
+    <string name="state_not_granted">Not granted</string>
+    <string name="state_running">Running</string>
+    <string name="state_not_running">Not running</string>
+    <string name="diag_test">Test Overlay</string>
+    <string name="diag_test_ok">Overlay shown: %1$d windows</string>
+    <string name="diag_test_fail">Overlay is not showing yet. Check the overlay permission and the pop-up window permission for this app.</string>
+    <string name="diag_enabled_service">Monitors enabled (service view): %1$d</string>
+    <string name="diag_last_add">Last window add: %1$s</string>
+    <string name="battery_history_hint">Battery history is collected while the notification service runs. Enable notifications on the main screen to fill the graph.</string>
+    <string name="diag_run_checks">Run checks</string>
+    <string name="diag_share_log">Share log</string>
+    <string name="diag_clear_log">Clear log</string>
+    <string name="diag_log_path_hint">Log is saved at /storage/emulated/0/AppSlayer/logs/diagnostic_log.txt</string>
+    <string name="diag_log_saved">Snapshot saved. Log is at /storage/emulated/0/AppSlayer/logs/diagnostic_log.txt</string>
+    <string name="diag_log_cleared">Log cleared</string>
+    <string name="diag_log_share_chooser">Share diagnostic log</string>
+    <string name="monitor_style_title">Monitor Style</string>
+    <string name="monitor_style_classic">Classic</string>
+    <string name="monitor_style_mini">Mini</string>
+    <string name="temp_sensors_title">Temperature Sensors</string>
+    <string name="temp_sensors_empty">No readable temperature sensors</string>
+    <string name="monitor_title">Monitor</string>
+    <string name="monitor_cpu">CPU monitor</string>
+    <string name="monitor_temp">Temperature monitor</string>
+    <string name="monitor_battery">Battery monitor</string>
+    <string name="monitor_ram">RAM monitor</string>
+    <string name="monitor_current">Battery current</string>
+    <string name="monitor_signal">Network monitor</string>
+    <string name="monitor_fps">FPS monitor</string>
+    <string name="monitor_process">Process monitor</string>
+    <string name="reset_settings">Reset settings</string>
+    <string name="toast_location_needed">Location permission is needed to read the signal</string>
+    <string name="toast_overlay_permission">Enable the display over other apps permission</string>
+    <string name="toast_settings_reset">Settings reset</string>
+    <string name="dialog_battery_title">Battery Information</string>
+    <string name="battery_info_message">======================\nLevel: %1$d%%\nHealth: %2$s\nOriginal Capacity (system): %3$s\nCurrent Capacity (system): %4$s\nSystem Health: %5$s\nStatus: %9$s\nCurrent: %10$s\nPower: %13$s\nEstimated time to full: %11$s\nEstimated time left: %12$s\n\nBattery Capacity (Real): %6$s\nBattery Health (Real): %7$s\nLast calculated: %8$s\n======================\n\nNotes:\n- The (Real) estimate is only calculated after at least 3 charges while the device is on.\n- Charging while the device is off (power-off charging) is not counted.</string>
+    <string name="waiting_data">Waiting for data...</string>
+    <string name="not_available_yet">Not available yet</string>
+    <string name="dialog_close">Close</string>
+    <string name="toast_permission_granted">Location permission granted</string>
+    <string name="toast_permission_denied">Location permission denied. Signal can\'t be read.</string>
+
+    <string name="battery_history_title">Battery history (24h)</string>
+    <string name="battery_history_empty">No battery data yet</string>
+    <string name="since_last_full_charge">Since last full charge</string>
+    <string name="avg_drain">Average drain</string>
+    <string name="estimated_time_left">Estimated time left</string>
+    <string name="collecting_battery_data">Collecting battery data...</string>
+    <string name="drain_per_hour">%1$.1f%%/h</string>
+    <string name="duration_hm">%1$d h %2$d m</string>
+    <string name="hours_left">±%1$d hours</string>
+
+    <!-- FPS recorder -->
+    <string name="fps_record_title">FPS Recorder</string>
+    <string name="record_fps">Record FPS</string>
+    <string name="record_fps_hint">Record FPS while playing, then check the report in the sessions list. Recording keeps running after this screen is closed.</string>
+    <string name="fps_recording_status">● Recording %1$s · %2$d samples</string>
+    <string name="fps_record_idle">Not recording</string>
+    <string name="btn_fps_sessions">FPS Sessions</string>
+    <string name="fps_sessions_title">FPS Sessions</string>
+    <string name="fps_sessions_empty">No recorded sessions yet</string>
+    <string name="fps_unknown_app">Unknown app</string>
+    <string name="fps_avg_short">Avg %1$.1f FPS</string>
+    <string name="fps_report_title">FPS Session Report</string>
+    <string name="fps_report_message">App: %1$s\nTime: %2$s\nDuration: %3$s\nSamples: %4$d\n\nMax FPS: %5$s\nMin FPS: %6$s\nAverage FPS: %7$s\n5%% low: %8$s\n1%% low: %9$s\nSmoothness: %10$s\nAverage CPU temperature: %11$s\nAverage GPU temperature: %12$s\nAverage power: %13$s</string>
+    <string name="fps_smoothness_note">Smoothness = percentage of samples whose frame time is within ±20%% of this session\'s median frame time. Higher means a steadier frame rate.</string>
+    <string name="fps_no_samples">No valid FPS samples in this session.</string>
+    <string name="graph_fps_title">FPS over time</string>
+    <string name="graph_temp_title">Temperature over time (CPU / GPU)</string>
+    <string name="graph_frametime_title">Frame time over time (ms)</string>
+    <string name="fps_delete_confirm">Delete this session?</string>
+    <string name="dialog_delete">Delete</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="toast_recording_started">FPS recording started</string>
+    <string name="toast_recording_stopped">Recording stopped · %1$d samples saved</string>
+    <string name="toast_recording_limit">Recording stopped: 1-hour session limit reached</string>
+    <string name="toast_session_deleted">Session deleted</string>
+
+    <!-- Overlay -->
+    <string name="overlay_loading">Loading...</string>
+    <string name="overlay_cpu_loading">CPU: Loading...</string>
+    <string name="overlay_channel_name">Overlay Monitor</string>
+    <string name="overlay_running">Running...</string>
+    <string name="action_close">Close</string>
+    <string name="resume_channel_name">Resume Overlay</string>
+    <string name="overlay_paused_title">Overlay Paused</string>
+    <string name="overlay_paused_text">Fullscreen detected. Tap to resume.</string>
+    <string name="action_resume_overlay">Resume Overlay</string>
+    <string name="signal_format">Signal: %1$d dBm (%2$d%%)</string>
+    <string name="signal_na">Signal: n/a</string>
+</resources>

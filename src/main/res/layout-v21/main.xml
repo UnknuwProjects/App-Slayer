@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:background="#050607" android:fitsSystemWindows="true" android:layout_width="match_parent" android:layout_height="match_parent">
+    <LinearLayout android:orientation="vertical" android:padding="20dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+
+        <TextView android:text="@string/current_mode_label" android:textColor="#9aa0a6" android:textSize="13sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <TextView android:id="@+id/textCurrentModeName" android:text="@string/mode_name_normal" android:textColor="#4caf50" android:textSize="26sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp"/>
+        <TextView android:id="@+id/textCurrentModeDesc" android:text="@string/mode_desc_normal" android:textColor="#c9ced1" android:textSize="14sp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp"/>
+
+        <TextView android:text="@string/section_modes" android:textColor="#9aa0a6" android:textSize="13sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="22dp"/>
+
+        <LinearLayout android:id="@+id/cardModeNormal" android:orientation="horizontal" android:background="@drawable/card_background" android:padding="14dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:gravity="center_vertical">
+            <ImageView android:src="@drawable/ic_mode_normal" android:layout_width="30dp" android:layout_height="30dp"/>
+            <LinearLayout android:orientation="vertical" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginLeft="14dp" android:layout_marginStart="14dp">
+                <TextView android:text="@string/mode_name_normal" android:textColor="#ffffff" android:textSize="16sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <TextView android:text="@string/mode_desc_normal" android:textColor="#9aa0a6" android:textSize="13sp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp"/>
+            </LinearLayout>
+            <TextView android:id="@+id/chipModeNormal" android:text="@string/chip_active" android:textColor="#0b0d0e" android:textSize="11sp" android:textStyle="bold" android:background="@drawable/chip_active" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/cardModeAggressive" android:orientation="horizontal" android:background="@drawable/card_background" android:padding="14dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:gravity="center_vertical">
+            <ImageView android:src="@drawable/ic_mode_aggressive" android:layout_width="30dp" android:layout_height="30dp"/>
+            <LinearLayout android:orientation="vertical" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginLeft="14dp" android:layout_marginStart="14dp">
+                <TextView android:text="@string/mode_name_aggressive" android:textColor="#ffffff" android:textSize="16sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <TextView android:text="@string/mode_desc_aggressive" android:textColor="#9aa0a6" android:textSize="13sp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp"/>
+            </LinearLayout>
+            <TextView android:id="@+id/chipModeAggressive" android:text="@string/chip_active" android:textColor="#0b0d0e" android:textSize="11sp" android:textStyle="bold" android:background="@drawable/chip_active" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/cardModeExtreme" android:orientation="horizontal" android:background="@drawable/card_background" android:padding="14dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:gravity="center_vertical">
+            <ImageView android:src="@drawable/ic_mode_extreme" android:layout_width="30dp" android:layout_height="30dp"/>
+            <LinearLayout android:orientation="vertical" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginLeft="14dp" android:layout_marginStart="14dp">
+                <TextView android:text="@string/mode_name_extreme" android:textColor="#ffffff" android:textSize="16sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <TextView android:text="@string/mode_desc_extreme" android:textColor="#9aa0a6" android:textSize="13sp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp"/>
+            </LinearLayout>
+            <TextView android:id="@+id/chipModeExtreme" android:text="@string/chip_active" android:textColor="#0b0d0e" android:textSize="11sp" android:textStyle="bold" android:background="@drawable/chip_active" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <TextView android:text="@string/section_functions" android:textColor="#9aa0a6" android:textSize="13sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="22dp"/>
+
+        <LinearLayout android:id="@+id/rowEditGamelist" android:orientation="horizontal" android:background="@drawable/card_background" android:padding="14dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:gravity="center_vertical">
+            <ImageView android:src="@drawable/ic_gamelist" android:layout_width="26dp" android:layout_height="26dp"/>
+            <TextView android:text="@string/edit_gamelist" android:textColor="#ffffff" android:textSize="15sp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="14dp" android:layout_marginStart="14dp"/>
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/rowEditWhitelist" android:orientation="horizontal" android:background="@drawable/card_background" android:padding="14dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:gravity="center_vertical">
+            <ImageView android:src="@drawable/ic_whitelist" android:layout_width="26dp" android:layout_height="26dp"/>
+            <TextView android:text="@string/edit_whitelist" android:textColor="#ffffff" android:textSize="15sp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="14dp" android:layout_marginStart="14dp"/>
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/rowEditExtreme" android:orientation="horizontal" android:background="@drawable/card_background" android:padding="14dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:gravity="center_vertical">
+            <ImageView android:src="@drawable/ic_extreme_list" android:layout_width="26dp" android:layout_height="26dp"/>
+            <TextView android:text="@string/edit_extreme" android:textColor="#ffffff" android:textSize="15sp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="14dp" android:layout_marginStart="14dp"/>
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/rowEditExtrakill" android:orientation="horizontal" android:background="@drawable/card_background" android:padding="14dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:gravity="center_vertical">
+            <ImageView android:src="@drawable/ic_extrakill" android:layout_width="26dp" android:layout_height="26dp"/>
+            <TextView android:text="@string/edit_extrakill" android:textColor="#ffffff" android:textSize="15sp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="14dp" android:layout_marginStart="14dp"/>
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/rowFloatingMonitor" android:orientation="horizontal" android:background="@drawable/card_background" android:padding="14dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:gravity="center_vertical">
+            <ImageView android:src="@drawable/ic_monitor" android:layout_width="26dp" android:layout_height="26dp"/>
+            <TextView android:text="@string/row_floating_monitor" android:textColor="#ffffff" android:textSize="15sp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="14dp" android:layout_marginStart="14dp"/>
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/rowBatteryInfo" android:orientation="horizontal" android:background="@drawable/card_background" android:padding="14dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:gravity="center_vertical">
+            <ImageView android:src="@drawable/ic_battery" android:layout_width="26dp" android:layout_height="26dp"/>
+            <TextView android:text="@string/row_battery_info" android:textColor="#ffffff" android:textSize="15sp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="14dp" android:layout_marginStart="14dp"/>
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/rowNotificationToggle" android:orientation="horizontal" android:background="@drawable/card_background" android:padding="14dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:gravity="center_vertical">
+            <ImageView android:src="@drawable/ic_bell" android:layout_width="26dp" android:layout_height="26dp"/>
+            <TextView android:text="@string/row_notifications" android:textColor="#ffffff" android:textSize="15sp" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginLeft="14dp" android:layout_marginStart="14dp"/>
+            <TextView android:id="@+id/textNotificationState" android:text="@string/state_on" android:textColor="#4caf50" android:textSize="13sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/rowToastToggle" android:orientation="horizontal" android:background="@drawable/card_background" android:padding="14dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:gravity="center_vertical">
+            <ImageView android:src="@drawable/ic_toast" android:layout_width="26dp" android:layout_height="26dp"/>
+            <TextView android:text="@string/row_toast" android:textColor="#ffffff" android:textSize="15sp" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginLeft="14dp" android:layout_marginStart="14dp"/>
+            <TextView android:id="@+id/textToastState" android:text="@string/state_off" android:textColor="#4caf50" android:textSize="13sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/rowExecuteNow" android:orientation="horizontal" android:background="@drawable/card_background" android:padding="14dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:gravity="center_vertical">
+            <ImageView android:src="@drawable/ic_execute" android:layout_width="26dp" android:layout_height="26dp"/>
+            <TextView android:text="@string/row_execute" android:textColor="#ffffff" android:textSize="15sp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="14dp" android:layout_marginStart="14dp"/>
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/rowLanguage" android:orientation="horizontal" android:background="@drawable/card_background" android:padding="14dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:gravity="center_vertical">
+            <ImageView android:src="@drawable/ic_globe" android:layout_width="26dp" android:layout_height="26dp"/>
+            <TextView android:text="@string/row_language" android:textColor="#ffffff" android:textSize="15sp" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginLeft="14dp" android:layout_marginStart="14dp"/>
+            <TextView android:id="@+id/textLanguageState" android:text="@string/language_name_id" android:textColor="#4caf50" android:textSize="13sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/updateNotice" android:elevation="4dp" android:orientation="vertical" android:background="@drawable/update_background" android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:visibility="gone">
+            <TextView android:text="@string/update_available_title" android:textColor="#000000" android:textSize="16sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            <TextView android:text="@string/update_available_subtitle" android:textColor="#333333" android:textSize="13sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <Button android:id="@+id/btnCheckUpdate" android:text="@string/btn_check_update" android:textColor="#4caf50" android:textSize="14sp" android:textStyle="bold" android:background="@drawable/btn_check_update" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="16dp"/>
+
+        <LinearLayout android:id="@+id/layoutFileEditor" android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:visibility="gone">
+            <EditText android:id="@+id/editTextFileContent" android:background="#1a1d1f" android:textColor="#ffffff" android:textColorHint="#9aa0a6" android:hint="@string/edit_file_hint" android:padding="12dp" android:layout_width="match_parent" android:layout_height="220dp" android:gravity="top|start" android:inputType="textMultiLine" android:textSize="13sp"/>
+            <Button android:id="@+id/btnSave" android:text="@string/btn_save" android:textColor="#ffffff" android:background="#2e7d32" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="10dp"/>
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

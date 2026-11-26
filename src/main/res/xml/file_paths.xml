@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- The downloaded update APK lives in the app's external files dir. -->
+    <external-files-path name="updates" path="." />
+    <!-- The diagnostic log's primary copy in the private files dir. -->
+    <files-path name="diag_internal" path="." />
+    <!-- Its mirrored copy on shared storage (written via root shell). -->
+    <external-path name="diag_mirror" path="AppSlayer/logs/" />
+</paths>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:background="#000000" android:padding="16dp" android:fitsSystemWindows="true" android:layout_width="match_parent" android:layout_height="match_parent">
+    <LinearLayout android:orientation="vertical" android:background="#111111" android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+        <TextView android:id="@+id/reportStats" android:textSize="15sp" android:textColor="#ffffff" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <TextView android:id="@+id/reportNote" android:textSize="12sp" android:textColor="#9aa0a6" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="@string/fps_smoothness_note"/>
+        <TextView android:textSize="15sp" android:textStyle="bold" android:textColor="#448aff" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:layout_marginBottom="6dp" android:text="@string/graph_fps_title"/>
+        <com.appslayer.official.SessionGraphView android:id="@+id/graphFps" android:layout_width="match_parent" android:layout_height="160dp"/>
+        <TextView android:textSize="15sp" android:textStyle="bold" android:textColor="#448aff" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:layout_marginBottom="6dp" android:text="@string/graph_temp_title"/>
+        <com.appslayer.official.SessionGraphView android:id="@+id/graphTemp" android:layout_width="match_parent" android:layout_height="160dp"/>
+        <TextView android:textSize="15sp" android:textStyle="bold" android:textColor="#448aff" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:layout_marginBottom="6dp" android:text="@string/graph_frametime_title"/>
+        <com.appslayer.official.SessionGraphView android:id="@+id/graphFrameTime" android:layout_width="match_parent" android:layout_height="160dp"/>
+    </LinearLayout>
+</ScrollView>
