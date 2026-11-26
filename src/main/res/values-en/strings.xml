@@ -179,10 +179,8 @@
     <string name="toast_overlay_permission">Enable the display over other apps permission</string>
     <string name="toast_settings_reset">Settings reset</string>
     <string name="dialog_battery_title">Battery Information</string>
-    <string name="batt_card_capacity">Capacity</string>
     <string name="batt_card_live">Live</string>
     <string name="batt_card_estimates">Estimates</string>
-    <string name="batt_card_real">Real Capacity</string>
     <string name="batt_label_health">Health</string>
     <string name="batt_label_design">Original Capacity (system)</string>
     <string name="batt_label_full">Current Capacity (system)</string>
@@ -224,8 +222,7 @@
     <string name="fps_unknown_app">Unknown app</string>
     <string name="fps_avg_short">Avg %1$.1f FPS</string>
     <string name="fps_report_title">FPS Session Report</string>
-    <string name="fps_report_message">App: %1$s\nTime: %2$s\nDuration: %3$s\nSamples: %4$d\n\nMax FPS: %5$s\nMin FPS: %6$s\nAverage FPS: %7$s\n5%% low: %8$s\n1%% low: %9$s\nSmoothness: %10$s\nAverage CPU temperature: %11$s\nAverage GPU temperature: %12$s\nAverage power: %13$s</string>
-    <string name="fps_smoothness_note">Smoothness = percentage of samples whose frame time is within ±20%% of this session\'s median frame time. Higher means a steadier frame rate.</string>
+    <string name="fps_smoothness_note" formatted="false">Smoothness = percentage of samples whose frame time is within ±20% of this session\'s median frame time. Higher means a steadier frame rate.</string>
     <string name="fps_no_samples">No valid FPS samples in this session.</string>
     <string name="graph_fps_title">FPS over time</string>
     <string name="graph_temp_title">Temperature over time (CPU / GPU)</string>
@@ -268,4 +265,27 @@
     <string name="thermal_status_shutdown">Near shutdown</string>
     <string name="thermal_status_unknown">Unknown</string>
     <string name="test_thermal_api_detail">Per-zone sensors: 0 · System thermal status: %1$s (Thermal API)</string>
+    <string name="fps_report_samples">%1$d samples</string>
+    <string name="stat_fps_avg">Average FPS</string>
+    <string name="stat_fps_max">Max FPS</string>
+    <string name="stat_fps_min">Min FPS</string>
+    <string name="stat_fps_low5">5% low</string>
+    <string name="stat_fps_low1">1% low</string>
+    <string name="stat_smoothness">Smoothness</string>
+    <string name="stat_cpu_temp_avg">Average CPU temp</string>
+    <string name="stat_gpu_temp_avg">Average GPU temp</string>
+    <string name="stat_power_avg">Average power</string>
+    <string name="chart_legend_temp">Temp</string>
+    <string name="fps_no_temp_samples">No valid temperature samples in this session</string>
+    <string name="batt_card_health">Battery Health</string>
+    <string name="batt_card_charging">Charging Session</string>
+    <string name="batt_label_session_levels">Level</string>
+    <string name="batt_label_session_duration">Duration</string>
+    <string name="batt_label_session_avg_current">Average current</string>
+    <string name="batt_label_session_avg_power">Average power</string>
+    <string name="batt_label_session_added">Estimated added</string>
+    <string name="batt_session_live">Charging now</string>
+    <string name="batt_session_last">Last session</string>
+    <string name="batt_session_none">No charging session recorded yet.</string>
+    <string name="batt_session_row">%1$s · %2$d%% → %3$d%% · %4$s · %5$s</string>
 </resources>

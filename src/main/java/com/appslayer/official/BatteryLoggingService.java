@@ -24,7 +24,9 @@ import android.os.IBinder;
 // BatteryHistory.record is broadcast-driven (the system fires
 // ACTION_BATTERY_CHANGED when the level or charging state moves)
 // and dedupes consecutive identical states, so this service costs
-// no polling loop — it only has to stay alive. That is why it is a
+// no polling loop — it only has to stay alive. The same stream
+// also feeds ChargeSessions, which cuts it into plug-in to
+// unplug charge sessions for the Battery screen. That is why it is a
 // foreground service: a plain background service is killed too
 // eagerly by modern Android/MIUI to collect anything. Its
 // notification is deliberately minimal: its own silent,
@@ -86,6 +88,7 @@ public class BatteryLoggingService extends Service {
             @Override
             public void onReceive(Context context, Intent intent) {
                 BatteryHistory.record(getApplicationContext(), intent);
+                ChargeSessions.onBatteryEvent(getApplicationContext(), intent);
             }
         };
         registerReceiver(batteryReceiver,
@@ -95,6 +98,7 @@ public class BatteryLoggingService extends Service {
         Intent sticky = registerReceiver(null,
                 new IntentFilter("android.intent.action.BATTERY_CHANGED"));
         BatteryHistory.record(getApplicationContext(), sticky);
+        ChargeSessions.onBatteryEvent(getApplicationContext(), sticky);
         BatteryHistory.prune(getApplicationContext());
     }
 

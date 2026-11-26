@@ -179,10 +179,8 @@
     <string name="toast_overlay_permission">请启用显示在其他应用上层的权限</string>
     <string name="toast_settings_reset">设置已重置</string>
     <string name="dialog_battery_title">电池信息</string>
-    <string name="batt_card_capacity">容量</string>
     <string name="batt_card_live">实时</string>
     <string name="batt_card_estimates">预估</string>
-    <string name="batt_card_real">实际容量</string>
     <string name="batt_label_health">健康状况</string>
     <string name="batt_label_design">原始容量（系统）</string>
     <string name="batt_label_full">当前容量（系统）</string>
@@ -224,8 +222,7 @@
     <string name="fps_unknown_app">未知应用</string>
     <string name="fps_avg_short">平均 %1$.1f FPS</string>
     <string name="fps_report_title">FPS 会话报告</string>
-    <string name="fps_report_message">应用：%1$s\n时间：%2$s\n时长：%3$s\n样本数：%4$d\n\n最高 FPS：%5$s\n最低 FPS：%6$s\n平均 FPS：%7$s\n5%% low：%8$s\n1%% low：%9$s\n流畅度：%10$s\nCPU 平均温度：%11$s\nGPU 平均温度：%12$s\n平均功率：%13$s</string>
-    <string name="fps_smoothness_note">流畅度 = 帧时间在本会话帧时间中位数 ±20%% 以内的样本百分比。越高，帧率越稳定。</string>
+    <string name="fps_smoothness_note" formatted="false">流畅度 = 帧时间在本会话帧时间中位数 ±20% 以内的样本百分比。越高，帧率越稳定。</string>
     <string name="fps_no_samples">此会话没有有效的 FPS 样本。</string>
     <string name="graph_fps_title">FPS 随时间变化</string>
     <string name="graph_temp_title">温度随时间变化（CPU / GPU）</string>
@@ -268,4 +265,27 @@
     <string name="thermal_status_shutdown">接近关机</string>
     <string name="thermal_status_unknown">未知</string>
     <string name="test_thermal_api_detail">分区传感器：0 · 系统热状态：%1$s（Thermal API）</string>
+    <string name="fps_report_samples">%1$d 个样本</string>
+    <string name="stat_fps_avg">平均 FPS</string>
+    <string name="stat_fps_max">最高 FPS</string>
+    <string name="stat_fps_min">最低 FPS</string>
+    <string name="stat_fps_low5">5% low</string>
+    <string name="stat_fps_low1">1% low</string>
+    <string name="stat_smoothness">流畅度</string>
+    <string name="stat_cpu_temp_avg">CPU 平均温度</string>
+    <string name="stat_gpu_temp_avg">GPU 平均温度</string>
+    <string name="stat_power_avg">平均功耗</string>
+    <string name="chart_legend_temp">温度</string>
+    <string name="fps_no_temp_samples">此会话没有有效的温度样本</string>
+    <string name="batt_card_health">电池健康</string>
+    <string name="batt_card_charging">充电会话</string>
+    <string name="batt_label_session_levels">电量</string>
+    <string name="batt_label_session_duration">时长</string>
+    <string name="batt_label_session_avg_current">平均电流</string>
+    <string name="batt_label_session_avg_power">平均功率</string>
+    <string name="batt_label_session_added">估计增加</string>
+    <string name="batt_session_live">正在充电</string>
+    <string name="batt_session_last">上次会话</string>
+    <string name="batt_session_none">尚无充电会话记录。</string>
+    <string name="batt_session_row">%1$s · %2$d%% → %3$d%% · %4$s · %5$s</string>
 </resources>

@@ -2,6 +2,13 @@
 
 # Changelog
 
+## 6.3.8
+- FPS session report redesigned: stat cards with big numbers and modern charts — smooth lines, temperature overlay with a legend, and axes that never go below zero.
+- Battery screen leads with battery health now: estimated real capacity against the design capacity, with the health percent up front.
+- New charging sessions card: the current or last charge session with duration, average current and power, plus your recent sessions.
+- Fixed the smoothness note showing a double percent sign.
+- Installs over 6.3.7, no need to uninstall.
+
 ## 6.3.7
 - Fixed text that was barely readable on the Floating Monitor screen.
 - Battery Status is a full screen now, not a dialog — tap it as many times as you like, it will not stack.

@@ -1,13 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- One session's report, Scene-style structure in the app's own
+dark card language (6.3.8): a header card (app, date, duration,
+samples), a stats card with the average FPS big on top and the
+rest as a grid of value-over-label blocks, then one card per
+chart. The temperature chart card hides entirely when the
+session holds no temperature samples. All values are filled in
+by id from FpsReportActivity; the math stays in PureCalc. -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:background="#000000" android:padding="16dp" android:fitsSystemWindows="true" android:layout_width="match_parent" android:layout_height="match_parent">
     <LinearLayout android:orientation="vertical" android:background="#111111" android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content">
-        <TextView android:id="@+id/reportStats" android:textSize="15sp" android:textColor="#ffffff" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <LinearLayout android:orientation="vertical" android:background="@drawable/card_background" android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+            <TextView android:id="@+id/reportApp" android:textSize="18sp" android:textStyle="bold" android:textColor="#ffffff" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+            <TextView android:id="@+id/reportMeta" android:textSize="13sp" android:textColor="#9aa0a6" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp"/>
+        </LinearLayout>
+        <TextView android:id="@+id/reportEmpty" android:textSize="14sp" android:textColor="#9aa0a6" android:background="@drawable/card_background" android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:visibility="gone" android:text="@string/fps_no_samples"/>
+        <LinearLayout android:id="@+id/statsCard" android:orientation="vertical" android:background="@drawable/card_background" android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp">
+            <TextView android:id="@+id/statAvgValue" android:textSize="34sp" android:textStyle="bold" android:textColor="#ffffff" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+            <TextView android:textSize="12sp" android:textColor="#9aa0a6" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/stat_fps_avg"/>
+            <View android:background="#2c3134" android:layout_width="match_parent" android:layout_height="1dp" android:layout_marginTop="12dp" android:layout_marginBottom="12dp"/>
+            <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content">
+                <LinearLayout android:orientation="vertical" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content">
+                    <TextView android:id="@+id/statMaxValue" android:textSize="18sp" android:textStyle="bold" android:textColor="#ffffff" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+                    <TextView android:textSize="11sp" android:textColor="#9aa0a6" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/stat_fps_max"/>
+                </LinearLayout>
+                <LinearLayout android:orientation="vertical" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content">
+                    <TextView android:id="@+id/statMinValue" android:textSize="18sp" android:textStyle="bold" android:textColor="#ffffff" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+                    <TextView android:textSize="11sp" android:textColor="#9aa0a6" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/stat_fps_min"/>
+                </LinearLayout>
+                <LinearLayout android:orientation="vertical" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content">
+                    <TextView android:id="@+id/statLow1Value" android:textSize="18sp" android:textStyle="bold" android:textColor="#ffffff" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+                    <TextView android:textSize="11sp" android:textColor="#9aa0a6" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/stat_fps_low1"/>
+                </LinearLayout>
+                <LinearLayout android:orientation="vertical" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content">
+                    <TextView android:id="@+id/statLow5Value" android:textSize="18sp" android:textStyle="bold" android:textColor="#ffffff" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+                    <TextView android:textSize="11sp" android:textColor="#9aa0a6" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/stat_fps_low5"/>
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp">
+                <LinearLayout android:orientation="vertical" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content">
+                    <TextView android:id="@+id/statSmoothValue" android:textSize="18sp" android:textStyle="bold" android:textColor="#ffffff" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+                    <TextView android:textSize="11sp" android:textColor="#9aa0a6" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/stat_smoothness"/>
+                </LinearLayout>
+                <LinearLayout android:orientation="vertical" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content">
+                    <TextView android:id="@+id/statCpuTempValue" android:textSize="18sp" android:textStyle="bold" android:textColor="#ffffff" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+                    <TextView android:textSize="11sp" android:textColor="#9aa0a6" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/stat_cpu_temp_avg"/>
+                </LinearLayout>
+                <LinearLayout android:orientation="vertical" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content">
+                    <TextView android:id="@+id/statGpuTempValue" android:textSize="18sp" android:textStyle="bold" android:textColor="#ffffff" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+                    <TextView android:textSize="11sp" android:textColor="#9aa0a6" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/stat_gpu_temp_avg"/>
+                </LinearLayout>
+                <LinearLayout android:orientation="vertical" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content">
+                    <TextView android:id="@+id/statPowerValue" android:textSize="18sp" android:textStyle="bold" android:textColor="#ffffff" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+                    <TextView android:textSize="11sp" android:textColor="#9aa0a6" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/stat_power_avg"/>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
         <TextView android:id="@+id/reportNote" android:textSize="12sp" android:textColor="#9aa0a6" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="@string/fps_smoothness_note"/>
-        <TextView android:textSize="15sp" android:textStyle="bold" android:textColor="#448aff" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:layout_marginBottom="6dp" android:text="@string/graph_fps_title"/>
-        <com.appslayer.official.SessionGraphView android:id="@+id/graphFps" android:layout_width="match_parent" android:layout_height="160dp"/>
-        <TextView android:textSize="15sp" android:textStyle="bold" android:textColor="#448aff" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:layout_marginBottom="6dp" android:text="@string/graph_temp_title"/>
-        <com.appslayer.official.SessionGraphView android:id="@+id/graphTemp" android:layout_width="match_parent" android:layout_height="160dp"/>
-        <TextView android:textSize="15sp" android:textStyle="bold" android:textColor="#448aff" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:layout_marginBottom="6dp" android:text="@string/graph_frametime_title"/>
-        <com.appslayer.official.SessionGraphView android:id="@+id/graphFrameTime" android:layout_width="match_parent" android:layout_height="160dp"/>
+        <LinearLayout android:id="@+id/fpsChartCard" android:orientation="vertical" android:background="@drawable/card_background" android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp">
+            <TextView android:textSize="16sp" android:textStyle="bold" android:textColor="#448aff" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="6dp" android:text="@string/graph_fps_title"/>
+            <com.appslayer.official.SessionGraphView android:id="@+id/graphFps" android:layout_width="match_parent" android:layout_height="180dp"/>
+        </LinearLayout>
+        <LinearLayout android:id="@+id/tempChartCard" android:orientation="vertical" android:background="@drawable/card_background" android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp">
+            <TextView android:textSize="16sp" android:textStyle="bold" android:textColor="#448aff" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="6dp" android:text="@string/graph_temp_title"/>
+            <com.appslayer.official.SessionGraphView android:id="@+id/graphTemp" android:layout_width="match_parent" android:layout_height="160dp"/>
+        </LinearLayout>
+        <LinearLayout android:id="@+id/frameChartCard" android:orientation="vertical" android:background="@drawable/card_background" android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp">
+            <TextView android:textSize="16sp" android:textStyle="bold" android:textColor="#448aff" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="6dp" android:text="@string/graph_frametime_title"/>
+            <com.appslayer.official.SessionGraphView android:id="@+id/graphFrameTime" android:layout_width="match_parent" android:layout_height="160dp"/>
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>

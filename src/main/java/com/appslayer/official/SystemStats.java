@@ -1186,6 +1186,50 @@ public class SystemStats {
         return null;
     }
 
+    // The foreground app's package without root, from usage stats.
+    // Answers only when the user has granted this app usage access
+    // in the system settings — without the grant the query simply
+    // returns no events (it never throws and never prompts), so
+    // this is safe to try first and fall back to the shell. The
+    // latest resumed activity in the last ten minutes that is not
+    // this app itself wins.
+    public static String getForegroundPackageNoRoot(Context context) {
+        if (context == null) {
+            return null;
+        }
+        try {
+            android.app.usage.UsageStatsManager manager =
+                    (android.app.usage.UsageStatsManager)
+                            context.getSystemService(Context.USAGE_STATS_SERVICE);
+            if (manager == null) {
+                return null;
+            }
+            long end = System.currentTimeMillis();
+            android.app.usage.UsageEvents events = manager.queryEvents(end - 10 * 60 * 1000, end);
+            if (events == null) {
+                return null;
+            }
+            String own = context.getPackageName();
+            String foreground = null;
+            android.app.usage.UsageEvents.Event event =
+                    new android.app.usage.UsageEvents.Event();
+            while (events.hasNextEvent()) {
+                events.getNextEvent(event);
+                // ACTIVITY_RESUMED (the pre-29 name MOVE_TO_FOREGROUND
+                // has the same value, and the constant is inlined).
+                if (event.getEventType() == android.app.usage.UsageEvents.Event.ACTIVITY_RESUMED) {
+                    String pkg = event.getPackageName();
+                    if (pkg != null && !pkg.equals(own)) {
+                        foreground = pkg;
+                    }
+                }
+            }
+            return foreground;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     // The foreground app's package, read through the root shell.
     // `dumpsys activity activities` names the top resumed activity
     // on most ROMs; the focused window from `dumpsys window` is the

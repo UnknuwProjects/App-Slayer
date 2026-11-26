@@ -179,10 +179,8 @@
     <string name="toast_overlay_permission">Aktifkan izin tampil di atas aplikasi lain</string>
     <string name="toast_settings_reset">Setelan telah direset</string>
     <string name="dialog_battery_title">Informasi Baterai</string>
-    <string name="batt_card_capacity">Kapasitas</string>
     <string name="batt_card_live">Langsung</string>
     <string name="batt_card_estimates">Perkiraan</string>
-    <string name="batt_card_real">Kapasitas Nyata</string>
     <string name="batt_label_health">Kesehatan</string>
     <string name="batt_label_design">Kapasitas Asli (sistem)</string>
     <string name="batt_label_full">Kapasitas Sekarang (sistem)</string>
@@ -224,8 +222,7 @@
     <string name="fps_unknown_app">Aplikasi tidak dikenal</string>
     <string name="fps_avg_short">Rata-rata %1$.1f FPS</string>
     <string name="fps_report_title">Laporan Sesi FPS</string>
-    <string name="fps_report_message">Aplikasi: %1$s\nWaktu: %2$s\nDurasi: %3$s\nJumlah sampel: %4$d\n\nFPS Maks: %5$s\nFPS Min: %6$s\nFPS Rata-rata: %7$s\n5%% low: %8$s\n1%% low: %9$s\nKelancaran: %10$s\nSuhu CPU rata-rata: %11$s\nSuhu GPU rata-rata: %12$s\nDaya rata-rata: %13$s</string>
-    <string name="fps_smoothness_note">Kelancaran = persen sampel yang waktu framenya berada dalam ±20%% dari median waktu frame sesi ini. Makin tinggi, makin stabil frame rate-nya.</string>
+    <string name="fps_smoothness_note" formatted="false">Kelancaran = persen sampel yang waktu framenya berada dalam ±20% dari median waktu frame sesi ini. Makin tinggi, makin stabil frame rate-nya.</string>
     <string name="fps_no_samples">Tidak ada sampel FPS yang valid di sesi ini.</string>
     <string name="graph_fps_title">FPS dari waktu ke waktu</string>
     <string name="graph_temp_title">Suhu dari waktu ke waktu (CPU / GPU)</string>
@@ -268,4 +265,27 @@
     <string name="thermal_status_shutdown">Nyaris mati (shutdown)</string>
     <string name="thermal_status_unknown">Tidak diketahui</string>
     <string name="test_thermal_api_detail">Sensor per zona: 0 · Status termal sistem: %1$s (Thermal API)</string>
+    <string name="fps_report_samples">%1$d sampel</string>
+    <string name="stat_fps_avg">FPS rata-rata</string>
+    <string name="stat_fps_max">FPS maks</string>
+    <string name="stat_fps_min">FPS min</string>
+    <string name="stat_fps_low5">5% low</string>
+    <string name="stat_fps_low1">1% low</string>
+    <string name="stat_smoothness">Kelancaran</string>
+    <string name="stat_cpu_temp_avg">Suhu CPU rata-rata</string>
+    <string name="stat_gpu_temp_avg">Suhu GPU rata-rata</string>
+    <string name="stat_power_avg">Daya rata-rata</string>
+    <string name="chart_legend_temp">Suhu</string>
+    <string name="fps_no_temp_samples">Tidak ada sampel suhu yang valid di sesi ini</string>
+    <string name="batt_card_health">Kesehatan Baterai</string>
+    <string name="batt_card_charging">Sesi Pengisian</string>
+    <string name="batt_label_session_levels">Level</string>
+    <string name="batt_label_session_duration">Durasi</string>
+    <string name="batt_label_session_avg_current">Arus rata-rata</string>
+    <string name="batt_label_session_avg_power">Daya rata-rata</string>
+    <string name="batt_label_session_added">Perkiraan ditambahkan</string>
+    <string name="batt_session_live">Sedang mengisi</string>
+    <string name="batt_session_last">Sesi terakhir</string>
+    <string name="batt_session_none">Belum ada sesi pengisian yang terekam.</string>
+    <string name="batt_session_row">%1$s · %2$d%% → %3$d%% · %4$s · %5$s</string>
 </resources>

@@ -268,8 +268,12 @@ check "battery health bar hides when not numeric" "$SRC/BatteryInfoActivity.java
 for batt_id in battLevelText battLevelBar battStatusText battHealthText \
         battDesignValue battFullValue battSysHealthValue battSysHealthBar \
         battLiveStatusValue battCurrentValue battPowerValue battVoltageValue \
-        battEstFullValue battEstLeftValue battRealCapValue battRealHealthValue \
-        battLastCalcValue; do
+        battEstFullValue battEstLeftValue battRealCapValue \
+        battHealthBig battHealthBasis battHealthBar battLastCalcValue \
+        battSessionState battSessionBody battSessionLevelsValue \
+        battSessionDurationValue battSessionAvgCurrentValue \
+        battSessionAvgPowerValue battSessionMahValue battSessionsList \
+        battSessionEmpty; do
     check "battery id in layout: $batt_id" "src/main/res/layout/activity_battery_info.xml" "@+id/$batt_id"
     check "battery id in v21 layout: $batt_id" "src/main/res/layout-v21/activity_battery_info.xml" "@+id/$batt_id"
     check "battery id referenced in code: $batt_id" "$SRC/BatteryInfoActivity.java" "R.id.$batt_id"
@@ -403,10 +407,10 @@ check_absent "battery dialog theme gone (Material)" "src/main/res/values-v21/sty
 check_absent "no dialog construction in monitor screen" "$SRC/FloatingMonitorActivity.java" 'new Dialog('
 check_absent "no dialog sizing in monitor screen" "$SRC/FloatingMonitorActivity.java" 'sizeBatteryDialogWindow'
 check_absent "no battery dialog field in monitor screen" "$SRC/FloatingMonitorActivity.java" 'batteryDialog'
-check_count "battery bars tinted green" "src/main/res/layout/activity_battery_info.xml" 'android:progressTint="#4caf50"' 2
-check_count "battery bars tinted green (v21)" "src/main/res/layout-v21/activity_battery_info.xml" 'android:progressTint="#4caf50"' 2
-check_count "battery bar tracks tinted" "src/main/res/layout/activity_battery_info.xml" 'android:progressBackgroundTint="#333333"' 2
-check_count "battery bar tracks tinted (v21)" "src/main/res/layout-v21/activity_battery_info.xml" 'android:progressBackgroundTint="#333333"' 2
+check_count "battery bars tinted green" "src/main/res/layout/activity_battery_info.xml" 'android:progressTint="#4caf50"' 3
+check_count "battery bars tinted green (v21)" "src/main/res/layout-v21/activity_battery_info.xml" 'android:progressTint="#4caf50"' 3
+check_count "battery bar tracks tinted" "src/main/res/layout/activity_battery_info.xml" 'android:progressBackgroundTint="#333333"' 3
+check_count "battery bar tracks tinted (v21)" "src/main/res/layout-v21/activity_battery_info.xml" 'android:progressBackgroundTint="#333333"' 3
 
 # 6.3.6: the language picker's radio rows are wrap_content. With a
 # match_parent text area, the right-to-left Arabic label aligned
@@ -537,6 +541,73 @@ check "thermal status strings (AR)" "src/main/res/values-ar/strings.xml" 'therma
 # 6.3.7: changelog entries.
 check "CHANGELOG has the 6.3.7 entry" "CHANGELOG.md" '## 6.3.7'
 check "CHANGELOG_ID has the 6.3.7 entry" "CHANGELOG_ID.md" '## 6.3.7'
+
+# 6.3.8: the FPS report is a card layout — header card, a stat
+# grid fed by the same PureCalc summary, and chart cards — instead
+# of the old plain text dump.
+for rep_id in reportApp reportMeta reportEmpty statsCard statAvgValue \
+        statMaxValue statMinValue statLow1Value statLow5Value \
+        statSmoothValue statCpuTempValue statGpuTempValue statPowerValue \
+        graphFps graphTemp graphFrameTime reportNote; do
+    check "report id in layout: $rep_id" "src/main/res/layout/activity_fps_report.xml" "@+id/$rep_id"
+done
+check_absent "report text dump gone from activity" "$SRC/FpsReportActivity.java" 'fps_report_message'
+for loc in values values-en values-zh values-hi values-es values-ar; do
+    check_absent "report text dump string removed ($loc)" "src/main/res/$loc/strings.xml" 'fps_report_message'
+    check_absent "smoothness double percent fixed ($loc)" "src/main/res/$loc/strings.xml" '±20%%'
+done
+check "smoothness note not formatted" "src/main/res/values/strings.xml" 'name="fps_smoothness_note" formatted="false"'
+check "report stat strings (ID)" "src/main/res/values/strings.xml" 'stat_fps_avg'
+check "report stat strings (AR)" "src/main/res/values-ar/strings.xml" 'stat_fps_avg'
+check "temp empty text is temperature-specific" "$SRC/FpsReportActivity.java" 'R.string.fps_no_temp_samples'
+
+# 6.3.8: modern charts — smoothed lines, gradient fill, dashed
+# gridlines, and axis ranges from PureCalc that can never dip
+# below zero (the old view printed a -3.1 label).
+check "graph dashed gridlines" "$SRC/SessionGraphView.java" 'DashPathEffect'
+check "graph gradient fill" "$SRC/SessionGraphView.java" 'LinearGradient'
+check "graph zero-based axis" "$SRC/SessionGraphView.java" 'PureCalc.axisRangeZero'
+check "graph zoomed axis" "$SRC/SessionGraphView.java" 'PureCalc.axisRangeZoom'
+check "graph overlay series" "$SRC/SessionGraphView.java" 'setOverlay'
+check "graph legend" "$SRC/SessionGraphView.java" 'setLegend'
+check "axis helper in PureCalc" "$SRC/PureCalc.java" 'public static double[] axisRangeZero'
+check "axis zoom helper in PureCalc" "$SRC/PureCalc.java" 'public static double[] axisRangeZoom'
+check "report feeds temp overlay" "$SRC/FpsReportActivity.java" 'fpsGraph.setOverlay'
+
+# 6.3.8: foreground app label without root — UsageStats events
+# first, dumpsys fallback, and an honest dash when neither knows.
+check "usage-stats foreground lookup" "$SRC/SystemStats.java" 'getForegroundPackageNoRoot'
+check "recorder tries no-root foreground first" "$SRC/FpsRecorder.java" 'getForegroundPackageNoRoot'
+
+# 6.3.8: sessions list rows use the card layout.
+check "session row layout exists" "src/main/res/layout/item_fps_session.xml" 'sessionRowTitle'
+check "sessions list inflates card rows" "$SRC/FpsSessionsActivity.java" 'R.layout.item_fps_session'
+
+# 6.3.8: battery health card leads the Battery screen; the old
+# Capacity / Real Capacity cards are merged into it.
+check "battery health card title (ID)" "src/main/res/values/strings.xml" 'batt_card_health'
+check_absent "old capacity card title removed (ID)" "src/main/res/values/strings.xml" 'batt_card_capacity'
+check_absent "old real card title removed (ID)" "src/main/res/values/strings.xml" 'batt_card_real"'
+check "battery health percent computed" "$SRC/BatteryInfoActivity.java" 'info.healthPercent'
+check "battery health bar applied" "$SRC/BatteryInfoActivity.java" 'battHealthBar.setProgress'
+
+# 6.3.8: charge sessions — recorded from the battery logging
+# service's stream only (MyService records history too and must
+# not double-feed), stored like the FPS sessions, shown on the
+# Battery screen.
+check "charge sessions class exists" "$SRC/ChargeSessions.java" 'class ChargeSessions'
+check "charge sessions dir name" "$SRC/ChargeSessions.java" 'DIR_NAME = "battery_sessions"'
+check "charge session tracker in PureCalc" "$SRC/PureCalc.java" 'class ChargeSessionTracker'
+check_count "logging service feeds charge sessions" "$SRC/BatteryLoggingService.java" 'ChargeSessions.onBatteryEvent' 2
+check_absent "notification service does not feed charge sessions" "$SRC/MyService.java" 'ChargeSessions'
+check "battery screen reads live session" "$SRC/BatteryInfoActivity.java" 'ChargeSessions.current'
+check "battery screen lists sessions" "$SRC/BatteryInfoActivity.java" 'ChargeSessions.list'
+check "session row string (ID)" "src/main/res/values/strings.xml" 'batt_session_row'
+check "session row string (AR)" "src/main/res/values-ar/strings.xml" 'batt_session_row'
+
+# 6.3.8: changelog entries.
+check "CHANGELOG has the 6.3.8 entry" "CHANGELOG.md" '## 6.3.8'
+check "CHANGELOG_ID has the 6.3.8 entry" "CHANGELOG_ID.md" '## 6.3.8'
 
 # String parity across ALL locales: same key count everywhere.
 BASE_COUNT=$(grep -c '<string ' src/main/res/values/strings.xml)

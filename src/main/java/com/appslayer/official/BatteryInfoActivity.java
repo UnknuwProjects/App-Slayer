@@ -46,6 +46,9 @@ public class BatteryInfoActivity extends Activity {
     private ProgressBar battLevelBar;
     private TextView battStatusText;
     private TextView battHealthText;
+    private TextView battHealthBig;
+    private TextView battHealthBasis;
+    private ProgressBar battHealthBar;
     private TextView battDesignValue;
     private TextView battFullValue;
     private TextView battSysHealthValue;
@@ -57,8 +60,16 @@ public class BatteryInfoActivity extends Activity {
     private TextView battEstFullValue;
     private TextView battEstLeftValue;
     private TextView battRealCapValue;
-    private TextView battRealHealthValue;
     private TextView battLastCalcValue;
+    private TextView battSessionState;
+    private View battSessionBody;
+    private TextView battSessionLevelsValue;
+    private TextView battSessionDurationValue;
+    private TextView battSessionAvgCurrentValue;
+    private TextView battSessionAvgPowerValue;
+    private TextView battSessionMahValue;
+    private android.widget.LinearLayout battSessionsList;
+    private TextView battSessionEmpty;
 
     // Last capacity outcome written to the log (the screen
     // re-gathers its snapshot every couple of seconds; the log only
@@ -87,6 +98,9 @@ public class BatteryInfoActivity extends Activity {
         battLevelBar = (ProgressBar) findViewById(R.id.battLevelBar);
         battStatusText = (TextView) findViewById(R.id.battStatusText);
         battHealthText = (TextView) findViewById(R.id.battHealthText);
+        battHealthBig = (TextView) findViewById(R.id.battHealthBig);
+        battHealthBasis = (TextView) findViewById(R.id.battHealthBasis);
+        battHealthBar = (ProgressBar) findViewById(R.id.battHealthBar);
         battDesignValue = (TextView) findViewById(R.id.battDesignValue);
         battFullValue = (TextView) findViewById(R.id.battFullValue);
         battSysHealthValue = (TextView) findViewById(R.id.battSysHealthValue);
@@ -98,8 +112,16 @@ public class BatteryInfoActivity extends Activity {
         battEstFullValue = (TextView) findViewById(R.id.battEstFullValue);
         battEstLeftValue = (TextView) findViewById(R.id.battEstLeftValue);
         battRealCapValue = (TextView) findViewById(R.id.battRealCapValue);
-        battRealHealthValue = (TextView) findViewById(R.id.battRealHealthValue);
         battLastCalcValue = (TextView) findViewById(R.id.battLastCalcValue);
+        battSessionState = (TextView) findViewById(R.id.battSessionState);
+        battSessionBody = findViewById(R.id.battSessionBody);
+        battSessionLevelsValue = (TextView) findViewById(R.id.battSessionLevelsValue);
+        battSessionDurationValue = (TextView) findViewById(R.id.battSessionDurationValue);
+        battSessionAvgCurrentValue = (TextView) findViewById(R.id.battSessionAvgCurrentValue);
+        battSessionAvgPowerValue = (TextView) findViewById(R.id.battSessionAvgPowerValue);
+        battSessionMahValue = (TextView) findViewById(R.id.battSessionMahValue);
+        battSessionsList = (android.widget.LinearLayout) findViewById(R.id.battSessionsList);
+        battSessionEmpty = (TextView) findViewById(R.id.battSessionEmpty);
     }
 
     @Override
@@ -143,16 +165,29 @@ public class BatteryInfoActivity extends Activity {
             @Override
             public void run() {
                 boolean first = true;
+                int cycle = 0;
                 while (refreshing) {
                     final BatteryInfo info = first
                             ? gather(BatteryInfoActivity.this, prefs, 5, 400)
                             : gather(BatteryInfoActivity.this, prefs, 3, 300);
                     first = false;
+                    // The live session comes from the tracker's
+                    // in-memory state (cheap, every cycle); the
+                    // finished-session files are re-read about once
+                    // a minute, they cannot change faster than a
+                    // charge session ends.
+                    final ChargeSessions.Record liveSession =
+                            ChargeSessions.current(BatteryInfoActivity.this);
+                    final java.util.List<ChargeSessions.Record> recentSessions =
+                            cycle % 30 == 0
+                                    ? ChargeSessions.list(BatteryInfoActivity.this) : null;
+                    cycle++;
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             if (refreshing && !isFinishing()) {
                                 applyBatteryInfo(info);
+                                applyChargeSessions(liveSession, recentSessions);
                             }
                         }
                     });
@@ -184,6 +219,18 @@ public class BatteryInfoActivity extends Activity {
         battLevelBar.setProgress(Math.max(0, Math.min(100, info.level)));
         battStatusText.setText(info.statusText);
         battHealthText.setText(info.healthText);
+        // The health card's big number: the estimated real health
+        // when the estimate exists, the system health otherwise,
+        // a dash when neither does — the basis line says which.
+        if (info.healthPercent >= 0) {
+            battHealthBig.setText(info.healthPercent + "%");
+            battHealthBar.setVisibility(View.VISIBLE);
+            battHealthBar.setProgress(Math.min(100, info.healthPercent));
+        } else {
+            battHealthBig.setText("—");
+            battHealthBar.setVisibility(View.GONE);
+        }
+        battHealthBasis.setText(info.healthBasis);
         battDesignValue.setText(info.designText);
         battFullValue.setText(info.fullText);
         battSysHealthValue.setText(info.sysHealthText);
@@ -200,9 +247,77 @@ public class BatteryInfoActivity extends Activity {
         battEstFullValue.setText(info.estFull);
         battEstLeftValue.setText(info.estEmpty);
         battRealCapValue.setText(info.realCapText);
-        battRealHealthValue.setText(info.realHealthText);
         battLastCalcValue.setText(info.lastCalcText);
     }
+
+    // Pushes the charge-session state into its card. UI thread
+    // only. recentSessions is null on cycles that did not re-read
+    // the finished files — the rows then stay as they were.
+    private void applyChargeSessions(ChargeSessions.Record live,
+                                     java.util.List<ChargeSessions.Record> recentSessions) {
+        if (battSessionState == null) {
+            return;
+        }
+        if (recentSessions != null) {
+            lastRecentSessions = recentSessions;
+        }
+        java.util.List<ChargeSessions.Record> recent = lastRecentSessions;
+        ChargeSessions.Record main = live != null ? live
+                : (recent != null && !recent.isEmpty() ? recent.get(0) : null);
+        if (main == null) {
+            battSessionState.setVisibility(View.GONE);
+            battSessionBody.setVisibility(View.GONE);
+            battSessionsList.setVisibility(View.GONE);
+            battSessionEmpty.setVisibility(View.VISIBLE);
+            return;
+        }
+        battSessionEmpty.setVisibility(View.GONE);
+        battSessionState.setVisibility(View.VISIBLE);
+        battSessionBody.setVisibility(View.VISIBLE);
+        battSessionState.setText(main.inProgress
+                ? getString(R.string.batt_session_live)
+                : getString(R.string.batt_session_last));
+        battSessionLevelsValue.setText(main.startLevel + "% → " + main.endLevel + "%");
+        battSessionDurationValue.setText(formatDuration(this, main.durationMs() / 3600000.0d));
+        battSessionAvgCurrentValue.setText(Double.isNaN(main.avgCurrentMa)
+                ? "N/A" : Math.round(main.avgCurrentMa) + " mA");
+        battSessionAvgPowerValue.setText(Double.isNaN(main.avgPowerW)
+                ? "N/A" : String.format(Locale.US, "%.2f W", main.avgPowerW));
+        battSessionMahValue.setText(main.mahAdded >= 0 ? main.mahAdded + " mAh" : "—");
+        // Recent rows: the finished sessions behind the main one
+        // (when the main block is the last finished session, it is
+        // not repeated as a row), at most five.
+        if (recentSessions != null && battSessionsList != null) {
+            battSessionsList.removeAllViews();
+            int skip = live != null ? 0 : 1;
+            int shown = 0;
+            for (int i = skip; i < recent.size() && shown < 5; i++) {
+                ChargeSessions.Record record = recent.get(i);
+                TextView row = new TextView(this);
+                row.setTextSize(13);
+                row.setTextColor(android.graphics.Color.rgb(154, 160, 166));
+                String date = new SimpleDateFormat("dd MMM HH:mm", Locale.getDefault())
+                        .format(new Date(record.startMs));
+                row.setText(getString(R.string.batt_session_row, date,
+                        record.startLevel, record.endLevel,
+                        formatDuration(this, record.durationMs() / 3600000.0d),
+                        Double.isNaN(record.avgCurrentMa)
+                                ? "—" : Math.round(record.avgCurrentMa) + " mA"));
+                android.widget.LinearLayout.LayoutParams params =
+                        new android.widget.LinearLayout.LayoutParams(
+                                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                                android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+                if (shown > 0) {
+                    params.topMargin = (int) (4 * getResources().getDisplayMetrics().density);
+                }
+                battSessionsList.addView(row, params);
+                shown++;
+            }
+            battSessionsList.setVisibility(shown > 0 ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    private java.util.List<ChargeSessions.Record> lastRecentSessions;
 
     // One Battery Information snapshot: every value the screen
     // shows, already formatted. sysHealthPercent is -1 when the
@@ -223,6 +338,11 @@ public class BatteryInfoActivity extends Activity {
         String realCapText;
         String realHealthText;
         String lastCalcText;
+        // The health card's big number and its basis line: the
+        // estimated real health when the estimate exists, the
+        // system health otherwise; -1 when neither does.
+        int healthPercent = -1;
+        String healthBasis;
     }
 
     // Gathers a fresh Battery Information snapshot from the same
@@ -398,6 +518,15 @@ public class BatteryInfoActivity extends Activity {
         info.realCapText = realCap > 0 ? realCap + " mAh" : context.getString(R.string.waiting_data);
         info.realHealthText = realCap > 0 ? realHealth + "%" : context.getString(R.string.waiting_data);
         info.lastCalcText = lastCalc;
+        if (realCap > 0 && realHealth > 0) {
+            info.healthPercent = realHealth;
+            info.healthBasis = context.getString(R.string.batt_label_real_health);
+        } else if (sysHealthPercent >= 0) {
+            info.healthPercent = sysHealthPercent;
+            info.healthBasis = context.getString(R.string.batt_label_sys_health);
+        } else {
+            info.healthBasis = context.getString(R.string.batt_label_real_health);
+        }
         return info;
     }
 

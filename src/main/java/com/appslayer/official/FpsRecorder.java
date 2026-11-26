@@ -221,7 +221,12 @@ public class FpsRecorder {
         samplesSincePackageCheck++;
         if (samplesSincePackageCheck >= PACKAGE_CHECK_EVERY) {
             samplesSincePackageCheck = 0;
-            String pkg = SystemStats.getForegroundPackage();
+            // Non-root first (usage stats, when the user granted
+            // access), the root shell as the fallback.
+            String pkg = SystemStats.getForegroundPackageNoRoot(context);
+            if (pkg == null) {
+                pkg = SystemStats.getForegroundPackage();
+            }
             if (pkg != null && !pkg.equals(lastPackage)) {
                 lastPackage = pkg;
                 try {

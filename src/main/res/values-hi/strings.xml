@@ -179,10 +179,8 @@
     <string name="toast_overlay_permission">दूसरे ऐप्स के ऊपर दिखाने की अनुमति चालू करें</string>
     <string name="toast_settings_reset">सेटिंग्स रीसेट हो गईं</string>
     <string name="dialog_battery_title">बैटरी जानकारी</string>
-    <string name="batt_card_capacity">क्षमता</string>
     <string name="batt_card_live">लाइव</string>
     <string name="batt_card_estimates">अनुमान</string>
-    <string name="batt_card_real">वास्तविक क्षमता</string>
     <string name="batt_label_health">सेहत</string>
     <string name="batt_label_design">मूल क्षमता (सिस्टम)</string>
     <string name="batt_label_full">वर्तमान क्षमता (सिस्टम)</string>
@@ -224,8 +222,7 @@
     <string name="fps_unknown_app">अज्ञात ऐप</string>
     <string name="fps_avg_short">औसत %1$.1f FPS</string>
     <string name="fps_report_title">FPS सत्र रिपोर्ट</string>
-    <string name="fps_report_message">ऐप: %1$s\nसमय: %2$s\nअवधि: %3$s\nसैंपल: %4$d\n\nअधिकतम FPS: %5$s\nन्यूनतम FPS: %6$s\nऔसत FPS: %7$s\n5%% low: %8$s\n1%% low: %9$s\nस्मूदनेस: %10$s\nऔसत CPU तापमान: %11$s\nऔसत GPU तापमान: %12$s\nऔसत पावर: %13$s</string>
-    <string name="fps_smoothness_note">स्मूदनेस = उन सैंपल का प्रतिशत जिनका फ़्रेम समय इस सत्र के माध्यिका फ़्रेम समय के ±20%% के भीतर है। ज़्यादा मतलब स्थिर फ़्रेम रेट।</string>
+    <string name="fps_smoothness_note" formatted="false">स्मूदनेस = उन सैंपल का प्रतिशत जिनका फ़्रेम समय इस सत्र के माध्यिका फ़्रेम समय के ±20% के भीतर है। ज़्यादा मतलब स्थिर फ़्रेम रेट।</string>
     <string name="fps_no_samples">इस सत्र में कोई मान्य FPS सैंपल नहीं।</string>
     <string name="graph_fps_title">समय के साथ FPS</string>
     <string name="graph_temp_title">समय के साथ तापमान (CPU / GPU)</string>
@@ -268,4 +265,27 @@
     <string name="thermal_status_shutdown">बंद होने के करीब</string>
     <string name="thermal_status_unknown">अज्ञात</string>
     <string name="test_thermal_api_detail">प्रति-ज़ोन सेंसर: 0 · सिस्टम थर्मल स्थिति: %1$s (Thermal API)</string>
+    <string name="fps_report_samples">%1$d नमूने</string>
+    <string name="stat_fps_avg">औसत FPS</string>
+    <string name="stat_fps_max">अधिकतम FPS</string>
+    <string name="stat_fps_min">न्यूनतम FPS</string>
+    <string name="stat_fps_low5">5% low</string>
+    <string name="stat_fps_low1">1% low</string>
+    <string name="stat_smoothness">स्मूदनेस</string>
+    <string name="stat_cpu_temp_avg">औसत CPU तापमान</string>
+    <string name="stat_gpu_temp_avg">औसत GPU तापमान</string>
+    <string name="stat_power_avg">औसत पावर</string>
+    <string name="chart_legend_temp">तापमान</string>
+    <string name="fps_no_temp_samples">इस सत्र में कोई मान्य तापमान नमूना नहीं है</string>
+    <string name="batt_card_health">बैटरी स्वास्थ्य</string>
+    <string name="batt_card_charging">चार्जिंग सत्र</string>
+    <string name="batt_label_session_levels">स्तर</string>
+    <string name="batt_label_session_duration">अवधि</string>
+    <string name="batt_label_session_avg_current">औसत करंट</string>
+    <string name="batt_label_session_avg_power">औसत पावर</string>
+    <string name="batt_label_session_added">अनुमानित जोड़ा गया</string>
+    <string name="batt_session_live">अभी चार्ज हो रहा है</string>
+    <string name="batt_session_last">पिछला सत्र</string>
+    <string name="batt_session_none">अभी तक कोई चार्जिंग सत्र दर्ज नहीं हुआ।</string>
+    <string name="batt_session_row">%1$s · %2$d%% → %3$d%% · %4$s · %5$s</string>
 </resources>

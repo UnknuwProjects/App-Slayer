@@ -64,13 +64,12 @@ public class FpsSessionsActivity extends Activity {
             public View getView(int position, View convertView, ViewGroup parent) {
                 View view = convertView;
                 if (view == null) {
-                    view = getLayoutInflater().inflate(android.R.layout.simple_list_item_2, parent, false);
+                    view = getLayoutInflater().inflate(R.layout.item_fps_session, parent, false);
                 }
                 FpsSession session = sessions.get(position);
-                TextView title = (TextView) view.findViewById(android.R.id.text1);
-                TextView subtitle = (TextView) view.findViewById(android.R.id.text2);
+                TextView title = (TextView) view.findViewById(R.id.sessionRowTitle);
+                TextView subtitle = (TextView) view.findViewById(R.id.sessionRowSubtitle);
                 title.setText(appLabel(FpsSessionsActivity.this, session.packageName));
-                title.setTextColor(android.graphics.Color.WHITE);
                 String date = new SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault())
                         .format(new Date(session.startTimeMs));
                 if (session.samples.isEmpty()) {
@@ -85,7 +84,6 @@ public class FpsSessionsActivity extends Activity {
                             : getString(R.string.fps_avg_short, summary.avg);
                     subtitle.setText(date + " · " + formatDuration(session.durationMs()) + " · " + avg);
                 }
-                subtitle.setTextColor(android.graphics.Color.rgb(154, 160, 166));
                 return view;
             }
         };

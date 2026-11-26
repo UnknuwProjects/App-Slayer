@@ -58,6 +58,7 @@ Full release history: [CHANGELOG.md](CHANGELOG.md)
 
 <p align="center">
   <img src="screenshots/function-test.png" width="220">
+  <img src="screenshots/fps-report.png" width="220">
 </p>
 
 ## License

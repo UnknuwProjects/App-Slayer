@@ -568,4 +568,258 @@ public final class PureCalc {
         }
         return best;
     }
+
+    // ------------------------------------------------------------------
+    // Chart axes. The session graphs used to pad the raw data range
+    // by 8% on both ends, which pushed the FPS axis below zero (a
+    // "-3.1" label under a session whose lowest reading was 0). The
+    // helpers below give the charts a zero-based axis with a round
+    // ceiling, and a zoomed variant for temperature, whose values
+    // live in a narrow band far from zero.
+    // ------------------------------------------------------------------
+
+    private static final double[] NICE_STEPS = {1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10};
+
+    // Smallest "nice" number >= value, on a 1/1.5/2/2.5/3/4/5/6/8/10
+    // ladder per decade. Non-positive input gives 1.
+    public static double niceCeil(double value) {
+        if (Double.isNaN(value) || value <= 0) {
+            return 1;
+        }
+        double magnitude = Math.pow(10, Math.floor(Math.log10(value)));
+        double normalized = value / magnitude;
+        for (double step : NICE_STEPS) {
+            if (normalized <= step) {
+                return step * magnitude;
+            }
+        }
+        return 10 * magnitude;
+    }
+
+    // Largest "nice" number <= value, same ladder. Values below 1
+    // give 0 — a temperature floor never goes negative.
+    public static double niceFloor(double value) {
+        if (Double.isNaN(value) || value < 1) {
+            return 0;
+        }
+        double magnitude = Math.pow(10, Math.floor(Math.log10(value)));
+        double normalized = value / magnitude;
+        double best = 1;
+        for (double step : NICE_STEPS) {
+            if (step <= normalized) {
+                best = step;
+            }
+        }
+        return best * magnitude;
+    }
+
+    // Zero-based axis for FPS and frame time: [0, nice ceiling].
+    // The ceiling always leaves headroom — data that lands exactly
+    // on a nice number (a locked 60 fps) steps up one rung, so the
+    // line never hugs the top edge. Null when the data max is not a
+    // real number.
+    public static double[] axisRangeZero(double dataMax) {
+        if (Double.isNaN(dataMax)) {
+            return null;
+        }
+        double ceil = niceCeil(dataMax);
+        if (ceil <= dataMax) {
+            ceil = niceCeil(dataMax * 1.05d + 0.5d);
+        }
+        return new double[]{0, ceil};
+    }
+
+    // Zoomed axis for temperature: a nice floor/ceiling pair around
+    // the data with a little headroom on both sides, floor clamped
+    // at 0. A flat series still gets a visible band. Null when
+    // either end is not a real number.
+    public static double[] axisRangeZoom(double dataMin, double dataMax) {
+        if (Double.isNaN(dataMin) || Double.isNaN(dataMax)) {
+            return null;
+        }
+        double span = dataMax - dataMin;
+        double pad = span > 0.001d ? span * 0.15d : Math.max(1.0d, Math.abs(dataMax) * 0.05d);
+        double floor = niceFloor(dataMin - pad);
+        double ceil = niceCeil(dataMax + pad);
+        if (ceil <= floor) {
+            ceil = floor + Math.max(1.0d, floor * 0.1d);
+        }
+        return new double[]{floor, ceil};
+    }
+
+    // ------------------------------------------------------------------
+    // Charge sessions. The battery logging stream reports plug state
+    // and level as they change; a session runs from plug-in to
+    // unplug (or to full, whichever comes first). The tracker is a
+    // pure state machine over those events so the JVM tests can run
+    // the exact production logic over synthetic sequences.
+    // ------------------------------------------------------------------
+
+    public static class ChargeSample {
+        public final long time;
+        public final int level;
+        public final boolean plugged;
+        public final Integer currentMa;
+        public final Integer voltageMv;
+        public final Integer chargeCounterMah;
+
+        public ChargeSample(long time, int level, boolean plugged,
+                            Integer currentMa, Integer voltageMv, Integer chargeCounterMah) {
+            this.time = time;
+            this.level = level;
+            this.plugged = plugged;
+            this.currentMa = currentMa;
+            this.voltageMv = voltageMv;
+            this.chargeCounterMah = chargeCounterMah;
+        }
+    }
+
+    public static class ChargeSessionSummary {
+        public final long startMs;
+        public final long endMs;
+        public final int startLevel;
+        public final int endLevel;
+        public final double avgCurrentMa;
+        public final double avgPowerW;
+        public final int mahAdded;
+        public final boolean inProgress;
+
+        ChargeSessionSummary(long startMs, long endMs, int startLevel, int endLevel,
+                             double avgCurrentMa, double avgPowerW, int mahAdded,
+                             boolean inProgress) {
+            this.startMs = startMs;
+            this.endMs = endMs;
+            this.startLevel = startLevel;
+            this.endLevel = endLevel;
+            this.avgCurrentMa = avgCurrentMa;
+            this.avgPowerW = avgPowerW;
+            this.mahAdded = mahAdded;
+            this.inProgress = inProgress;
+        }
+
+        public long durationMs() {
+            return Math.max(0, endMs - startMs);
+        }
+    }
+
+    public static class ChargeSessionTracker {
+        private final List<ChargeSample> samples = new ArrayList<>();
+        private boolean open = false;
+        // Set when a session closed at 100%: the charger stays in,
+        // and the stream keeps reporting "plugged at full" — those
+        // events must not open a fresh session every few minutes.
+        // Cleared by the first unplugged event.
+        private boolean fullLatch = false;
+
+        public boolean isOpen() {
+            return open;
+        }
+
+        // Feeds one event. Returns the finished session when this
+        // event closed one, otherwise null.
+        public ChargeSessionSummary onEvent(ChargeSample event) {
+            if (event == null) {
+                return null;
+            }
+            if (!event.plugged) {
+                fullLatch = false;
+                if (open) {
+                    ChargeSessionSummary done = summarize(event.time, event.level, false);
+                    samples.clear();
+                    open = false;
+                    return done;
+                }
+                return null;
+            }
+            if (!open) {
+                if (fullLatch) {
+                    return null;
+                }
+                open = true;
+                samples.clear();
+                samples.add(event);
+                if (event.level >= 100) {
+                    return closeAtFull(event);
+                }
+                return null;
+            }
+            samples.add(event);
+            if (event.level >= 100) {
+                return closeAtFull(event);
+            }
+            return null;
+        }
+
+        private ChargeSessionSummary closeAtFull(ChargeSample event) {
+            ChargeSessionSummary done = summarize(event.time, event.level, false);
+            samples.clear();
+            open = false;
+            fullLatch = true;
+            return done;
+        }
+
+        // The in-progress session as of nowMs, or null when no
+        // session is open.
+        public ChargeSessionSummary currentSummary(long nowMs) {
+            if (!open || samples.isEmpty()) {
+                return null;
+            }
+            ChargeSample last = samples.get(samples.size() - 1);
+            return summarize(nowMs, last.level, true);
+        }
+
+        private ChargeSessionSummary summarize(long endMs, int endLevel, boolean inProgress) {
+            ChargeSample first = samples.get(0);
+            ChargeSample last = samples.get(samples.size() - 1);
+            // Time-weighted averages: each sample's reading stands
+            // until the next sample (or the session end). Spot
+            // readings from a broadcast stream are all we have, and
+            // weighting by the interval they covered is the honest
+            // average of them.
+            double currentWeighted = 0;
+            double currentWeight = 0;
+            double powerWeighted = 0;
+            double powerWeight = 0;
+            for (int i = 0; i < samples.size(); i++) {
+                ChargeSample s = samples.get(i);
+                long until = i + 1 < samples.size() ? samples.get(i + 1).time : endMs;
+                double weight = Math.max(0, until - s.time);
+                if (weight <= 0) {
+                    continue;
+                }
+                if (s.currentMa != null) {
+                    currentWeighted += s.currentMa * weight;
+                    currentWeight += weight;
+                    if (s.voltageMv != null && s.voltageMv > 0) {
+                        powerWeighted += powerWatts(s.currentMa, s.voltageMv) * weight;
+                        powerWeight += weight;
+                    }
+                }
+            }
+            double avgCurrent = currentWeight > 0 ? currentWeighted / currentWeight : Double.NaN;
+            double avgPower = powerWeight > 0 ? powerWeighted / powerWeight : Double.NaN;
+            // mAh that actually entered the battery: the charge
+            // counter's own delta when it answered at both ends of
+            // the session; otherwise the average current integrated
+            // over the session's length.
+            int mahAdded = -1;
+            Integer firstCounter = null;
+            Integer lastCounter = null;
+            for (ChargeSample s : samples) {
+                if (s.chargeCounterMah != null && s.chargeCounterMah > 0) {
+                    if (firstCounter == null) {
+                        firstCounter = s.chargeCounterMah;
+                    }
+                    lastCounter = s.chargeCounterMah;
+                }
+            }
+            if (firstCounter != null && lastCounter != null && lastCounter >= firstCounter) {
+                mahAdded = lastCounter - firstCounter;
+            } else if (!Double.isNaN(avgCurrent) && endMs > first.time) {
+                mahAdded = (int) Math.round(avgCurrent * (endMs - first.time) / 3600000.0d);
+            }
+            return new ChargeSessionSummary(first.time, endMs, first.level, endLevel,
+                    avgCurrent, avgPower, mahAdded, inProgress);
+        }
+    }
 }

@@ -2,6 +2,13 @@
 
 # Catatan Rilis
 
+## 6.3.8
+- Tampilan laporan sesi FPS diperbarui: kartu statistik dengan angka besar dan grafik modern — garis halus, garis suhu dengan legenda, dan sumbu yang tidak pernah di bawah nol.
+- Layar baterai sekarang dibuka dengan kesehatan baterai: perkiraan kapasitas nyata dibandingkan kapasitas desain, dengan persen kesehatannya di depan.
+- Kartu sesi pengisian baru: sesi pengisian yang sedang berjalan atau terakhir, lengkap dengan durasi, arus dan daya rata-rata, plus sesi-sesi terakhirmu.
+- Fix catatan kelancaran yang menampilkan tanda persen ganda.
+- Bisa langsung ditimpa dari 6.3.7, tidak perlu uninstall.
+
 ## 6.3.7
 - Fix teks yang hampir tidak terbaca di layar Monitor Melayang.
 - Status Baterai sekarang layar penuh, bukan dialog — ditekan berkali-kali pun tidak akan menumpuk.

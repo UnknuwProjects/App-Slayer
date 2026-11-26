@@ -179,10 +179,8 @@
     <string name="toast_overlay_permission">Activa el permiso para mostrar sobre otras apps</string>
     <string name="toast_settings_reset">Ajustes restablecidos</string>
     <string name="dialog_battery_title">Información de la batería</string>
-    <string name="batt_card_capacity">Capacidad</string>
     <string name="batt_card_live">En vivo</string>
     <string name="batt_card_estimates">Estimaciones</string>
-    <string name="batt_card_real">Capacidad real</string>
     <string name="batt_label_health">Salud</string>
     <string name="batt_label_design">Capacidad original (sistema)</string>
     <string name="batt_label_full">Capacidad actual (sistema)</string>
@@ -224,8 +222,7 @@
     <string name="fps_unknown_app">App desconocida</string>
     <string name="fps_avg_short">Media %1$.1f FPS</string>
     <string name="fps_report_title">Informe de sesión de FPS</string>
-    <string name="fps_report_message">App: %1$s\nHora: %2$s\nDuración: %3$s\nMuestras: %4$d\n\nFPS máx: %5$s\nFPS mín: %6$s\nFPS medio: %7$s\n5%% low: %8$s\n1%% low: %9$s\nFluidez: %10$s\nTemperatura media de CPU: %11$s\nTemperatura media de GPU: %12$s\nPotencia media: %13$s</string>
-    <string name="fps_smoothness_note">Fluidez = porcentaje de muestras cuyo tiempo de fotograma está dentro del ±20%% del tiempo de fotograma mediano de esta sesión. Cuanto mayor, más estable la tasa de fotogramas.</string>
+    <string name="fps_smoothness_note" formatted="false">Fluidez = porcentaje de muestras cuyo tiempo de fotograma está dentro del ±20% del tiempo de fotograma mediano de esta sesión. Cuanto mayor, más estable la tasa de fotogramas.</string>
     <string name="fps_no_samples">No hay muestras de FPS válidas en esta sesión.</string>
     <string name="graph_fps_title">FPS en el tiempo</string>
     <string name="graph_temp_title">Temperatura en el tiempo (CPU / GPU)</string>
@@ -268,4 +265,27 @@
     <string name="thermal_status_shutdown">Cerca del apagado</string>
     <string name="thermal_status_unknown">Desconocido</string>
     <string name="test_thermal_api_detail">Sensores por zona: 0 · Estado térmico del sistema: %1$s (Thermal API)</string>
+    <string name="fps_report_samples">%1$d muestras</string>
+    <string name="stat_fps_avg">FPS medio</string>
+    <string name="stat_fps_max">FPS máx.</string>
+    <string name="stat_fps_min">FPS mín.</string>
+    <string name="stat_fps_low5">5% low</string>
+    <string name="stat_fps_low1">1% low</string>
+    <string name="stat_smoothness">Fluidez</string>
+    <string name="stat_cpu_temp_avg">Temp. CPU media</string>
+    <string name="stat_gpu_temp_avg">Temp. GPU media</string>
+    <string name="stat_power_avg">Potencia media</string>
+    <string name="chart_legend_temp">Temp.</string>
+    <string name="fps_no_temp_samples">No hay muestras de temperatura válidas en esta sesión</string>
+    <string name="batt_card_health">Salud de la batería</string>
+    <string name="batt_card_charging">Sesión de carga</string>
+    <string name="batt_label_session_levels">Nivel</string>
+    <string name="batt_label_session_duration">Duración</string>
+    <string name="batt_label_session_avg_current">Corriente media</string>
+    <string name="batt_label_session_avg_power">Potencia media</string>
+    <string name="batt_label_session_added">Estimado añadido</string>
+    <string name="batt_session_live">Cargando ahora</string>
+    <string name="batt_session_last">Última sesión</string>
+    <string name="batt_session_none">Aún no hay ninguna sesión de carga registrada.</string>
+    <string name="batt_session_row">%1$s · %2$d%% → %3$d%% · %4$s · %5$s</string>
 </resources>

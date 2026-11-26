@@ -179,10 +179,8 @@
     <string name="toast_overlay_permission">فعّل إذن العرض فوق التطبيقات الأخرى</string>
     <string name="toast_settings_reset">تمت إعادة ضبط الإعدادات</string>
     <string name="dialog_battery_title">معلومات البطارية</string>
-    <string name="batt_card_capacity">السعة</string>
     <string name="batt_card_live">مباشر</string>
     <string name="batt_card_estimates">التقديرات</string>
-    <string name="batt_card_real">السعة الحقيقية</string>
     <string name="batt_label_health">الصحة</string>
     <string name="batt_label_design">السعة الأصلية (النظام)</string>
     <string name="batt_label_full">السعة الحالية (النظام)</string>
@@ -224,8 +222,7 @@
     <string name="fps_unknown_app">تطبيق غير معروف</string>
     <string name="fps_avg_short">المتوسط %1$.1f FPS</string>
     <string name="fps_report_title">تقرير جلسة FPS</string>
-    <string name="fps_report_message">التطبيق: %1$s\nالوقت: %2$s\nالمدة: %3$s\nالعينات: %4$d\n\nأقصى FPS: %5$s\nأدنى FPS: %6$s\nمتوسط FPS: %7$s\n5%% low: %8$s\n1%% low: %9$s\nالسلاسة: %10$s\nمتوسط حرارة CPU: %11$s\nمتوسط حرارة GPU: %12$s\nمتوسط القدرة: %13$s</string>
-    <string name="fps_smoothness_note">السلاسة = نسبة العينات التي يقع زمن إطارها ضمن ±20%% من وسيط زمن الإطار لهذه الجلسة. كلما ارتفعت، كان معدل الإطارات أكثر استقرارًا.</string>
+    <string name="fps_smoothness_note" formatted="false">السلاسة = نسبة العينات التي يقع زمن إطارها ضمن ±20% من وسيط زمن الإطار لهذه الجلسة. كلما ارتفعت، كان معدل الإطارات أكثر استقرارًا.</string>
     <string name="fps_no_samples">لا توجد عينات FPS صالحة في هذه الجلسة.</string>
     <string name="graph_fps_title">FPS عبر الزمن</string>
     <string name="graph_temp_title">الحرارة عبر الزمن (CPU / GPU)</string>
@@ -268,4 +265,27 @@
     <string name="thermal_status_shutdown">قريبة من الإيقاف</string>
     <string name="thermal_status_unknown">غير معروفة</string>
     <string name="test_thermal_api_detail">حساسات المناطق: 0 · حالة النظام الحرارية: %1$s (Thermal API)</string>
+    <string name="fps_report_samples">%1$d عينة</string>
+    <string name="stat_fps_avg">متوسط FPS</string>
+    <string name="stat_fps_max">أقصى FPS</string>
+    <string name="stat_fps_min">أدنى FPS</string>
+    <string name="stat_fps_low5">5% low</string>
+    <string name="stat_fps_low1">1% low</string>
+    <string name="stat_smoothness">السلاسة</string>
+    <string name="stat_cpu_temp_avg">متوسط حرارة CPU</string>
+    <string name="stat_gpu_temp_avg">متوسط حرارة GPU</string>
+    <string name="stat_power_avg">متوسط الطاقة</string>
+    <string name="chart_legend_temp">الحرارة</string>
+    <string name="fps_no_temp_samples">لا توجد عينات حرارة صالحة في هذه الجلسة</string>
+    <string name="batt_card_health">صحة البطارية</string>
+    <string name="batt_card_charging">جلسة الشحن</string>
+    <string name="batt_label_session_levels">المستوى</string>
+    <string name="batt_label_session_duration">المدة</string>
+    <string name="batt_label_session_avg_current">متوسط التيار</string>
+    <string name="batt_label_session_avg_power">متوسط الطاقة</string>
+    <string name="batt_label_session_added">المقدار المضاف التقديري</string>
+    <string name="batt_session_live">جارٍ الشحن الآن</string>
+    <string name="batt_session_last">الجلسة الأخيرة</string>
+    <string name="batt_session_none">لا توجد جلسة شحن مسجلة بعد.</string>
+    <string name="batt_session_row">%1$s · %2$d%% → %3$d%% · %4$s · %5$s</string>
 </resources>

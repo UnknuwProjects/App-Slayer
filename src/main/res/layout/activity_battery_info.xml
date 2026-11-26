@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Battery Information as a full screen (it was a dialog up to
-6.3.6): same header and cards as the dialog had, on the same
-screen scaffolding as the other sub-screens — black ScrollView,
-#111111 panel, card_background cards, #448aff section headers,
-muted #9aa0a6 labels, white values. The title lives in the
-action bar now, and Back replaces the dialog's close button.
-All values are filled in by id from BatteryInfoActivity and
-refreshed in place about every 2 s. -->
+<!-- Battery Information as a full screen: header (big %, level
+bar, status, health word), then a health-first card layout in the
+AccuBattery spirit, in the app's own dark card language (6.3.8):
+the Battery Health card leads — estimated real capacity against
+the design capacity, the health percent big with its own bar —
+followed by the Charging Session card (the live or last session
+plus recent session rows), the Live card, the Estimates card and
+the notes. The old Capacity and Real Capacity cards are merged
+into the Health card; every value still comes from the same
+sources and is refreshed in place by id about every 2 s. -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:background="#000000" android:padding="16dp" android:fitsSystemWindows="true" android:layout_width="match_parent" android:layout_height="match_parent">
     <LinearLayout android:orientation="vertical" android:background="#111111" android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content">
         <TextView android:id="@+id/battLevelText" android:textSize="44sp" android:textStyle="bold" android:textColor="#ffffff" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content"/>
@@ -17,7 +19,14 @@ refreshed in place about every 2 s. -->
             <TextView android:id="@+id/battHealthText" android:textSize="14sp" android:textColor="#ffffff" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp"/>
         </LinearLayout>
         <LinearLayout android:orientation="vertical" android:background="@drawable/card_background" android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp">
-            <TextView android:textSize="16sp" android:textStyle="bold" android:textColor="#448aff" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp" android:text="@string/batt_card_capacity"/>
+            <TextView android:textSize="16sp" android:textStyle="bold" android:textColor="#448aff" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp" android:text="@string/batt_card_health"/>
+            <TextView android:id="@+id/battHealthBig" android:textSize="36sp" android:textStyle="bold" android:textColor="#ffffff" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+            <TextView android:id="@+id/battHealthBasis" android:textSize="12sp" android:textColor="#9aa0a6" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp"/>
+            <ProgressBar android:id="@+id/battHealthBar" style="?android:attr/progressBarStyleHorizontal" android:max="100" android:progressTint="#4caf50" android:progressBackgroundTint="#333333" android:layout_width="match_parent" android:layout_height="8dp" android:layout_marginTop="8dp" android:layout_marginBottom="10dp"/>
+            <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="6dp">
+                <TextView android:textSize="14sp" android:textColor="#9aa0a6" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/batt_label_real_capacity"/>
+                <TextView android:id="@+id/battRealCapValue" android:textSize="14sp" android:textColor="#ffffff" android:gravity="end" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            </LinearLayout>
             <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="6dp">
                 <TextView android:textSize="14sp" android:textColor="#9aa0a6" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/batt_label_design"/>
                 <TextView android:id="@+id/battDesignValue" android:textSize="14sp" android:textColor="#ffffff" android:gravity="end" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
@@ -31,6 +40,38 @@ refreshed in place about every 2 s. -->
                 <TextView android:id="@+id/battSysHealthValue" android:textSize="14sp" android:textColor="#ffffff" android:gravity="end" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
             </LinearLayout>
             <ProgressBar android:id="@+id/battSysHealthBar" style="?android:attr/progressBarStyleHorizontal" android:max="100" android:progressTint="#4caf50" android:progressBackgroundTint="#333333" android:layout_width="match_parent" android:layout_height="6dp" android:layout_marginTop="6dp"/>
+            <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp">
+                <TextView android:textSize="14sp" android:textColor="#9aa0a6" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/batt_label_last_calc"/>
+                <TextView android:id="@+id/battLastCalcValue" android:textSize="14sp" android:textColor="#ffffff" android:gravity="end" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout android:orientation="vertical" android:background="@drawable/card_background" android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp">
+            <TextView android:textSize="16sp" android:textStyle="bold" android:textColor="#448aff" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp" android:text="@string/batt_card_charging"/>
+            <TextView android:id="@+id/battSessionState" android:textSize="14sp" android:textStyle="bold" android:textColor="#ffffff" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="6dp"/>
+            <LinearLayout android:id="@+id/battSessionBody" android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content">
+                <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="6dp">
+                    <TextView android:textSize="14sp" android:textColor="#9aa0a6" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/batt_label_session_levels"/>
+                    <TextView android:id="@+id/battSessionLevelsValue" android:textSize="14sp" android:textColor="#ffffff" android:gravity="end" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                </LinearLayout>
+                <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="6dp">
+                    <TextView android:textSize="14sp" android:textColor="#9aa0a6" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/batt_label_session_duration"/>
+                    <TextView android:id="@+id/battSessionDurationValue" android:textSize="14sp" android:textColor="#ffffff" android:gravity="end" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                </LinearLayout>
+                <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="6dp">
+                    <TextView android:textSize="14sp" android:textColor="#9aa0a6" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/batt_label_session_avg_current"/>
+                    <TextView android:id="@+id/battSessionAvgCurrentValue" android:textSize="14sp" android:textColor="#ffffff" android:gravity="end" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                </LinearLayout>
+                <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="6dp">
+                    <TextView android:textSize="14sp" android:textColor="#9aa0a6" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/batt_label_session_avg_power"/>
+                    <TextView android:id="@+id/battSessionAvgPowerValue" android:textSize="14sp" android:textColor="#ffffff" android:gravity="end" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                </LinearLayout>
+                <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <TextView android:textSize="14sp" android:textColor="#9aa0a6" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/batt_label_session_added"/>
+                    <TextView android:id="@+id/battSessionMahValue" android:textSize="14sp" android:textColor="#ffffff" android:gravity="end" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout android:id="@+id/battSessionsList" android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp"/>
+            <TextView android:id="@+id/battSessionEmpty" android:textSize="13sp" android:textColor="#9aa0a6" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone" android:text="@string/batt_session_none"/>
         </LinearLayout>
         <LinearLayout android:orientation="vertical" android:background="@drawable/card_background" android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp">
             <TextView android:textSize="16sp" android:textStyle="bold" android:textColor="#448aff" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp" android:text="@string/batt_card_live"/>
@@ -60,21 +101,6 @@ refreshed in place about every 2 s. -->
             <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content">
                 <TextView android:textSize="14sp" android:textColor="#9aa0a6" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/batt_label_est_left"/>
                 <TextView android:id="@+id/battEstLeftValue" android:textSize="14sp" android:textColor="#ffffff" android:gravity="end" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-            </LinearLayout>
-        </LinearLayout>
-        <LinearLayout android:orientation="vertical" android:background="@drawable/card_background" android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp">
-            <TextView android:textSize="16sp" android:textStyle="bold" android:textColor="#448aff" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp" android:text="@string/batt_card_real"/>
-            <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="6dp">
-                <TextView android:textSize="14sp" android:textColor="#9aa0a6" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/batt_label_real_capacity"/>
-                <TextView android:id="@+id/battRealCapValue" android:textSize="14sp" android:textColor="#ffffff" android:gravity="end" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-            </LinearLayout>
-            <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="6dp">
-                <TextView android:textSize="14sp" android:textColor="#9aa0a6" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/batt_label_real_health"/>
-                <TextView android:id="@+id/battRealHealthValue" android:textSize="14sp" android:textColor="#ffffff" android:gravity="end" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-            </LinearLayout>
-            <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content">
-                <TextView android:textSize="14sp" android:textColor="#9aa0a6" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/batt_label_last_calc"/>
-                <TextView android:id="@+id/battLastCalcValue" android:textSize="14sp" android:textColor="#ffffff" android:gravity="end" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
             </LinearLayout>
         </LinearLayout>
         <TextView android:id="@+id/battNotesText" android:textSize="12sp" android:textColor="#9aa0a6" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="@string/battery_notes"/>
