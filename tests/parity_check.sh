@@ -55,14 +55,16 @@ check "POST_NOTIFICATIONS in manifest" "src/main/AndroidManifest.xml" 'android.p
 check "overlay permission check" "$SRC/FloatingMonitorActivity.java" 'Settings.canDrawOverlays'
 check "overlay permission settings intent" "$SRC/FloatingMonitorActivity.java" 'MANAGE_OVERLAY_PERMISSION'
 
-# Battery dialog: single instance + live refresh pairing.
-check "dialog single-instance guard" "$SRC/FloatingMonitorActivity.java" 'batteryDialog.isShowing()'
-check "dialog busy guard" "$SRC/FloatingMonitorActivity.java" 'batteryInfoBusy'
-check "dialog refresh starts" "$SRC/FloatingMonitorActivity.java" 'startBatteryDialogRefresh()'
-check "dialog dismiss stops refresh" "$SRC/FloatingMonitorActivity.java" 'batteryDialogRefreshing = false'
-check "dialog power row wired" "$SRC/FloatingMonitorActivity.java" 'PureCalc.powerWatts'
-check "capacity chain widened to all power_supply dirs" "$SRC/FloatingMonitorActivity.java" 'powerSupplyDirs()'
-check "slope fallback for estimates" "$SRC/FloatingMonitorActivity.java" 'PureCalc.minutesToFull'
+# Battery Information screen (6.3.7): a dedicated activity, not a
+# dialog. Anti-spam is layered: singleTop in the manifest plus the
+# static open flag the monitor button checks before starting it.
+check "battery screen singleTop" "src/main/AndroidManifest.xml" 'android:launchMode="singleTop"'
+check "battery screen open flag" "$SRC/BatteryInfoActivity.java" 'private static volatile boolean open'
+check "battery button checks the open flag" "$SRC/FloatingMonitorActivity.java" 'BatteryInfoActivity.isOpen()'
+check "battery button reorders to front when open" "$SRC/FloatingMonitorActivity.java" 'FLAG_ACTIVITY_REORDER_TO_FRONT'
+check "battery screen power row wired" "$SRC/BatteryInfoActivity.java" 'PureCalc.powerWatts'
+check "capacity chain widened to all power_supply dirs" "$SRC/BatteryInfoActivity.java" 'powerSupplyDirs()'
+check "slope fallback for estimates" "$SRC/BatteryInfoActivity.java" 'PureCalc.minutesToFull'
 check "dumpsys charge counter fallback" "$SRC/SystemStats.java" 'dumpsys battery'
 
 # Services: foreground with distinct ids and the specialUse type.
@@ -91,8 +93,8 @@ check "test overlay button handler" "$SRC/FloatingMonitorActivity.java" 'private
 # samples -> session file -> sessions list reads the same directory.
 check "recorder running flag" "$SRC/FpsRecorder.java" 'public static boolean isRecording()'
 check "recorder start" "$SRC/FpsRecorder.java" 'public static synchronized boolean start'
-check "recorder fed by overlay service" "$SRC/FloatingOverlayService.java" 'FpsRecorder.sampleNow'
-check "recorder finalized on service destroy" "$SRC/FloatingOverlayService.java" 'FpsRecorder.stop(this)'
+check_absent "recorder no longer fed by overlay service" "$SRC/FloatingOverlayService.java" 'FpsRecorder.sampleNow'
+check_absent "recorder no longer finalized by overlay service" "$SRC/FloatingOverlayService.java" 'FpsRecorder.stop(this)'
 check "sessions dir name" "$SRC/FpsSession.java" 'DIR_NAME = "fps_sessions"'
 check "recorder writes into sessions dir" "$SRC/FpsRecorder.java" 'FpsSession.dir(context)'
 check "sessions list reads sessions" "$SRC/FpsSessionsActivity.java" 'FpsSession.list'
@@ -249,30 +251,28 @@ check "drag marks a window custom" "$SRC/FloatingOverlayService.java" '"_customp
 check "CHANGELOG has the 6.3.2 entry" "CHANGELOG.md" '## 6.3.2'
 check "CHANGELOG_ID has the 6.3.2 entry" "CHANGELOG_ID.md" '## 6.3.2'
 
-# 6.3.3: Battery Information is a structured, themed layout now —
+# 6.3.3: Battery Information became a structured, themed layout —
 # header + cards, values updated in place by id on every refresh.
-# The one-big-message-string dialog is gone.
-check "battery dialog layout exists" "src/main/res/layout/dialog_battery_info.xml" 'battLevelText'
-check "battery dialog layout exists (v21)" "src/main/res/layout-v21/dialog_battery_info.xml" 'battLevelText'
-check "battery dialog inflated" "$SRC/FloatingMonitorActivity.java" 'R.layout.dialog_battery_info'
-check "battery dialog dark theme" "$SRC/FloatingMonitorActivity.java" 'R.style.BatteryDialogTheme'
-check "battery dialog theme (Holo)" "src/main/res/values/styles.xml" 'BatteryDialogTheme'
-check "battery dialog theme (Material)" "src/main/res/values-v21/styles.xml" 'BatteryDialogTheme'
-check_count "battery snapshot applied at create and on refresh" "$SRC/FloatingMonitorActivity.java" 'applyBatteryInfo(info)' 2
-check "battery views bound from the layout" "$SRC/FloatingMonitorActivity.java" 'bindBatteryDialogViews(content)'
-check_absent "battery dialog no longer uses setMessage" "$SRC/FloatingMonitorActivity.java" 'setMessage('
+# 6.3.7: that layout is a full screen (BatteryInfoActivity) with
+# the same ids and bindings; the dialog form is gone entirely.
+check "battery screen layout exists" "src/main/res/layout/activity_battery_info.xml" 'battLevelText'
+check "battery screen layout exists (v21)" "src/main/res/layout-v21/activity_battery_info.xml" 'battLevelText'
+check "battery screen content view set" "$SRC/BatteryInfoActivity.java" 'R.layout.activity_battery_info'
+check "battery snapshot applied on refresh" "$SRC/BatteryInfoActivity.java" 'applyBatteryInfo(info)'
+check "battery views bound from the layout" "$SRC/BatteryInfoActivity.java" 'findViewById(R.id.battLevelText)'
+check_absent "battery dialog wiring gone from monitor screen" "$SRC/FloatingMonitorActivity.java" 'showBatteryStatus'
 check_absent "old battery text-dump string removed (ID)" "src/main/res/values/strings.xml" 'battery_info_message'
 check_absent "old battery text-dump string removed (EN)" "src/main/res/values-en/strings.xml" 'battery_info_message'
-check "battery voltage row wired" "$SRC/FloatingMonitorActivity.java" 'info.voltageText'
-check "battery health bar hides when not numeric" "$SRC/FloatingMonitorActivity.java" 'battSysHealthBar.setVisibility(View.GONE)'
+check "battery voltage row wired" "$SRC/BatteryInfoActivity.java" 'info.voltageText'
+check "battery health bar hides when not numeric" "$SRC/BatteryInfoActivity.java" 'battSysHealthBar.setVisibility(View.GONE)'
 for batt_id in battLevelText battLevelBar battStatusText battHealthText \
         battDesignValue battFullValue battSysHealthValue battSysHealthBar \
         battLiveStatusValue battCurrentValue battPowerValue battVoltageValue \
         battEstFullValue battEstLeftValue battRealCapValue battRealHealthValue \
-        battLastCalcValue battScroll battCloseButton; do
-    check "battery id in layout: $batt_id" "src/main/res/layout/dialog_battery_info.xml" "@+id/$batt_id"
-    check "battery id in v21 layout: $batt_id" "src/main/res/layout-v21/dialog_battery_info.xml" "@+id/$batt_id"
-    check "battery id referenced in code: $batt_id" "$SRC/FloatingMonitorActivity.java" "R.id.$batt_id"
+        battLastCalcValue; do
+    check "battery id in layout: $batt_id" "src/main/res/layout/activity_battery_info.xml" "@+id/$batt_id"
+    check "battery id in v21 layout: $batt_id" "src/main/res/layout-v21/activity_battery_info.xml" "@+id/$batt_id"
+    check "battery id referenced in code: $batt_id" "$SRC/BatteryInfoActivity.java" "R.id.$batt_id"
 done
 
 # 6.3.3: root probe outcomes are split — "su could not even be
@@ -379,34 +379,34 @@ check "CHANGELOG_ID has the 6.3.4 entry" "CHANGELOG_ID.md" '## 6.3.4'
 check "CHANGELOG has the 6.3.5 entry" "CHANGELOG.md" '## 6.3.5'
 check "CHANGELOG_ID has the 6.3.5 entry" "CHANGELOG_ID.md" '## 6.3.5'
 
-# 6.3.6: the battery dialog is a plain Dialog with a hand-sized
-# window. As a stock alert dialog the custom view measured itself
-# at full content height (taller than the screen), the panel ran
-# off the top of the display, the bars took the theme accent, and
-# the close button sat in the stock grey button strip. Now: the
-# window gets 24 dp side margins and an 88%-of-screen height cap,
-# the content scrolls inside the panel, the close button is a
-# layout view, and both bars carry the app green.
-check "battery dialog built as a plain Dialog" "$SRC/FloatingMonitorActivity.java" 'new Dialog('
-check "battery dialog window sized in code" "$SRC/FloatingMonitorActivity.java" 'sizeBatteryDialogWindow(dialog, content)'
-check "battery dialog height capped at 88 percent" "$SRC/FloatingMonitorActivity.java" 'metrics.heightPixels * 0.88f'
-check "battery dialog side margins in code" "$SRC/FloatingMonitorActivity.java" 'metrics.widthPixels - (int) (48 * metrics.density)'
-check "battery dialog window background transparent" "$SRC/FloatingMonitorActivity.java" 'window.setBackgroundDrawableResource(android.R.color.transparent)'
-check "battery dialog centered" "$SRC/FloatingMonitorActivity.java" 'params.gravity = Gravity.CENTER'
-check_absent "battery dialog no longer an alert dialog" "$SRC/FloatingMonitorActivity.java" 'AlertDialog'
-check_absent "battery dialog no stock positive button" "$SRC/FloatingMonitorActivity.java" 'setPositiveButton'
-check "battery panel drawable is the dark panel" "src/main/res/drawable/bg_battery_dialog.xml" '#111111'
-check "battery panel drawable is rounded" "src/main/res/drawable/bg_battery_dialog.xml" 'android:radius="16dp"'
-check "battery layout uses the panel drawable" "src/main/res/layout/dialog_battery_info.xml" '@drawable/bg_battery_dialog'
-check "battery layout uses the panel drawable (v21)" "src/main/res/layout-v21/dialog_battery_info.xml" '@drawable/bg_battery_dialog'
-check "battery scroll view wraps the content" "src/main/res/layout/dialog_battery_info.xml" '@+id/battScroll'
-check "battery scroll view wraps the content (v21)" "src/main/res/layout-v21/dialog_battery_info.xml" '@+id/battScroll'
-check "battery close button in layout" "src/main/res/layout/dialog_battery_info.xml" '@+id/battCloseButton'
-check "battery close button in layout (v21)" "src/main/res/layout-v21/dialog_battery_info.xml" '@+id/battCloseButton'
-check_count "battery bars tinted green" "src/main/res/layout/dialog_battery_info.xml" 'android:progressTint="#4caf50"' 2
-check_count "battery bars tinted green (v21)" "src/main/res/layout-v21/dialog_battery_info.xml" 'android:progressTint="#4caf50"' 2
-check_count "battery bar tracks tinted" "src/main/res/layout/dialog_battery_info.xml" 'android:progressBackgroundTint="#333333"' 2
-check_count "battery bar tracks tinted (v21)" "src/main/res/layout-v21/dialog_battery_info.xml" 'android:progressBackgroundTint="#333333"' 2
+# 6.3.6 (superseded by 6.3.7): the battery dialog got a hand-sized
+# window, green bars and an in-panel close button. In 6.3.7 the
+# dialog itself is gone — Battery Information is a full screen —
+# so everything dialog-only must stay gone: the layout files, the
+# panel drawable, the theme, and the sizing code.
+if [ ! -f src/main/res/layout/dialog_battery_info.xml ] && [ ! -f src/main/res/layout-v21/dialog_battery_info.xml ]; then
+    echo "PASS battery dialog layouts deleted"
+    PASS=$((PASS + 1))
+else
+    echo "FAIL battery dialog layouts deleted (dialog_battery_info.xml still exists)"
+    FAIL=$((FAIL + 1))
+fi
+if [ ! -f src/main/res/drawable/bg_battery_dialog.xml ]; then
+    echo "PASS battery dialog panel drawable deleted"
+    PASS=$((PASS + 1))
+else
+    echo "FAIL battery dialog panel drawable deleted (bg_battery_dialog.xml still exists)"
+    FAIL=$((FAIL + 1))
+fi
+check_absent "battery dialog theme gone (Holo)" "src/main/res/values/styles.xml" 'BatteryDialogTheme'
+check_absent "battery dialog theme gone (Material)" "src/main/res/values-v21/styles.xml" 'BatteryDialogTheme'
+check_absent "no dialog construction in monitor screen" "$SRC/FloatingMonitorActivity.java" 'new Dialog('
+check_absent "no dialog sizing in monitor screen" "$SRC/FloatingMonitorActivity.java" 'sizeBatteryDialogWindow'
+check_absent "no battery dialog field in monitor screen" "$SRC/FloatingMonitorActivity.java" 'batteryDialog'
+check_count "battery bars tinted green" "src/main/res/layout/activity_battery_info.xml" 'android:progressTint="#4caf50"' 2
+check_count "battery bars tinted green (v21)" "src/main/res/layout-v21/activity_battery_info.xml" 'android:progressTint="#4caf50"' 2
+check_count "battery bar tracks tinted" "src/main/res/layout/activity_battery_info.xml" 'android:progressBackgroundTint="#333333"' 2
+check_count "battery bar tracks tinted (v21)" "src/main/res/layout-v21/activity_battery_info.xml" 'android:progressBackgroundTint="#333333"' 2
 
 # 6.3.6: the language picker's radio rows are wrap_content. With a
 # match_parent text area, the right-to-left Arabic label aligned
@@ -443,6 +443,100 @@ fi
 # 6.3.6: changelog entries.
 check "CHANGELOG has the 6.3.6 entry" "CHANGELOG.md" '## 6.3.6'
 check "CHANGELOG_ID has the 6.3.6 entry" "CHANGELOG_ID.md" '## 6.3.6'
+
+# 6.3.7: text contrast. Whole blocks of the Floating Monitor
+# screen were invisible on the user's phone: the battery history
+# title and summary, the temperature sensor title and list, and
+# the FPS recorder hint carried NO textColor at all, so they
+# inherited near-black text from the light app theme onto the
+# black screen. Guard: every TextView in every layout must carry
+# an explicit android:textColor, and the five fixed views must
+# carry the palette colors.
+CONTRAST_OUT=$(python3 - <<'PYEOF'
+import glob, re, sys
+bad = []
+for path in sorted(glob.glob("src/main/res/layout/*.xml") + glob.glob("src/main/res/layout-v21/*.xml")):
+    text = open(path, encoding="utf-8").read()
+    for m in re.finditer(r"<TextView\b[^>]*", text, re.S):
+        if "android:textColor" not in m.group(0):
+            idm = re.search(r'android:id="@\+id/(\w+)"', m.group(0))
+            bad.append(f"{path}: TextView id={idm.group(1) if idm else '?'}")
+if bad:
+    print("FAIL TextViews without explicit textColor")
+    for b in bad:
+        print("  " + b)
+    sys.exit(1)
+print("PASS every TextView in every layout has an explicit textColor")
+PYEOF
+)
+echo "$CONTRAST_OUT"
+if echo "$CONTRAST_OUT" | grep -q '^PASS'; then
+    PASS=$((PASS + 1))
+else
+    FAIL=$((FAIL + 1))
+fi
+check_count "history title uses the accent blue" "src/main/res/layout/activity_floating_monitor.xml" '@string/battery_history_title" android:textSize="16sp" android:textStyle="bold" android:textColor="#448aff"' 1
+check_count "history title uses the accent blue (v21)" "src/main/res/layout-v21/activity_floating_monitor.xml" '@string/battery_history_title" android:textSize="16sp" android:textStyle="bold" android:textColor="#448aff"' 1
+check_count "sensor title uses the accent blue" "src/main/res/layout/activity_floating_monitor.xml" '@string/temp_sensors_title" android:textSize="16sp" android:textStyle="bold" android:textColor="#448aff"' 1
+check_count "sensor title uses the accent blue (v21)" "src/main/res/layout-v21/activity_floating_monitor.xml" '@string/temp_sensors_title" android:textSize="16sp" android:textStyle="bold" android:textColor="#448aff"' 1
+check_count "secondary color on the info texts" "src/main/res/layout/activity_floating_monitor.xml" 'android:textColor="#9aa0a6"' 4
+check_count "secondary color on the info texts (v21)" "src/main/res/layout-v21/activity_floating_monitor.xml" 'android:textColor="#9aa0a6"' 4
+
+# 6.3.7: battery history no longer depends on the notification
+# feature. BatteryLoggingService is a real foreground service
+# holding the battery-changed receiver; it is started from the
+# main screen, the monitor screen and the boot receiver, and the
+# graph hint follows its state.
+check "battery logging service is a real Service" "$SRC/BatteryLoggingService.java" 'extends Service'
+check "battery logging service in manifest" "src/main/AndroidManifest.xml" 'BatteryLoggingService'
+check "battery logging service foreground id" "$SRC/BatteryLoggingService.java" 'NOTIF_ID = 4'
+check "battery logging holds the battery receiver" "$SRC/BatteryLoggingService.java" 'BATTERY_CHANGED'
+check "battery logging started from main screen" "$SRC/MainActivity.java" 'BatteryLoggingService.start(this)'
+check "battery logging started from monitor screen" "$SRC/FloatingMonitorActivity.java" 'BatteryLoggingService.start(this)'
+check "battery logging started at boot" "$SRC/BootReceiver.java" 'BatteryLoggingService.start(context)'
+check "history hint follows the logging service" "$SRC/FloatingMonitorActivity.java" 'BatteryLoggingService.isRunning() ? View.GONE : View.VISIBLE'
+check "battery logging string (ID)" "src/main/res/values/strings.xml" 'battery_logging_notif'
+check "battery logging string (AR)" "src/main/res/values-ar/strings.xml" 'battery_logging_notif'
+
+# 6.3.7: FPS without root. FpsCaptureService measures distinct
+# presented frames through MediaProjection (system consent, asked
+# by the recorder toggle and by the function test) and publishes
+# to SystemStats, whose getters prefer a fresh capture value and
+# name the source. The recorder runs its own sampling loop and
+# every recording finalizes to a session file, zero samples
+# included.
+check "fps capture service exists" "$SRC/FpsCaptureService.java" 'class FpsCaptureService extends Service'
+check "capture service counts distinct frames" "$SRC/FpsCaptureService.java" 'distinctFrames++'
+check "capture service publishes its fps" "$SRC/FpsCaptureService.java" 'SystemStats.setProjectionFps'
+check "capture service in manifest as mediaProjection" "src/main/AndroidManifest.xml" 'android:foregroundServiceType="mediaProjection"'
+check "media projection FGS permission declared" "src/main/AndroidManifest.xml" 'FOREGROUND_SERVICE_MEDIA_PROJECTION'
+check "projection fps slot in SystemStats" "$SRC/SystemStats.java" 'public static void setProjectionFps'
+check "fps source can name MediaProjection" "$SRC/SystemStats.java" '"MediaProjection"'
+check "recorder toggle asks capture consent" "$SRC/FloatingMonitorActivity.java" 'createScreenCaptureIntent'
+check "function test asks capture consent" "$SRC/FunctionTestActivity.java" 'createScreenCaptureIntent'
+check "recorder runs its own sampling loop" "$SRC/FpsRecorder.java" 'startSamplingLoop()'
+check "recorder stamps the end marker" "$SRC/FpsRecorder.java" '"#end,"'
+check "session parser reads the end marker" "$SRC/FpsSession.java" '"#end,"'
+check "no-data sessions stay listed" "$SRC/FpsSession.java" 'return new FpsSession(file, startMs, endMs, null, samples)'
+check "sessions list marks no-data" "$SRC/FpsSessionsActivity.java" 'fps_session_no_data'
+check "capture denied string (ID)" "src/main/res/values/strings.xml" 'fps_capture_denied'
+check "capture denied string (EN)" "src/main/res/values-en/strings.xml" 'fps_capture_denied'
+
+# 6.3.7: thermal without root. The Android Thermal API status is
+# the non-root thermal source: shown on the monitor screen
+# (labelled as a status) when no per-sensor reading exists, and
+# counted by the function test.
+check "thermal status API in SystemStats" "$SRC/SystemStats.java" 'getCurrentThermalStatus'
+check "thermal status accessor" "$SRC/SystemStats.java" 'public static int getThermalStatus'
+check "thermal status shown on monitor screen" "$SRC/FloatingMonitorActivity.java" 'R.string.temp_thermal_status'
+check "thermal API counts in function test" "$SRC/FunctionTester.java" 'R.string.test_thermal_api_detail'
+check "thermal status strings (ID)" "src/main/res/values/strings.xml" 'thermal_status_normal'
+check "thermal status strings (ZH)" "src/main/res/values-zh/strings.xml" 'thermal_status_normal'
+check "thermal status strings (AR)" "src/main/res/values-ar/strings.xml" 'thermal_status_normal'
+
+# 6.3.7: changelog entries.
+check "CHANGELOG has the 6.3.7 entry" "CHANGELOG.md" '## 6.3.7'
+check "CHANGELOG_ID has the 6.3.7 entry" "CHANGELOG_ID.md" '## 6.3.7'
 
 # String parity across ALL locales: same key count everywhere.
 BASE_COUNT=$(grep -c '<string ' src/main/res/values/strings.xml)
