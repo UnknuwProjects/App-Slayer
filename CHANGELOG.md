@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 6.3.4
+- Main screen: the light top bar is gone — the title now sits at the top in the app's dark theme, gear and menu buttons included.
+- Language is picked from a bottom sheet list now, with four new languages: Chinese, Hindi, Spanish, and Arabic.
+- Fresh screenshots in the README, matching this build.
+- Installs over 6.3.3, no need to uninstall.
+
 ## 6.3.3
 - Battery Information has a new look: cards, a big level header, and a voltage row.
 - Root test now says it right when su cannot run at all — check the Superuser list in Magisk/KernelSU.

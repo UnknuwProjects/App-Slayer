@@ -2,6 +2,12 @@
 
 # Catatan Rilis
 
+## 6.3.4
+- Layar utama: bar atas yang terang sudah hilang — judul sekarang di atas mengikuti tema gelap aplikasi, tombol gir dan menu tetap ada.
+- Bahasa sekarang dipilih dari daftar bottom sheet, plus empat bahasa baru: Mandarin, Hindi, Spanyol, dan Arab.
+- Screenshot di README diperbarui, sesuai build ini.
+- Bisa langsung ditimpa dari 6.3.3, tidak perlu uninstall.
+
 ## 6.3.3
 - Info Baterai tampilannya baru: kartu-kartu, header level besar, plus baris tegangan.
 - Tes root sekarang benar bilangnya kalau su tidak bisa jalan sama sekali — cek daftar Superuser di Magisk/KernelSU.
