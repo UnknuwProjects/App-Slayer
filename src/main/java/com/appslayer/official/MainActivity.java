@@ -1010,6 +1010,14 @@ public class MainActivity extends Activity {
                         + e.getClass().getSimpleName() + ": " + e.getMessage());
             }
         }
+        // Battery history has its own logger service since 6.3.7,
+        // independent of the notification feature above: keep it
+        // alive whenever the app is in use so the 24-hour graph
+        // fills even with notifications off.
+        if (!BatteryLoggingService.isRunning()) {
+            DiagLog.log("SYS", "battery logging service not running — starting it");
+            BatteryLoggingService.start(this);
+        }
         this.toastOnlyReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {

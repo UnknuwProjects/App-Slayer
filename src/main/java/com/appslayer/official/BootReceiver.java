@@ -41,6 +41,10 @@ public class BootReceiver extends BroadcastReceiver {
                     context.startService(serviceIntent);
                 }
             }
+            // Battery history logging is independent of the
+            // notification feature (6.3.7): start its service on
+            // every boot so the 24-hour graph keeps collecting.
+            BatteryLoggingService.start(context);
             if (autoStart && anyMonitor && Settings.canDrawOverlays(context)) {
                 Intent overlayIntent = new Intent(context, FloatingOverlayService.class);
                 if (Build.VERSION.SDK_INT >= 26) {
