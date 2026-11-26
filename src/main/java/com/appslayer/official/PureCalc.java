@@ -520,6 +520,27 @@ public final class PureCalc {
         return readings;
     }
 
+    // Y positions for a vertical stack of overlay windows: the
+    // first window sits at startY, each next one below the previous
+    // window's measured height plus the gap. Parallel to the input:
+    // result[i] is the y for the window whose height is heights[i].
+    // The classic windows used to get fixed default offsets (200,
+    // 300, 400, …) while the CPU window alone can be nine lines
+    // tall, so on the user's phone they all piled up into one
+    // unreadable stack.
+    public static int[] stackOffsets(int[] heights, int gapPx, int startY) {
+        if (heights == null) {
+            return new int[0];
+        }
+        int[] ys = new int[heights.length];
+        int cursor = startY;
+        for (int i = 0; i < heights.length; i++) {
+            ys[i] = cursor;
+            cursor += Math.max(0, heights[i]) + Math.max(0, gapPx);
+        }
+        return ys;
+    }
+
     // The package that held the foreground for the longest total
     // time across a session's app segments (parallel arrays: segment
     // start times and their packages; the last segment runs until

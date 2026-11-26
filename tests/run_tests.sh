@@ -6,8 +6,9 @@ cd "$(dirname "$0")/.."
 OUT=/tmp/appslayer-test-classes
 rm -rf "$OUT"
 mkdir -p "$OUT"
-javac -encoding UTF-8 -d "$OUT" src/main/java/com/appslayer/official/PureCalc.java tests/PureCalcTest.java tests/FpsStatsTest.java tests/ThermalParseTest.java
+javac -encoding UTF-8 -d "$OUT" src/main/java/com/appslayer/official/PureCalc.java tests/PureCalcTest.java tests/FpsStatsTest.java tests/ThermalParseTest.java tests/StackOffsetsTest.java
 java -cp "$OUT" PureCalcTest
 java -cp "$OUT" FpsStatsTest
 java -cp "$OUT" ThermalParseTest
+java -cp "$OUT" StackOffsetsTest
 bash tests/parity_check.sh

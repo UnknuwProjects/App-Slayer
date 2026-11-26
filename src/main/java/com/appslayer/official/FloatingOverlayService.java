@@ -128,6 +128,18 @@ public class FloatingOverlayService extends Service {
         return diagLastAddResult;
     }
 
+    // Fixed top-to-bottom order of the classic windows in the
+    // auto-stack (the same order updateActiveOverlays creates them).
+    private static final String[] CLASSIC_ORDER = {
+            PrefsKeys.MONITOR_CPU, PrefsKeys.MONITOR_RAM, PrefsKeys.MONITOR_TEMP,
+            PrefsKeys.MONITOR_BATTERY, PrefsKeys.MONITOR_CURRENT,
+            PrefsKeys.MONITOR_SIGNAL, PrefsKeys.MONITOR_FPS, PrefsKeys.MONITOR_PROCESS
+    };
+    // Line count of each classic window's current text, so a
+    // material height change (the CPU window gaining or losing
+    // lines) triggers a re-stack. Main thread only.
+    private final Map<String, Integer> lastLineCounts = new HashMap<>();
+
     // The mini bar lives in the same window map under its own key.
     private static final String MINI_KEY = "mini_monitor";
     // Fixed left-to-right order of the pieces in the mini bar.
@@ -303,6 +315,11 @@ public class FloatingOverlayService extends Service {
         // when this service is started without the monitor screen
         // (e.g. by the boot receiver). The call is idempotent.
         SystemStats.startFpsMonitorThread();
+        // Retry the root shell at service start: if it failed to
+        // open earlier in this process (an unapproved prompt, a
+        // slow root manager), every shell-backed stat would stay
+        // dead until the app restarted. The kick is throttled.
+        SystemStats.kickRootShell();
         registerSignalListener();
         refreshOverlays();
         startScheduler();
@@ -548,6 +565,14 @@ public class FloatingOverlayService extends Service {
         } else {
             textView.setShadowLayer(0, 0, 0, 0);
         }
+        // A window whose text gained or lost lines changed height;
+        // the classic stack has to move the windows below it.
+        int lines = text.split("\n").length;
+        Integer prevLines = this.lastLineCounts.get(key);
+        if (prevLines == null || prevLines != lines) {
+            this.lastLineCounts.put(key, lines);
+            restackClassicWindows();
+        }
     }
 
     private void registerSignalListener() {
@@ -674,9 +699,13 @@ public class FloatingOverlayService extends Service {
                         initialTouchY[0] = event.getRawY();
                         return true;
                     case MotionEvent.ACTION_UP:
+                        // A window the user placed by hand keeps
+                        // its position: the auto-stack leaves
+                        // custom-positioned windows alone.
                         prefs.edit()
                                 .putInt(key + "_x", params.x)
                                 .putInt(key + "_y", params.y)
+                                .putBoolean(key + "_custompos", true)
                                 .apply();
                         return true;
                     case MotionEvent.ACTION_MOVE:
@@ -796,6 +825,7 @@ public class FloatingOverlayService extends Service {
         }
         this.overlayViews.remove(key);
         this.lastTexts.remove(key);
+        this.lastLineCounts.remove(key);
         if (view.getWindowToken() != null) {
             view.animate().alpha(0.0f).setDuration(300).withEndAction(new Runnable() {
                 @Override
@@ -932,9 +962,60 @@ public class FloatingOverlayService extends Service {
                 textView.setText(R.string.overlay_loading);
             }
         });
+        restackClassicWindows();
         int enabledClassic = countEnabled(MINI_ORDER)
                 + (this.prefs.getBoolean(PrefsKeys.MONITOR_PROCESS, false) ? 1 : 0);
         finishRebuild("classic", enabledClassic);
+    }
+
+    // Lays the classic windows out as one clean vertical stack:
+    // each window's y = the measured heights of the windows above
+    // it plus a small gap, computed by PureCalc.stackOffsets. The
+    // old fixed default offsets (200/300/400…) were smaller than
+    // the multi-line CPU window is tall, so everything piled up
+    // into an unreadable heap on the user's phone. Windows the
+    // user dragged to a custom position are left out of the stack.
+    // Main thread only; a no-op in mini mode (the single bar plus
+    // the standalone process window keep their own positions).
+    private void restackClassicWindows() {
+        boolean mini = PrefsKeys.MONITOR_STYLE_MINI.equals(
+                this.prefs.getString(PrefsKeys.MONITOR_STYLE, PrefsKeys.MONITOR_STYLE_CLASSIC));
+        if (mini) {
+            return;
+        }
+        java.util.List<View> views = new java.util.ArrayList<>();
+        for (String key : CLASSIC_ORDER) {
+            View view = this.overlayViews.get(key);
+            if (view == null || this.prefs.getBoolean(key + "_custompos", false)) {
+                continue;
+            }
+            views.add(view);
+        }
+        if (views.isEmpty()) {
+            return;
+        }
+        int[] heights = new int[views.size()];
+        for (int i = 0; i < views.size(); i++) {
+            View view = views.get(i);
+            view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+            heights[i] = view.getMeasuredHeight();
+        }
+        int gapPx = Math.round(8 * getResources().getDisplayMetrics().density);
+        int startY = this.prefs.getBoolean(PrefsKeys.SNAP_TO_BAR, false)
+                ? getStatusBarHeight() : 200;
+        int[] ys = PureCalc.stackOffsets(heights, gapPx, startY);
+        for (int i = 0; i < views.size(); i++) {
+            View view = views.get(i);
+            WindowManager.LayoutParams params =
+                    (WindowManager.LayoutParams) view.getLayoutParams();
+            if (params != null && params.y != ys[i]) {
+                params.y = ys[i];
+                try {
+                    this.windowManager.updateViewLayout(view, params);
+                } catch (Exception ignored) {
+                }
+            }
+        }
     }
 
     private void updateOverlay(String key, int layoutRes, int defaultX, int defaultY, DataUpdater dataUpdater) {
