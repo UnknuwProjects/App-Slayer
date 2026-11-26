@@ -4,6 +4,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
@@ -62,6 +63,26 @@
             android:name="com.appslayer.official.FpsReportActivity"
             android:exported="false"
             android:theme="@android:style/Theme.Holo.Light.DarkActionBar" />
+
+        <activity
+            android:name="com.appslayer.official.BatteryInfoActivity"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:theme="@android:style/Theme.Holo.Light.DarkActionBar" />
+
+        <service
+            android:name="com.appslayer.official.BatteryLoggingService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Battery history logging service" />
+        </service>
+
+        <service
+            android:name="com.appslayer.official.FpsCaptureService"
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection" />
 
         <service
             android:name="com.appslayer.official.FloatingOverlayService"
