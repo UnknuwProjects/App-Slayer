@@ -20,9 +20,16 @@ import java.util.List;
 // one-line plain detail of what the test did or why it failed.
 public class FunctionTestActivity extends Activity {
 
+    private static final int REQUEST_FPS_CAPTURE = 7302;
+
     private final List<FunctionTester.Result> results = new ArrayList<>();
     private BaseAdapter adapter;
     private TextView statusView;
+    private boolean testsStarted = false;
+    // True when this screen started the capture service just for
+    // the FPS test; it is stopped again when the tests finish
+    // (unless a recording is using it by then).
+    private boolean captureStartedForTest = false;
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -73,6 +80,59 @@ public class FunctionTestActivity extends Activity {
         };
         list.setAdapter(adapter);
         DiagLog.log("USER", "test all functions pressed");
+        prepareAndRun();
+    }
+
+    // The FPS test needs a live measurement path. Non-root first:
+    // when no root shell is verified and no capture is running,
+    // ask for the screen-capture consent so the test measures
+    // through MediaProjection; the other tests do not wait for
+    // this and the FPS test still reports honestly if the user
+    // declines (it will find no reading).
+    private void prepareAndRun() {
+        if (testsStarted) {
+            return;
+        }
+        if (SystemStats.isShellVerified() || FpsCaptureService.isRunning()) {
+            runTests();
+            return;
+        }
+        try {
+            android.media.projection.MediaProjectionManager manager =
+                    (android.media.projection.MediaProjectionManager)
+                            getSystemService("media_projection");
+            if (manager == null) {
+                runTests();
+                return;
+            }
+            startActivityForResult(manager.createScreenCaptureIntent(), REQUEST_FPS_CAPTURE);
+        } catch (Exception e) {
+            runTests();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode,
+                                    android.content.Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode != REQUEST_FPS_CAPTURE) {
+            return;
+        }
+        if (resultCode == RESULT_OK && data != null) {
+            DiagLog.log("USER", "test: screen-capture consent granted");
+            FpsCaptureService.start(getApplicationContext(), resultCode, data);
+            captureStartedForTest = true;
+        } else {
+            DiagLog.log("USER", "test: screen-capture consent declined");
+        }
+        runTests();
+    }
+
+    private void runTests() {
+        if (testsStarted) {
+            return;
+        }
+        testsStarted = true;
         FunctionTester.runAll(this, new FunctionTester.Callback() {
             @Override
             public void onResult(final FunctionTester.Result result) {
@@ -95,6 +155,12 @@ public class FunctionTestActivity extends Activity {
                         }
                     }
                 });
+                // A capture started only for this test stops with
+                // it; one feeding a recording keeps running.
+                if (captureStartedForTest && !FpsRecorder.isRecording()) {
+                    FpsCaptureService.stop(getApplicationContext());
+                    captureStartedForTest = false;
+                }
             }
         });
     }

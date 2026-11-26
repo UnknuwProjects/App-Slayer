@@ -188,13 +188,27 @@ public final class FunctionTester {
 
     // (c) Thermal: the two enumeration paths counted separately,
     // so "SELinux blocks the files but the shell works" (or the
-    // reverse) is visible instead of one merged number.
+    // reverse) is visible instead of one merged number. When no
+    // per-sensor path answers, the Android Thermal API status is
+    // the non-root fallback: a working status reading also counts
+    // as BERFUNGSI, with the status named in the detail (it is a
+    // throttling state, not a temperature).
     private static Result testThermal(Context context) {
         String name = context.getString(R.string.test_name_thermal);
         try {
             int plain = SystemStats.readPlainThermalSensors().size();
             int shell = SystemStats.getShellThermalReadings().size();
-            return new Result(name, plain + shell > 0,
+            if (plain + shell > 0) {
+                return new Result(name, true,
+                        context.getString(R.string.test_thermal_detail, plain, shell));
+            }
+            int status = SystemStats.getThermalStatus(context);
+            if (status >= 0) {
+                return new Result(name, true,
+                        context.getString(R.string.test_thermal_api_detail,
+                                context.getString(SystemStats.thermalStatusStringRes(status))));
+            }
+            return new Result(name, false,
                     context.getString(R.string.test_thermal_detail, plain, shell));
         } catch (Exception e) {
             return new Result(name, false, describe(e));
@@ -203,7 +217,10 @@ public final class FunctionTester {
 
     // (d) FPS sampler: watch for a numeric reading for up to ~3 s,
     // then try one direct sample. The detail names the path that
-    // answered (SurfaceFlinger / gfxinfo / none).
+    // answered (MediaProjection / SurfaceFlinger / gfxinfo / none).
+    // The MediaProjection path is live when the capture service is
+    // running — the test screen starts it (with the user's
+    // consent) when no root shell path is verified.
     private static Result testFps(Context context) {
         String name = context.getString(R.string.test_name_fps);
         try {

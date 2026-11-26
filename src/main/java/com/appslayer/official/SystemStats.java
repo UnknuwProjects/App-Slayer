@@ -943,12 +943,88 @@ public class SystemStats {
         }
     }
 
+    // The system thermal status from the Android Thermal API
+    // (PowerManager, API 29+) — the non-root thermal source. It is
+    // NOT a temperature: it is the platform's own throttling state
+    // (PowerManager.THERMAL_STATUS_*), and callers must present it
+    // labelled as a status, never dressed up as °C. Returns -1 when
+    // the API is unavailable (older Android, no PowerManager).
+    // Per-sensor °C stays with the file/shell enumeration above.
+    public static int getThermalStatus(Context context) {
+        if (Build.VERSION.SDK_INT < 29 || context == null) {
+            return -1;
+        }
+        try {
+            android.os.PowerManager powerManager = (android.os.PowerManager)
+                    context.getSystemService(Context.POWER_SERVICE);
+            if (powerManager == null) {
+                return -1;
+            }
+            return powerManager.getCurrentThermalStatus();
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
+    // String resource naming a PowerManager thermal status value,
+    // for the labelled status line. -1 (API unavailable) maps to
+    // the "unknown" wording only if a caller still asks.
+    public static int thermalStatusStringRes(int status) {
+        switch (status) {
+            case 1:
+                return R.string.thermal_status_light;
+            case 2:
+                return R.string.thermal_status_moderate;
+            case 3:
+                return R.string.thermal_status_severe;
+            case 4:
+                return R.string.thermal_status_critical;
+            case 5:
+                return R.string.thermal_status_emergency;
+            case 6:
+                return R.string.thermal_status_shutdown;
+            case 0:
+                return R.string.thermal_status_normal;
+            default:
+                return R.string.thermal_status_unknown;
+        }
+    }
+
     // Which path produced the latest FPS reading ("SurfaceFlinger",
     // "gfxinfo" or "none"), so the function test can name the path
     // that answered instead of just reporting a number.
     private static volatile String lastFpsSource = "none";
 
+    // Non-root FPS path: FpsCaptureService (MediaProjection) counts
+    // distinct presented frames and publishes the latest per-second
+    // value here. While a published value is fresh it wins over the
+    // shell paths — it measures what is actually on the screen,
+    // foreground game included, with no root at all. The shell
+    // paths (SurfaceFlinger latency, gfxinfo) remain the fallback
+    // whenever no capture is running, and the root enhancement when
+    // the capture cannot run.
+    private static volatile Double projectionFps = null;
+    private static volatile long projectionFpsTimeMs = 0;
+    private static final long PROJECTION_FRESH_MS = 2500;
+
+    public static void setProjectionFps(Double value) {
+        projectionFps = value;
+        projectionFpsTimeMs = value != null ? System.currentTimeMillis() : 0;
+    }
+
+    private static Double freshProjectionFps() {
+        Double value = projectionFps;
+        if (value == null) {
+            return null;
+        }
+        return System.currentTimeMillis() - projectionFpsTimeMs <= PROJECTION_FRESH_MS
+                ? value : null;
+    }
+
     public static String getLastFpsSource() {
+        if (freshProjectionFps() != null) {
+            return "MediaProjection";
+        }
         return lastFpsSource;
     }
 
@@ -1043,12 +1119,20 @@ public class SystemStats {
     }
 
     public static String getFps() {
+        Double projected = freshProjectionFps();
+        if (projected != null) {
+            return String.format(Locale.US, "FPS: %.1f", projected);
+        }
         return lastFpsString;
     }
 
     // The latest FPS reading as a number, for the recorder. Null
     // while the sampler has no reading ("FPS: ..." / "FPS: n/a").
     public static Double getFpsValue() {
+        Double projected = freshProjectionFps();
+        if (projected != null) {
+            return projected;
+        }
         return PureCalc.parseFpsValue(lastFpsString);
     }
 
