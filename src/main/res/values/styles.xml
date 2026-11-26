@@ -2,4 +2,8 @@
 <resources>
     <style name="AppTheme" parent="@android:style/Theme.Holo.Light">
 	</style>
+    <!-- Dark dialog chrome so the Battery Information dialog matches
+         the app's black screens instead of the light app theme. -->
+    <style name="BatteryDialogTheme" parent="@android:style/Theme.Holo.Dialog">
+	</style>
 </resources>

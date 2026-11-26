@@ -13,8 +13,10 @@ import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
@@ -39,6 +41,27 @@ public class FloatingMonitorActivity extends Activity {
     private AlertDialog batteryDialog;
     private volatile boolean batteryDialogRefreshing = false;
     private volatile boolean batteryInfoBusy = false;
+
+    // The Battery Information dialog's views (layout
+    // dialog_battery_info), bound when the dialog is created and
+    // updated in place by the refresh loop.
+    private TextView battLevelText;
+    private ProgressBar battLevelBar;
+    private TextView battStatusText;
+    private TextView battHealthText;
+    private TextView battDesignValue;
+    private TextView battFullValue;
+    private TextView battSysHealthValue;
+    private ProgressBar battSysHealthBar;
+    private TextView battLiveStatusValue;
+    private TextView battCurrentValue;
+    private TextView battPowerValue;
+    private TextView battVoltageValue;
+    private TextView battEstFullValue;
+    private TextView battEstLeftValue;
+    private TextView battRealCapValue;
+    private TextView battRealHealthValue;
+    private TextView battLastCalcValue;
 
     // Temperature sensor list refresher, alive only while this
     // screen is in the foreground.
@@ -1050,10 +1073,32 @@ public class FloatingMonitorActivity extends Activity {
         return PureCalc.levelSlopePerMinute(times, levels);
     }
 
-    // Builds the full Battery Information text from fresh readings.
-    // Runs on a background thread (capacity chain, current sampling
-    // and a possible root-shell read can take a moment).
-    private String buildBatteryMessage(int currentSamples, long sampleGapMs) {
+    // One Battery Information snapshot: every value the dialog
+    // shows, already formatted. sysHealthPercent is -1 when the
+    // system health is not numeric (its bar hides then).
+    private static class BatteryInfo {
+        int level;
+        String healthText;
+        String designText;
+        String fullText;
+        String sysHealthText;
+        int sysHealthPercent = -1;
+        String statusText;
+        String currentText;
+        String powerText;
+        String voltageText;
+        String estFull;
+        String estEmpty;
+        String realCapText;
+        String realHealthText;
+        String lastCalcText;
+    }
+
+    // Gathers a fresh Battery Information snapshot from the same
+    // sources, in the same order, as the old text version. Runs on
+    // a background thread (capacity chain, current sampling and a
+    // possible root-shell read can take a moment).
+    private BatteryInfo gatherBatteryInfo(int currentSamples, long sampleGapMs) {
         Intent batteryIntent = registerReceiver(null, new IntentFilter("android.intent.action.BATTERY_CHANGED"));
         int rawLevel = batteryIntent != null ? batteryIntent.getIntExtra("level", 0) : 0;
         int scale = batteryIntent != null ? batteryIntent.getIntExtra("scale", 100) : 100;
@@ -1088,8 +1133,8 @@ public class FloatingMonitorActivity extends Activity {
         final int fullMah = readCapacityMah("charge_full", "energy_full",
                 "POWER_SUPPLY_CHARGE_FULL=");
         final String fullSource = lastCapacitySource;
-        // The dialog rebuilds this text every couple of seconds;
-        // the log only hears when the outcome actually changes.
+        // The dialog re-gathers this snapshot every couple of
+        // seconds; the log only hears when the outcome changes.
         String capacityOutcome = "design=" + designMah + " via " + designSource
                 + ", full=" + fullMah + " via " + fullSource;
         if (!capacityOutcome.equals(lastCapacityOutcome)) {
@@ -1097,8 +1142,10 @@ public class FloatingMonitorActivity extends Activity {
             DiagLog.log("BATT", "capacity chain: " + capacityOutcome);
         }
         String sysHealthStr = "N/A";
+        int sysHealthPercent = -1;
         if (designMah > 0 && fullMah > 0) {
-            sysHealthStr = Math.round((fullMah * 100.0f) / designMah) + "%";
+            sysHealthPercent = Math.round((fullMah * 100.0f) / designMah);
+            sysHealthStr = sysHealthPercent + "%";
         }
         Integer chargeCounter = SystemStats.readChargeCounterMah();
         final int remainingMah = chargeCounter != null ? chargeCounter
@@ -1147,16 +1194,17 @@ public class FloatingMonitorActivity extends Activity {
         }
         // Instantaneous power from the same current and the battery
         // voltage, signed like the current. N/A when either input is
-        // missing — never a fake 0.
+        // missing — never a fake 0. The voltage itself is shown in
+        // the Live card whenever it can be read.
+        Integer voltageMv = SystemStats.readBatteryVoltageMv();
+        String voltageText = voltageMv != null && voltageMv > 0
+                ? PureCalc.formatVolts(voltageMv) : "N/A";
         String powerText = "N/A";
-        if (currentMa >= 0) {
-            Integer voltageMv = SystemStats.readBatteryVoltageMv();
-            if (voltageMv != null && voltageMv > 0) {
-                int signedMa = statusCode == 3 ? -currentMa : currentMa;
-                powerText = (signedMa < 0 ? "-" : "+")
-                        + String.format(java.util.Locale.US, "%.2f W",
-                                Math.abs(PureCalc.powerWatts(signedMa, voltageMv)));
-            }
+        if (currentMa >= 0 && voltageMv != null && voltageMv > 0) {
+            int signedMa = statusCode == 3 ? -currentMa : currentMa;
+            powerText = (signedMa < 0 ? "-" : "+")
+                    + String.format(java.util.Locale.US, "%.2f W",
+                            Math.abs(PureCalc.powerWatts(signedMa, voltageMv)));
         }
         String estFull = "—";
         String estEmpty = "—";
@@ -1201,21 +1249,30 @@ public class FloatingMonitorActivity extends Activity {
         String lastCalc = lastTime > 0
                 ? new SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault()).format(new Date(lastTime))
                 : getString(R.string.not_available_yet);
-        return getString(R.string.battery_info_message,
-                level, healthText,
-                designMah > 0 ? designMah + " mAh" : "N/A",
-                fullMah > 0 ? fullMah + " mAh" : "N/A",
-                sysHealthStr,
-                realCap > 0 ? realCap + " mAh" : getString(R.string.waiting_data),
-                realCap > 0 ? realHealth + "%" : getString(R.string.waiting_data),
-                lastCalc,
-                statusText, currentText, estFull, estEmpty, powerText);
+        BatteryInfo info = new BatteryInfo();
+        info.level = level;
+        info.healthText = healthText;
+        info.designText = designMah > 0 ? designMah + " mAh" : "N/A";
+        info.fullText = fullMah > 0 ? fullMah + " mAh" : "N/A";
+        info.sysHealthText = sysHealthStr;
+        info.sysHealthPercent = sysHealthPercent;
+        info.statusText = statusText;
+        info.currentText = currentText;
+        info.powerText = powerText;
+        info.voltageText = voltageText;
+        info.estFull = estFull;
+        info.estEmpty = estEmpty;
+        info.realCapText = realCap > 0 ? realCap + " mAh" : getString(R.string.waiting_data);
+        info.realHealthText = realCap > 0 ? realHealth + "%" : getString(R.string.waiting_data);
+        info.lastCalcText = lastCalc;
+        return info;
     }
 
     // Single instance: tapping the entry again while the dialog is
     // open (or still loading) does nothing — the dialogs used to
-    // pile up on repeated taps. While open, the text refreshes about
-    // every 2 s; the loop stops the moment the dialog is dismissed.
+    // pile up on repeated taps. While open, the values refresh in
+    // place about every 2 s; the loop stops the moment the dialog
+    // is dismissed.
     private void showBatteryStatus() {
         if (batteryInfoBusy || (batteryDialog != null && batteryDialog.isShowing())) {
             return;
@@ -1225,7 +1282,7 @@ public class FloatingMonitorActivity extends Activity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                final String message = buildBatteryMessage(5, 400);
+                final BatteryInfo info = gatherBatteryInfo(5, 400);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -1233,9 +1290,13 @@ public class FloatingMonitorActivity extends Activity {
                         if (isFinishing() || batteryDialog != null) {
                             return;
                         }
-                        AlertDialog dialog = new AlertDialog.Builder(FloatingMonitorActivity.this)
-                                .setTitle(getString(R.string.dialog_battery_title))
-                                .setMessage(message)
+                        View content = LayoutInflater.from(FloatingMonitorActivity.this)
+                                .inflate(R.layout.dialog_battery_info, null);
+                        bindBatteryDialogViews(content);
+                        applyBatteryInfo(info);
+                        AlertDialog dialog = new AlertDialog.Builder(
+                                FloatingMonitorActivity.this, R.style.BatteryDialogTheme)
+                                .setView(content)
                                 .setPositiveButton(getString(R.string.dialog_close), new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface d, int which) {
@@ -1261,6 +1322,55 @@ public class FloatingMonitorActivity extends Activity {
         }).start();
     }
 
+    private void bindBatteryDialogViews(View root) {
+        battLevelText = (TextView) root.findViewById(R.id.battLevelText);
+        battLevelBar = (ProgressBar) root.findViewById(R.id.battLevelBar);
+        battStatusText = (TextView) root.findViewById(R.id.battStatusText);
+        battHealthText = (TextView) root.findViewById(R.id.battHealthText);
+        battDesignValue = (TextView) root.findViewById(R.id.battDesignValue);
+        battFullValue = (TextView) root.findViewById(R.id.battFullValue);
+        battSysHealthValue = (TextView) root.findViewById(R.id.battSysHealthValue);
+        battSysHealthBar = (ProgressBar) root.findViewById(R.id.battSysHealthBar);
+        battLiveStatusValue = (TextView) root.findViewById(R.id.battLiveStatusValue);
+        battCurrentValue = (TextView) root.findViewById(R.id.battCurrentValue);
+        battPowerValue = (TextView) root.findViewById(R.id.battPowerValue);
+        battVoltageValue = (TextView) root.findViewById(R.id.battVoltageValue);
+        battEstFullValue = (TextView) root.findViewById(R.id.battEstFullValue);
+        battEstLeftValue = (TextView) root.findViewById(R.id.battEstLeftValue);
+        battRealCapValue = (TextView) root.findViewById(R.id.battRealCapValue);
+        battRealHealthValue = (TextView) root.findViewById(R.id.battRealHealthValue);
+        battLastCalcValue = (TextView) root.findViewById(R.id.battLastCalcValue);
+    }
+
+    // Pushes one snapshot into the dialog's views. UI thread only.
+    private void applyBatteryInfo(BatteryInfo info) {
+        if (battLevelText == null) {
+            return;
+        }
+        battLevelText.setText(info.level + "%");
+        battLevelBar.setProgress(Math.max(0, Math.min(100, info.level)));
+        battStatusText.setText(info.statusText);
+        battHealthText.setText(info.healthText);
+        battDesignValue.setText(info.designText);
+        battFullValue.setText(info.fullText);
+        battSysHealthValue.setText(info.sysHealthText);
+        if (info.sysHealthPercent >= 0) {
+            battSysHealthBar.setVisibility(View.VISIBLE);
+            battSysHealthBar.setProgress(Math.min(100, info.sysHealthPercent));
+        } else {
+            battSysHealthBar.setVisibility(View.GONE);
+        }
+        battLiveStatusValue.setText(info.statusText);
+        battCurrentValue.setText(info.currentText);
+        battPowerValue.setText(info.powerText);
+        battVoltageValue.setText(info.voltageText);
+        battEstFullValue.setText(info.estFull);
+        battEstLeftValue.setText(info.estEmpty);
+        battRealCapValue.setText(info.realCapText);
+        battRealHealthValue.setText(info.realHealthText);
+        battLastCalcValue.setText(info.lastCalcText);
+    }
+
     private void startBatteryDialogRefresh() {
         if (batteryDialogRefreshing) {
             return;
@@ -1278,16 +1388,13 @@ public class FloatingMonitorActivity extends Activity {
                     if (!batteryDialogRefreshing) {
                         return;
                     }
-                    final String message = buildBatteryMessage(3, 300);
+                    final BatteryInfo info = gatherBatteryInfo(3, 300);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             AlertDialog dialog = batteryDialog;
                             if (dialog != null && dialog.isShowing()) {
-                                TextView messageView = (TextView) dialog.findViewById(android.R.id.message);
-                                if (messageView != null) {
-                                    messageView.setText(message);
-                                }
+                                applyBatteryInfo(info);
                             }
                         }
                     });

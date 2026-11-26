@@ -127,6 +127,7 @@
     <string name="test_name_mirror">Salinan log</string>
     <string name="test_name_notif">Notifikasi</string>
     <string name="test_root_denied">Root ditolak — su menjawab tapi bukan uid=0</string>
+    <string name="test_root_exec_denied">su tidak bisa dijalankan — App Slayer belum diizinkan root. Izinkan di aplikasi Magisk/KernelSU (daftar Superuser).</string>
     <string name="test_root_notfound">su tidak ditemukan di HP ini</string>
     <string name="test_root_timeout">su tidak menjawab — prompt root mungkin tidak disetujui</string>
     <string name="test_overlay_no_perm">Izin overlay belum diberikan</string>
@@ -150,6 +151,9 @@
     <string name="btn_request_root">Minta akses root</string>
     <string name="toast_root_granted">Root aktif</string>
     <string name="toast_root_denied">Root belum diberikan — cek prompt Magisk/KernelSU</string>
+    <string name="toast_root_exec_denied">su tidak bisa dijalankan — App Slayer belum diizinkan root. Izinkan di Magisk/KernelSU (daftar Superuser).</string>
+    <string name="toast_root_notfound">su tidak ditemukan di HP ini</string>
+    <string name="toast_root_timeout">su tidak menjawab — prompt root mungkin tidak disetujui</string>
     <string name="monitor_style_title">Gaya Monitor</string>
     <string name="monitor_style_classic">Klasik</string>
     <string name="monitor_style_mini">Mini</string>
@@ -169,7 +173,24 @@
     <string name="toast_overlay_permission">Aktifkan izin tampil di atas aplikasi lain</string>
     <string name="toast_settings_reset">Setelan telah direset</string>
     <string name="dialog_battery_title">Informasi Baterai</string>
-    <string name="battery_info_message">======================\nLevel: %1$d%%\nKesehatan: %2$s\nKapasitas Asli (sistem): %3$s\nKapasitas Sekarang (sistem): %4$s\nKesehatan Sistem: %5$s\nStatus: %9$s\nArus: %10$s\nDaya: %13$s\nPerkiraan penuh: %11$s\nPerkiraan habis: %12$s\n\nKapasitas Baterai (Real): %6$s\nKesehatan Baterai (Real): %7$s\nTerakhir dihitung: %8$s\n======================\n\nCatatan:\n- Estimasi (Real) hanya dihitung setelah setidaknya 3 kali pengisian saat perangkat dalam keadaan aktif.\n- Pengisian saat perangkat mati (power-off charging) tidak termasuk dalam perhitungan.</string>
+    <string name="batt_card_capacity">Kapasitas</string>
+    <string name="batt_card_live">Langsung</string>
+    <string name="batt_card_estimates">Perkiraan</string>
+    <string name="batt_card_real">Kapasitas Nyata</string>
+    <string name="batt_label_health">Kesehatan</string>
+    <string name="batt_label_design">Kapasitas Asli (sistem)</string>
+    <string name="batt_label_full">Kapasitas Sekarang (sistem)</string>
+    <string name="batt_label_sys_health">Kesehatan Sistem</string>
+    <string name="batt_label_status">Status</string>
+    <string name="batt_label_current">Arus</string>
+    <string name="batt_label_power">Daya</string>
+    <string name="batt_label_voltage">Tegangan</string>
+    <string name="batt_label_est_full">Perkiraan penuh</string>
+    <string name="batt_label_est_left">Perkiraan habis</string>
+    <string name="batt_label_real_capacity">Kapasitas Baterai (Real)</string>
+    <string name="batt_label_real_health">Kesehatan Baterai (Real)</string>
+    <string name="batt_label_last_calc">Terakhir dihitung</string>
+    <string name="battery_notes">Catatan:\n- Estimasi (Real) dihitung setelah pengisian yang mencapai minimal 95% saat perangkat dalam keadaan aktif.\n- Pengisian saat perangkat mati (power-off charging) tidak termasuk dalam perhitungan.</string>
     <string name="waiting_data">Menunggu data...</string>
     <string name="not_available_yet">Belum tersedia</string>
     <string name="dialog_close">Tutup</string>

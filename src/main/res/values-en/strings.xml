@@ -127,6 +127,7 @@
     <string name="test_name_mirror">Log mirror</string>
     <string name="test_name_notif">Notifications</string>
     <string name="test_root_denied">Root denied — su answered but not as uid=0</string>
+    <string name="test_root_exec_denied">su could not be run — App Slayer has not been granted root. Allow it in the Magisk/KernelSU app (Superuser list).</string>
     <string name="test_root_notfound">su not found on this phone</string>
     <string name="test_root_timeout">su did not answer — the root prompt may not have been approved</string>
     <string name="test_overlay_no_perm">Overlay permission not granted</string>
@@ -150,6 +151,9 @@
     <string name="btn_request_root">Request root access</string>
     <string name="toast_root_granted">Root is active</string>
     <string name="toast_root_denied">Root not granted yet — check the Magisk/KernelSU prompt</string>
+    <string name="toast_root_exec_denied">su could not be run — App Slayer has not been granted root. Allow it in Magisk/KernelSU (Superuser list).</string>
+    <string name="toast_root_notfound">su not found on this phone</string>
+    <string name="toast_root_timeout">su did not answer — the root prompt may not have been approved</string>
     <string name="monitor_style_title">Monitor Style</string>
     <string name="monitor_style_classic">Classic</string>
     <string name="monitor_style_mini">Mini</string>
@@ -169,7 +173,24 @@
     <string name="toast_overlay_permission">Enable the display over other apps permission</string>
     <string name="toast_settings_reset">Settings reset</string>
     <string name="dialog_battery_title">Battery Information</string>
-    <string name="battery_info_message">======================\nLevel: %1$d%%\nHealth: %2$s\nOriginal Capacity (system): %3$s\nCurrent Capacity (system): %4$s\nSystem Health: %5$s\nStatus: %9$s\nCurrent: %10$s\nPower: %13$s\nEstimated time to full: %11$s\nEstimated time left: %12$s\n\nBattery Capacity (Real): %6$s\nBattery Health (Real): %7$s\nLast calculated: %8$s\n======================\n\nNotes:\n- The (Real) estimate is only calculated after at least 3 charges while the device is on.\n- Charging while the device is off (power-off charging) is not counted.</string>
+    <string name="batt_card_capacity">Capacity</string>
+    <string name="batt_card_live">Live</string>
+    <string name="batt_card_estimates">Estimates</string>
+    <string name="batt_card_real">Real Capacity</string>
+    <string name="batt_label_health">Health</string>
+    <string name="batt_label_design">Original Capacity (system)</string>
+    <string name="batt_label_full">Current Capacity (system)</string>
+    <string name="batt_label_sys_health">System Health</string>
+    <string name="batt_label_status">Status</string>
+    <string name="batt_label_current">Current</string>
+    <string name="batt_label_power">Power</string>
+    <string name="batt_label_voltage">Voltage</string>
+    <string name="batt_label_est_full">Estimated time to full</string>
+    <string name="batt_label_est_left">Estimated time left</string>
+    <string name="batt_label_real_capacity">Battery Capacity (Real)</string>
+    <string name="batt_label_real_health">Battery Health (Real)</string>
+    <string name="batt_label_last_calc">Last calculated</string>
+    <string name="battery_notes">Notes:\n- The (Real) estimate is calculated after a charge that reaches at least 95% while the device is on.\n- Charging while the device is off (power-off charging) is not counted.</string>
     <string name="waiting_data">Waiting for data...</string>
     <string name="not_available_yet">Not available yet</string>
     <string name="dialog_close">Close</string>
