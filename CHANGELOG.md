@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 6.3.6
+- Fixed the Battery Information dialog running off the screen — it is a proper panel now, the content scrolls inside, and the close button is part of the panel.
+- Battery level and health bars are green now, matching the app.
+- Fixed the Arabic label sitting far from its radio in the language picker.
+- Installs over 6.3.5, no need to uninstall.
+
 ## 6.3.5
 - Main screen header is just the title now — the gear and menu buttons are gone. Floating Monitor and Language live in the Features list.
 - Installs over 6.3.4, no need to uninstall.

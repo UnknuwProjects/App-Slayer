@@ -2,6 +2,12 @@
 
 # Catatan Rilis
 
+## 6.3.6
+- Fix dialog Info Baterai yang lari keluar layar — sekarang panelnya pas, isinya bisa di-scroll, tombol tutup menyatu di panel.
+- Bar level dan kesehatan baterai sekarang hijau, ikut tema aplikasi.
+- Fix label Arab yang jauh dari tombol radionya di pemilih bahasa.
+- Bisa langsung ditimpa dari 6.3.5, tidak perlu uninstall.
+
 ## 6.3.5
 - Header layar utama sekarang cuma judul — tombol gir dan menu dihapus. Monitor Melayang dan Bahasa ada di daftar Fungsi.
 - Bisa langsung ditimpa dari 6.3.4, tidak perlu uninstall.
