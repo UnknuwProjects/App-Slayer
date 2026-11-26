@@ -47,13 +47,17 @@ Riwayat rilis lengkap: [CHANGELOG_ID.md](CHANGELOG_ID.md)
 ## Preview
 
 <p align="center">
-  <img src="screenshots/Screenshot_20260927-173129_App%20Slayer.png" width="220">
-  <img src="screenshots/Screenshot_20260927-173302_App%20Slayer.png" width="220">
+  <img src="screenshots/main.png" width="220">
+  <img src="screenshots/floating-monitor.png" width="220">
 </p>
 
 <p align="center">
-  <img src="screenshots/Screenshot_20260927-173314_App%20Slayer.png" width="220">
-  <img src="screenshots/Screenshot_20260927-173318_App%20Slayer.png" width="220">
+  <img src="screenshots/battery-info.png" width="220">
+  <img src="screenshots/language-picker.png" width="220">
+</p>
+
+<p align="center">
+  <img src="screenshots/function-test.png" width="220">
 </p>
 
 ## Lisensi
