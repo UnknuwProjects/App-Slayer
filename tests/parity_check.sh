@@ -295,10 +295,8 @@ check "CHANGELOG_ID has the 6.3.3 entry" "CHANGELOG_ID.md" '## 6.3.3'
 
 # 6.3.4: the main screen loses the stock action bar. MainActivity
 # gets its own NoActionBar theme (sub-screens keep the app theme),
-# the status bar takes the page color, and the title plus the two
-# old bar actions live in an in-layout header row wired to the same
-# handlers: gear -> Floating Monitor, overflow -> the same main
-# menu through a PopupMenu feeding onOptionsItemSelected.
+# the status bar takes the page color, and the title lives in an
+# in-layout header row.
 check "MainActivity uses MainTheme" "src/main/AndroidManifest.xml" '@style/MainTheme'
 check "MainTheme is Holo NoActionBar (base)" "src/main/res/values/styles.xml" 'Theme.Holo.NoActionBar'
 check "MainTheme is Material NoActionBar (v21)" "src/main/res/values-v21/styles.xml" 'Theme.Material.NoActionBar'
@@ -308,25 +306,43 @@ check "header row in v21 main layout" "src/main/res/layout-v21/main.xml" 'header
 check "centered title in main layout" "src/main/res/layout/main.xml" 'textHeaderTitle'
 check "centered title in v21 main layout" "src/main/res/layout-v21/main.xml" 'textHeaderTitle'
 check "title text is app_name" "src/main/res/layout/main.xml" '@string/app_name'
-check "gear button in main layout" "src/main/res/layout/main.xml" 'btnHeaderMonitor'
-check "gear button in v21 main layout" "src/main/res/layout-v21/main.xml" 'btnHeaderMonitor'
-check "overflow button in main layout" "src/main/res/layout/main.xml" 'btnHeaderOverflow'
-check "overflow button in v21 main layout" "src/main/res/layout-v21/main.xml" 'btnHeaderOverflow'
-check "overflow icon referenced in main layout" "src/main/res/layout/main.xml" '@drawable/ic_overflow'
-check "overflow icon is a vector" "src/main/res/drawable/ic_overflow.xml" '<vector'
-check "header wiring in MainActivity" "$SRC/MainActivity.java" 'wireHeaderButtons()'
-check "gear button wired" "$SRC/MainActivity.java" 'R.id.btnHeaderMonitor'
-check "overflow button wired" "$SRC/MainActivity.java" 'R.id.btnHeaderOverflow'
-check "overflow opens a PopupMenu" "$SRC/MainActivity.java" 'new PopupMenu(MainActivity.this, v)'
-check_count "main menu inflated by bar and popup" "$SRC/MainActivity.java" 'R.menu.main_menu' 2
-check "menu monitor handler kept" "$SRC/MainActivity.java" 'R.id.menu_monitor'
-check "menu language handler kept" "$SRC/MainActivity.java" 'R.id.menu_language'
+
+# 6.3.5: the header is title-only. The gear and overflow buttons
+# are gone, and so is everything that existed only for them: the
+# header wiring, the PopupMenu, the options-menu callbacks, the
+# menu resource and its icons, and the overflow content string.
+# Both actions they carried live in the Features list instead —
+# the Floating Monitor row and the language row — asserted below.
+check_absent "gear button gone from main layout" "src/main/res/layout/main.xml" 'btnHeaderMonitor'
+check_absent "gear button gone from v21 main layout" "src/main/res/layout-v21/main.xml" 'btnHeaderMonitor'
+check_absent "overflow button gone from main layout" "src/main/res/layout/main.xml" 'btnHeaderOverflow'
+check_absent "overflow button gone from v21 main layout" "src/main/res/layout-v21/main.xml" 'btnHeaderOverflow'
+check_absent "header wiring removed" "$SRC/MainActivity.java" 'wireHeaderButtons'
+check_absent "popup menu removed" "$SRC/MainActivity.java" 'PopupMenu'
+check_absent "options menu creation removed" "$SRC/MainActivity.java" 'onCreateOptionsMenu'
+check_absent "options item handler removed" "$SRC/MainActivity.java" 'onOptionsItemSelected'
+check_absent "main menu reference removed" "$SRC/MainActivity.java" 'R.menu.main_menu'
+check_absent "overflow string removed (ID)" "src/main/res/values/strings.xml" 'header_more_options'
+check_absent "overflow string removed (EN)" "src/main/res/values-en/strings.xml" 'header_more_options'
+if [ ! -f src/main/res/menu/main_menu.xml ]; then
+    echo "PASS menu resource file deleted"
+    PASS=$((PASS + 1))
+else
+    echo "FAIL menu resource file deleted (src/main/res/menu/main_menu.xml still exists)"
+    FAIL=$((FAIL + 1))
+fi
+check "monitor row in main layout" "src/main/res/layout/main.xml" 'rowFloatingMonitor'
+check "monitor row in v21 main layout" "src/main/res/layout-v21/main.xml" 'rowFloatingMonitor'
+check "language row in main layout" "src/main/res/layout/main.xml" 'rowLanguage'
+check "language row in v21 main layout" "src/main/res/layout-v21/main.xml" 'rowLanguage'
+check "monitor row wired" "$SRC/MainActivity.java" 'R.id.rowFloatingMonitor'
+check "language row wired" "$SRC/MainActivity.java" 'R.id.rowLanguage'
 
 # 6.3.4: language picking is a bottom sheet now — a dark rounded
 # panel with a radio list (system default + six languages), applied
 # through the same LocaleHelper save + recreate path; the old
-# two-language toggle is gone. Entry points unchanged: the main
-# screen language row and the overflow menu item.
+# two-language toggle is gone. Entry point: the main screen
+# language row in the Features list.
 check "language sheet layout" "src/main/res/layout/dialog_language_picker.xml" 'radioLanguages'
 check "language sheet layout (v21)" "src/main/res/layout-v21/dialog_language_picker.xml" 'radioLanguages'
 check "sheet panel drawable used" "src/main/res/layout/dialog_language_picker.xml" '@drawable/bg_language_sheet'
@@ -358,6 +374,10 @@ check_absent "old screenshots gone from README_ID" "README_ID.md" 'Screenshot_20
 # 6.3.4: changelog entries.
 check "CHANGELOG has the 6.3.4 entry" "CHANGELOG.md" '## 6.3.4'
 check "CHANGELOG_ID has the 6.3.4 entry" "CHANGELOG_ID.md" '## 6.3.4'
+
+# 6.3.5: changelog entries.
+check "CHANGELOG has the 6.3.5 entry" "CHANGELOG.md" '## 6.3.5'
+check "CHANGELOG_ID has the 6.3.5 entry" "CHANGELOG_ID.md" '## 6.3.5'
 
 # String parity across ALL locales: same key count everywhere.
 BASE_COUNT=$(grep -c '<string ' src/main/res/values/strings.xml)

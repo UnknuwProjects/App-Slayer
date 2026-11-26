@@ -65,7 +65,6 @@
     <string name="language_name_hi">हिन्दी</string>
     <string name="language_name_es">Español</string>
     <string name="language_name_ar">العربية</string>
-    <string name="header_more_options">Más opciones</string>
 
     <!-- Notificación del servicio -->
     <string name="notif_channel_name">Canal silencioso de App Slayer</string>

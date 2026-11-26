@@ -65,7 +65,6 @@
     <string name="language_name_hi">हिन्दी</string>
     <string name="language_name_es">Español</string>
     <string name="language_name_ar">العربية</string>
-    <string name="header_more_options">अधिक विकल्प</string>
 
     <!-- सेवा सूचना -->
     <string name="notif_channel_name">App Slayer साइलेंट चैनल</string>

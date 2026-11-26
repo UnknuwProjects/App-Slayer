@@ -19,16 +19,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.PopupMenu;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -95,7 +91,6 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        wireHeaderButtons();
         this.textCurrentModeName = (TextView) findViewById(R.id.textCurrentModeName);
         this.textCurrentModeDesc = (TextView) findViewById(R.id.textCurrentModeDesc);
         this.cardModeNormal = findViewById(R.id.cardModeNormal);
@@ -494,40 +489,6 @@ public class MainActivity extends Activity {
             }
         });
         dialog.show();
-    }
-
-    // The main screen has no stock action bar anymore (MainTheme);
-    // the two actions that lived in it sit in the layout's header
-    // row instead and run the exact same code paths: the gear opens
-    // the Floating Monitor, the overflow button pops up the same
-    // main menu and feeds its items to onOptionsItemSelected.
-    private void wireHeaderButtons() {
-        ImageButton btnMonitor = (ImageButton) findViewById(R.id.btnHeaderMonitor);
-        if (btnMonitor != null) {
-            btnMonitor.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startActivity(new Intent(MainActivity.this, FloatingMonitorActivity.class));
-                }
-            });
-        }
-        ImageButton btnOverflow = (ImageButton) findViewById(R.id.btnHeaderOverflow);
-        if (btnOverflow != null) {
-            btnOverflow.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    PopupMenu popup = new PopupMenu(MainActivity.this, v);
-                    popup.getMenuInflater().inflate(R.menu.main_menu, popup.getMenu());
-                    popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                        @Override
-                        public boolean onMenuItemClick(MenuItem item) {
-                            return onOptionsItemSelected(item);
-                        }
-                    });
-                    popup.show();
-                }
-            });
-        }
     }
 
     // Opens MainActivity's own su session (mode writes and the
@@ -1011,26 +972,6 @@ public class MainActivity extends Activity {
         intent.setDataAndType(uri, "application/vnd.android.package-archive");
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION);
         startActivity(intent);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.menu_monitor) {
-            startActivity(new Intent(this, FloatingMonitorActivity.class));
-            return true;
-        }
-        if (id == R.id.menu_language) {
-            showLanguagePicker();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override

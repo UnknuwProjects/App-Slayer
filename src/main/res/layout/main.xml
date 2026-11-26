@@ -3,10 +3,7 @@
     <LinearLayout android:orientation="vertical" android:padding="20dp" android:layout_width="match_parent" android:layout_height="wrap_content">
 
         <LinearLayout android:id="@+id/headerRow" android:orientation="horizontal" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="14dp">
-            <View android:layout_width="96dp" android:layout_height="1dp"/>
-            <TextView android:id="@+id/textHeaderTitle" android:text="@string/app_name" android:textColor="#ffffff" android:textSize="20sp" android:textStyle="bold" android:gravity="center" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"/>
-            <ImageButton android:id="@+id/btnHeaderMonitor" android:src="@drawable/ic_manage" android:tint="#ffffff" android:contentDescription="@string/row_floating_monitor" android:background="?android:attr/selectableItemBackgroundBorderless" android:padding="12dp" android:layout_width="48dp" android:layout_height="48dp"/>
-            <ImageButton android:id="@+id/btnHeaderOverflow" android:src="@drawable/ic_overflow" android:contentDescription="@string/header_more_options" android:background="?android:attr/selectableItemBackgroundBorderless" android:padding="12dp" android:layout_width="48dp" android:layout_height="48dp"/>
+            <TextView android:id="@+id/textHeaderTitle" android:text="@string/app_name" android:textColor="#ffffff" android:textSize="20sp" android:textStyle="bold" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content"/>
         </LinearLayout>
 
         <TextView android:text="@string/current_mode_label" android:textColor="#9aa0a6" android:textSize="13sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>

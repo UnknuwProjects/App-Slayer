@@ -65,7 +65,6 @@
     <string name="language_name_hi">हिन्दी</string>
     <string name="language_name_es">Español</string>
     <string name="language_name_ar">العربية</string>
-    <string name="header_more_options">更多选项</string>
 
     <!-- 服务通知 -->
     <string name="notif_channel_name">App Slayer 静默频道</string>
