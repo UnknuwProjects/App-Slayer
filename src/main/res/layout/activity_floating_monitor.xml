@@ -18,12 +18,12 @@
         </LinearLayout>
         <TextView android:id="@+id/diagLogPathHint" android:textSize="12sp" android:textColor="#9aa0a6" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp" android:text="@string/diag_log_path_hint"/>
         <Button android:textSize="16sp" android:textColor="#ffffff" android:id="@+id/btnBatteryStatus" android:background="#880e4f" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" android:text="@string/battery_status"/>
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="@string/battery_history_title" android:textSize="16sp" android:textStyle="bold"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="@string/battery_history_title" android:textSize="16sp" android:textStyle="bold" android:textColor="#448aff"/>
         <com.appslayer.official.BatteryGraphView android:id="@+id/batteryGraph" android:layout_width="match_parent" android:layout_height="180dp" android:layout_marginTop="8dp"/>
-        <TextView android:id="@+id/batteryHistorySummary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:textSize="13sp"/>
+        <TextView android:id="@+id/batteryHistorySummary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:textSize="13sp" android:textColor="#9aa0a6"/>
         <TextView android:id="@+id/batteryHistoryHint" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textSize="13sp" android:textColor="#ffb300" android:text="@string/battery_history_hint" android:visibility="gone"/>
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="@string/temp_sensors_title" android:textSize="16sp" android:textStyle="bold"/>
-        <TextView android:id="@+id/tempSensorList" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:textSize="13sp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="@string/temp_sensors_title" android:textSize="16sp" android:textStyle="bold" android:textColor="#448aff"/>
+        <TextView android:id="@+id/tempSensorList" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:textSize="13sp" android:textColor="#9aa0a6"/>
         <TextView android:textSize="18sp" android:textStyle="bold" android:textColor="#448aff" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" android:text="@string/settings_title"/>
         <TextView android:textSize="16sp" android:textColor="#ffffff" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/transparency"/>
         <SeekBar android:id="@+id/seekTransparency" android:layout_width="match_parent" android:layout_height="wrap_content"/>
@@ -53,7 +53,7 @@
         <TextView android:textSize="16sp" android:textStyle="bold" android:textColor="#448aff" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp" android:text="@string/fps_record_title"/>
         <Switch android:textSize="16sp" android:textColor="#ffffff" android:id="@+id/switchRecordFps" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp" android:text="@string/record_fps"/>
         <TextView android:id="@+id/recordFpsStatus" android:textSize="13sp" android:textColor="#ffffff" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="4dp"/>
-        <TextView android:textSize="13sp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" android:text="@string/record_fps_hint"/>
+        <TextView android:textSize="13sp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" android:textColor="#9aa0a6" android:text="@string/record_fps_hint"/>
         <Button android:textSize="15sp" android:id="@+id/btnFpsSessions" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="16dp" android:text="@string/btn_fps_sessions"/>
         <Button android:textSize="15sp" android:layout_gravity="center_horizontal" android:id="@+id/buttonReset" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:layout_marginBottom="8dp" android:text="@string/reset_settings"/>
     </LinearLayout>
