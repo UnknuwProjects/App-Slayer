@@ -2,6 +2,11 @@
 
 # Changelog
 
+## 6.3.10
+- Floating Monitor switches redesigned: compact pill switches in the app's colors, bright green when on.
+- App detection for FPS sessions: grant usage access once (new row in the FPS Recorder card) and sessions carry the tested app's name — and a session now splits automatically when you switch apps mid-recording.
+- Installs over 6.3.9, no need to uninstall.
+
 ## 6.3.9
 - Floating Monitor screen tidied up into the same card design as the rest of the app: diagnosis values are colored by state, the Battery Status entry is a card row, and the switches are proper tinted switches now.
 - Installs over 6.3.8, no need to uninstall.

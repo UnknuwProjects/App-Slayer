@@ -18,8 +18,8 @@ android {
         applicationId 'com.appslayer.official'
         minSdk 24
         targetSdk 36
-        versionCode 712
-        versionName '6.3.9'
+        versionCode 713
+        versionName '6.3.10'
     }
 
     // Release signing with the owner's key. The keystore and its

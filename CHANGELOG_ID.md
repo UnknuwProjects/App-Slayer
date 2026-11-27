@@ -2,6 +2,11 @@
 
 # Catatan Rilis
 
+## 6.3.10
+- Sakelar di Floating Monitor diperbarui: bentuk pil ringkas dengan warna aplikasi, hijau terang saat menyala.
+- Deteksi aplikasi untuk sesi FPS: beri akses penggunaan sekali (baris baru di kartu Perekam FPS) dan nama aplikasi yang dites tercatat di sesi — sesi juga otomatis terpisah saat kamu pindah aplikasi di tengah rekaman.
+- Bisa langsung ditimpa dari 6.3.9, tidak perlu uninstall.
+
 ## 6.3.9
 - Layar Floating Monitor dirapikan mengikuti desain kartu yang sama dengan layar lainnya: nilai diagnostik berwarna sesuai status, tombol Status Baterai jadi baris kartu, dan sakelarnya sekarang sakelar beneran dengan warna aksen.
 - Bisa langsung ditimpa dari 6.3.8, tidak perlu uninstall.
