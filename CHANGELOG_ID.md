@@ -2,6 +2,10 @@
 
 # Catatan Rilis
 
+## 6.3.9
+- Layar Floating Monitor dirapikan mengikuti desain kartu yang sama dengan layar lainnya: nilai diagnostik berwarna sesuai status, tombol Status Baterai jadi baris kartu, dan sakelarnya sekarang sakelar beneran dengan warna aksen.
+- Bisa langsung ditimpa dari 6.3.8, tidak perlu uninstall.
+
 ## 6.3.8
 - Tampilan laporan sesi FPS diperbarui: kartu statistik dengan angka besar dan grafik modern — garis halus, garis suhu dengan legenda, dan sumbu yang tidak pernah di bawah nol.
 - Layar baterai sekarang dibuka dengan kesehatan baterai: perkiraan kapasitas nyata dibandingkan kapasitas desain, dengan persen kesehatannya di depan.

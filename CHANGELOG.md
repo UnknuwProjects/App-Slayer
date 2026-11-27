@@ -2,6 +2,10 @@
 
 # Changelog
 
+## 6.3.9
+- Floating Monitor screen tidied up into the same card design as the rest of the app: diagnosis values are colored by state, the Battery Status entry is a card row, and the switches are proper tinted switches now.
+- Installs over 6.3.8, no need to uninstall.
+
 ## 6.3.8
 - FPS session report redesigned: stat cards with big numbers and modern charts — smooth lines, temperature overlay with a legend, and axes that never go below zero.
 - Battery screen leads with battery health now: estimated real capacity against the design capacity, with the health percent up front.
