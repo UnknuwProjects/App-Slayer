@@ -1,23 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Pill track for the app's switches, drawn at a fixed 52x32dp
-so the switch keeps a compact modern size. On uses the same
-green as the charts and the battery bars (#4caf50); off is a
-muted blue-grey that sits quietly on the cards. Replaces the
-stock Holo track, whose wide bar shape showed through the old
-tint-only styling. -->
+<!-- Pill track for the app's switches, with the knob drawn as a
+layer inside it. The knob used to be the Switch widget's own
+thumb drawable, but the widget sizes and positions the thumb by
+its own math and on the owner's phone that drew half pills: the
+off knob vanished and the on knob spilled past the edge. Drawing
+the knob here takes the widget's thumb math out of the picture —
+the switch's thumb is a fully transparent 1dp drawable instead
+(see switch_thumb_clear.xml). The pill shape carries no fixed
+size of its own, so it stretches to the switch's 52x32dp box;
+the knob is a 24dp circle held 4dp off the end it rests against.
+On uses the same green as the charts and the battery bars
+(#4caf50); off is a muted blue-grey that sits quietly on the
+cards. autoMirrored flips the knob side in RTL layouts, like a
+stock switch does. -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_checked="true">
-        <shape android:shape="rectangle">
-            <size android:width="52dp" android:height="32dp"/>
-            <corners android:radius="16dp"/>
-            <solid android:color="#4caf50"/>
-        </shape>
+        <layer-list android:autoMirrored="true">
+            <item>
+                <shape android:shape="rectangle">
+                    <corners android:radius="16dp"/>
+                    <solid android:color="#4caf50"/>
+                </shape>
+            </item>
+            <item android:width="24dp" android:height="24dp" android:gravity="right|center_vertical" android:right="4dp">
+                <shape android:shape="oval">
+                    <solid android:color="#f5f7fa"/>
+                </shape>
+            </item>
+        </layer-list>
     </item>
     <item>
-        <shape android:shape="rectangle">
-            <size android:width="52dp" android:height="32dp"/>
-            <corners android:radius="16dp"/>
-            <solid android:color="#39424e"/>
-        </shape>
+        <layer-list android:autoMirrored="true">
+            <item>
+                <shape android:shape="rectangle">
+                    <corners android:radius="16dp"/>
+                    <solid android:color="#39424e"/>
+                </shape>
+            </item>
+            <item android:width="24dp" android:height="24dp" android:gravity="left|center_vertical" android:left="4dp">
+                <shape android:shape="oval">
+                    <solid android:color="#9aa5b1"/>
+                </shape>
+            </item>
+        </layer-list>
     </item>
 </selector>

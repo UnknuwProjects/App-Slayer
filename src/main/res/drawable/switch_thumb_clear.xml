@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Thumb for the app's switches: fully transparent and 1dp, so
+the Switch widget's own thumb drawing shows nothing and its
+thumb travel math has nothing visible to move. The knob the
+user sees is drawn inside the track drawable instead
+(switch_track.xml). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <size android:width="1dp" android:height="1dp"/>
+    <solid android:color="@android:color/transparent"/>
+</shape>

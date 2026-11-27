@@ -640,7 +640,9 @@ for lay in src/main/res/layout/activity_floating_monitor.xml src/main/res/layout
     check "thermal status row ($lay)" "$lay" 'tempThermalStatus'
     check "switches hide the text box ($lay)" "$lay" 'android:showText="false"'
     check_count "switches use the pill track ($lay)" "$lay" 'android:track="@drawable/switch_track"' 16
-    check_count "switches use the pill thumb ($lay)" "$lay" 'android:thumb="@drawable/switch_thumb"' 16
+    check_count "switches use the clear thumb ($lay)" "$lay" 'android:thumb="@drawable/switch_thumb_clear"' 16
+    check_count "switches pin the minimum width ($lay)" "$lay" 'android:switchMinWidth="52dp"' 16
+    check_count "switches zero the extra padding ($lay)" "$lay" 'android:switchPadding="0dp" android:padding="0dp"' 16
     check_count "switches are pill sized ($lay)" "$lay" 'android:layout_width="52dp" android:layout_height="32dp"' 16
     check_absent "switch thumb tint gone ($lay)" "$lay" 'switch_thumb_tint'
     check_absent "switch track tint gone ($lay)" "$lay" 'switch_track_tint'
@@ -668,12 +670,35 @@ check "CHANGELOG_ID has the 6.3.9 entry" "CHANGELOG_ID.md" '## 6.3.9'
 # a 52x32dp pill: green track in the app's chart/battery green
 # when on, muted blue-grey when off, round thumb with an inset.
 # The tint color files are gone.
+#
+# 6.3.11: the widget's own thumb still broke the pill on the
+# owner's phone — the widget sizes and positions the thumb
+# drawable by its internal math (the inset thumb's 28dp box fed
+# a switch-width computation wider than the 52dp layout box, so
+# the off knob was clipped away and the on knob spilled past the
+# edge; MIUI's Switch clips differently again). The knob now
+# lives inside the track drawable as a layer-list layer, the
+# widget thumb is a transparent 1dp drawable, and the layouts
+# pin switchMinWidth/switchPadding/padding so the track bounds
+# are exactly the 52x32dp box.
 check "switch track on uses the app green" "src/main/res/drawable/switch_track.xml" '#4caf50'
 check "switch track off is blue-grey" "src/main/res/drawable/switch_track.xml" '#39424e'
-check "switch track is a fixed pill" "src/main/res/drawable/switch_track.xml" '<size android:width="52dp" android:height="32dp"/>'
-check "switch thumb on is near-white" "src/main/res/drawable/switch_thumb.xml" '#f5f7fa'
-check "switch thumb off is light grey" "src/main/res/drawable/switch_thumb.xml" '#9aa5b1'
-check "switch thumb keeps its inset" "src/main/res/drawable/switch_thumb.xml" '<inset android:inset="2dp">'
+check_count "switch track states are layer lists" "src/main/res/drawable/switch_track.xml" '<layer-list' 2
+check "switch pill corners are fully round" "src/main/res/drawable/switch_track.xml" '<corners android:radius="16dp"/>'
+check_absent "switch pill has no fixed size" "src/main/res/drawable/switch_track.xml" '<size'
+check "switch knob on is near-white" "src/main/res/drawable/switch_track.xml" '#f5f7fa'
+check "switch knob off is light grey" "src/main/res/drawable/switch_track.xml" '#9aa5b1'
+check "switch knob rests right when on" "src/main/res/drawable/switch_track.xml" 'android:width="24dp" android:height="24dp" android:gravity="right|center_vertical" android:right="4dp"'
+check "switch knob rests left when off" "src/main/res/drawable/switch_track.xml" 'android:width="24dp" android:height="24dp" android:gravity="left|center_vertical" android:left="4dp"'
+check "switch clear thumb is transparent" "src/main/res/drawable/switch_thumb_clear.xml" '@android:color/transparent'
+check "switch clear thumb is 1dp" "src/main/res/drawable/switch_thumb_clear.xml" '<size android:width="1dp" android:height="1dp"/>'
+if [ ! -f src/main/res/drawable/switch_thumb.xml ]; then
+    echo "PASS switch thumb drawable removed"
+    PASS=$((PASS + 1))
+else
+    echo "FAIL switch thumb drawable removed"
+    FAIL=$((FAIL + 1))
+fi
 if [ ! -f src/main/res/color/switch_thumb_tint.xml ] && [ ! -f src/main/res/color/switch_track_tint.xml ]; then
     echo "PASS switch tint color files removed"
     PASS=$((PASS + 1))
@@ -711,6 +736,10 @@ check "usage access label string (AR)" "src/main/res/values-ar/strings.xml" 'usa
 # 6.3.10: changelog entries.
 check "CHANGELOG has the 6.3.10 entry" "CHANGELOG.md" '## 6.3.10'
 check "CHANGELOG_ID has the 6.3.10 entry" "CHANGELOG_ID.md" '## 6.3.10'
+
+# 6.3.11: changelog entries.
+check "CHANGELOG has the 6.3.11 entry" "CHANGELOG.md" '## 6.3.11'
+check "CHANGELOG_ID has the 6.3.11 entry" "CHANGELOG_ID.md" '## 6.3.11'
 
 # String parity across ALL locales: same key count everywhere.
 BASE_COUNT=$(grep -c '<string ' src/main/res/values/strings.xml)
