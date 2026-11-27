@@ -609,6 +609,55 @@ check "session row string (AR)" "src/main/res/values-ar/strings.xml" 'batt_sessi
 check "CHANGELOG has the 6.3.8 entry" "CHANGELOG.md" '## 6.3.8'
 check "CHANGELOG_ID has the 6.3.8 entry" "CHANGELOG_ID.md" '## 6.3.8'
 
+# 6.3.9: the Floating Monitor screen joins the card design
+# language. Every section is a card, the diagnosis rows are
+# label -> value with the value colored by the state the code
+# already knows, the buttons use the app button drawable instead
+# of the stock Holo blocks, the maroon Battery Status slab is a
+# card row, and the switches are tinted with no on/off text box.
+# Presentation only — every pre-existing view id must survive.
+for mon_id in monitorContainer diagPermission diagService diagWindows \
+        diagEnabledService diagLastAdd diagNotifPermission diagNotifService \
+        btnTestOverlay btnTestFunctions btnRunChecks btnShareLog btnClearLog \
+        diagLogPathHint btnBatteryStatus batteryGraph batteryHistorySummary \
+        batteryHistoryHint tempSensorList seekTransparency seekTextSize \
+        switchSnapToBar switchClickThrough switchFullscreen switchLandscape \
+        switchDarkText switchTextShadow switchBoot radioMonitorStyle \
+        radioStyleClassic radioStyleMini switchCpu switchTemp switchBattery \
+        switchRam switchBatteryCurrent switchSignal switchFps switchProcess \
+        switchRecordFps recordFpsStatus btnFpsSessions buttonReset; do
+    check "monitor id kept: $mon_id" "src/main/res/layout/activity_floating_monitor.xml" "@+id/$mon_id"
+    check "monitor id kept (v21): $mon_id" "src/main/res/layout-v21/activity_floating_monitor.xml" "@+id/$mon_id"
+done
+for lay in src/main/res/layout/activity_floating_monitor.xml src/main/res/layout-v21/activity_floating_monitor.xml; do
+    check_count "monitor screen cards ($lay)" "$lay" '@drawable/card_background' 8
+    check_count "monitor app-style buttons ($lay)" "$lay" '@drawable/btn_card' 6
+    check_absent "maroon battery slab gone ($lay)" "$lay" '#880e4f'
+    check "battery status is a card row ($lay)" "$lay" 'android:drawableStart="@drawable/ic_battery"'
+    check "battery status chevron ($lay)" "$lay" '@drawable/ic_chevron'
+    check "diag label row ($lay)" "$lay" '@string/diag_label_permission'
+    check "history stats rows ($lay)" "$lay" 'batteryHistorySinceValue'
+    check "thermal status row ($lay)" "$lay" 'tempThermalStatus'
+    check "switches hide the text box ($lay)" "$lay" 'android:showText="false"'
+    check "switch thumb tint ($lay)" "$lay" '@color/switch_thumb_tint'
+    check "reset is a quiet text button ($lay)" "$lay" 'android:textColor="#ef5350"'
+done
+check "diag values colored in refresh" "$SRC/FloatingMonitorActivity.java" 'DIAG_COLOR_OK'
+check "diag value-only text" "$SRC/FloatingMonitorActivity.java" 'perm.setText(granted ? R.string.state_granted : R.string.state_not_granted)'
+check_absent "old diag line format unused" "$SRC/FloatingMonitorActivity.java" 'R.string.diag_permission'
+check "history rows populated" "$SRC/FloatingMonitorActivity.java" 'populateBatteryHistory()'
+check_absent "history text block gone" "$SRC/FloatingMonitorActivity.java" 'buildHistorySummary'
+check "thermal status builder" "$SRC/FloatingMonitorActivity.java" 'buildThermalStatusText()'
+check "diag label string (ID)" "src/main/res/values/strings.xml" 'diag_label_permission'
+check "diag label string (AR)" "src/main/res/values-ar/strings.xml" 'diag_label_permission'
+for loc in values values-en values-zh values-hi values-es values-ar; do
+    check_absent "old diag format string removed ($loc)" "src/main/res/$loc/strings.xml" 'name="diag_windows"'
+done
+
+# 6.3.9: changelog entries.
+check "CHANGELOG has the 6.3.9 entry" "CHANGELOG.md" '## 6.3.9'
+check "CHANGELOG_ID has the 6.3.9 entry" "CHANGELOG_ID.md" '## 6.3.9'
+
 # String parity across ALL locales: same key count everywhere.
 BASE_COUNT=$(grep -c '<string ' src/main/res/values/strings.xml)
 PARITY_OK=1

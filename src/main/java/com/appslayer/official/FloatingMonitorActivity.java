@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -100,10 +101,7 @@ public class FloatingMonitorActivity extends Activity {
                 }
             });
         }
-        TextView summaryView = (TextView) findViewById(R.id.batteryHistorySummary);
-        if (summaryView != null) {
-            summaryView.setText(buildHistorySummary());
-        }
+        populateBatteryHistory();
         Button btnReset = (Button) findViewById(R.id.buttonReset);
         if (btnReset != null) {
             btnReset.setOnClickListener(new View.OnClickListener() {
@@ -119,25 +117,54 @@ public class FloatingMonitorActivity extends Activity {
         }
     }
 
-    private String buildHistorySummary() {
+    // Fills the history card's label -> value rows (6.3.9). Same
+    // summary data as the old three-line text block; while there
+    // is nothing to summarize yet, the rows hide and the single
+    // "collecting data" line shows in their place.
+    private void populateBatteryHistory() {
         java.util.List<BatteryHistory.Sample> samples =
                 BatteryHistory.load(this, 7L * 24 * 60 * 60 * 1000);
         BatteryHistory.Summary summary = BatteryHistory.summarize(samples);
+        TextView collecting = (TextView) findViewById(R.id.batteryHistorySummary);
+        View rows = findViewById(R.id.batteryHistoryRows);
         if (summary == null) {
-            return getString(R.string.collecting_battery_data);
+            if (collecting != null) {
+                collecting.setVisibility(View.VISIBLE);
+                collecting.setText(R.string.collecting_battery_data);
+            }
+            if (rows != null) {
+                rows.setVisibility(View.GONE);
+            }
+            return;
+        }
+        if (collecting != null) {
+            collecting.setVisibility(View.GONE);
+        }
+        if (rows != null) {
+            rows.setVisibility(View.VISIBLE);
         }
         long hours = summary.sinceFullChargeMs / 3600000;
         long minutes = (summary.sinceFullChargeMs % 3600000) / 60000;
-        StringBuilder sb = new StringBuilder();
-        sb.append(getString(R.string.since_last_full_charge)).append(": ")
-                .append(getString(R.string.duration_hm, hours, minutes));
-        sb.append("\n").append(getString(R.string.avg_drain)).append(": ")
-                .append(getString(R.string.drain_per_hour, summary.drainPerHour));
-        if (summary.estimatedHoursLeft >= 0) {
-            sb.append("\n").append(getString(R.string.estimated_time_left)).append(": ")
-                    .append(getString(R.string.hours_left, summary.estimatedHoursLeft));
+        TextView since = (TextView) findViewById(R.id.batteryHistorySinceValue);
+        if (since != null) {
+            since.setText(getString(R.string.duration_hm, hours, minutes));
         }
-        return sb.toString();
+        TextView drain = (TextView) findViewById(R.id.batteryHistoryDrainValue);
+        if (drain != null) {
+            drain.setText(getString(R.string.drain_per_hour, summary.drainPerHour));
+        }
+        View leftRow = findViewById(R.id.batteryHistoryLeftRow);
+        if (leftRow != null) {
+            if (summary.estimatedHoursLeft >= 0) {
+                leftRow.setVisibility(View.VISIBLE);
+                TextView left = (TextView) findViewById(R.id.batteryHistoryLeftValue);
+                if (left != null) {
+                    left.setText(getString(R.string.hours_left, summary.estimatedHoursLeft));
+                }
+            } else {
+                leftRow.setVisibility(View.GONE);
+            }
+        }
     }
 
     private Intent overlayPermissionIntent() {
@@ -587,43 +614,55 @@ public class FloatingMonitorActivity extends Activity {
         }
     }
 
+    // Diagnosis value colors (6.3.9): the rows are label -> value
+    // now, and the value carries the state the code already knows —
+    // green when a permission is granted or a service runs, amber
+    // when it is not, red when the last window add failed. Same
+    // palette as the function test verdicts.
+    private static final int DIAG_COLOR_OK = Color.rgb(76, 175, 80);
+    private static final int DIAG_COLOR_WARN = Color.rgb(255, 179, 0);
+    private static final int DIAG_COLOR_BAD = Color.rgb(239, 83, 80);
+    private static final int DIAG_COLOR_PLAIN = Color.rgb(255, 255, 255);
+
     private void refreshDiagnostics() {
         TextView perm = (TextView) findViewById(R.id.diagPermission);
         if (perm != null) {
             boolean granted = Settings.canDrawOverlays(this);
-            perm.setText(getString(R.string.diag_permission,
-                    getString(granted ? R.string.state_granted : R.string.state_not_granted)));
+            perm.setText(granted ? R.string.state_granted : R.string.state_not_granted);
+            perm.setTextColor(granted ? DIAG_COLOR_OK : DIAG_COLOR_WARN);
         }
         TextView service = (TextView) findViewById(R.id.diagService);
         if (service != null) {
             boolean running = FloatingOverlayService.isRunning();
-            service.setText(getString(R.string.diag_service,
-                    getString(running ? R.string.state_running : R.string.state_not_running)));
+            service.setText(running ? R.string.state_running : R.string.state_not_running);
+            service.setTextColor(running ? DIAG_COLOR_OK : DIAG_COLOR_WARN);
         }
         TextView windows = (TextView) findViewById(R.id.diagWindows);
         if (windows != null) {
-            windows.setText(getString(R.string.diag_windows, FloatingOverlayService.getShownWindowCount()));
+            windows.setText(String.valueOf(FloatingOverlayService.getShownWindowCount()));
         }
         TextView enabledService = (TextView) findViewById(R.id.diagEnabledService);
         if (enabledService != null) {
-            enabledService.setText(getString(R.string.diag_enabled_service,
-                    FloatingOverlayService.getServiceEnabledCount()));
+            enabledService.setText(String.valueOf(FloatingOverlayService.getServiceEnabledCount()));
         }
         TextView lastAdd = (TextView) findViewById(R.id.diagLastAdd);
         if (lastAdd != null) {
-            lastAdd.setText(getString(R.string.diag_last_add,
-                    FloatingOverlayService.getLastAddResult()));
+            String result = FloatingOverlayService.getLastAddResult();
+            lastAdd.setText(result);
+            lastAdd.setTextColor(result.startsWith("OK") ? DIAG_COLOR_OK
+                    : "—".equals(result) ? DIAG_COLOR_PLAIN : DIAG_COLOR_BAD);
         }
         TextView notifPerm = (TextView) findViewById(R.id.diagNotifPermission);
         if (notifPerm != null) {
-            notifPerm.setText(getString(R.string.diag_notif_permission,
-                    getString(notificationsAllowed() ? R.string.state_granted : R.string.state_not_granted)));
+            boolean granted = notificationsAllowed();
+            notifPerm.setText(granted ? R.string.state_granted : R.string.state_not_granted);
+            notifPerm.setTextColor(granted ? DIAG_COLOR_OK : DIAG_COLOR_WARN);
         }
         TextView notifService = (TextView) findViewById(R.id.diagNotifService);
         if (notifService != null) {
             boolean running = MyService.isRunning();
-            notifService.setText(getString(R.string.diag_notif_service,
-                    getString(running ? R.string.state_running : R.string.state_not_running)));
+            notifService.setText(running ? R.string.state_running : R.string.state_not_running);
+            notifService.setTextColor(running ? DIAG_COLOR_OK : DIAG_COLOR_WARN);
         }
         // Battery history is collected by BatteryLoggingService
         // (it holds the battery-changed receiver, independent of
@@ -855,12 +894,22 @@ public class FloatingMonitorActivity extends Activity {
             public void run() {
                 while (sensorRefreshing) {
                     final String text = buildSensorText();
+                    final String thermalStatus = buildThermalStatusText();
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             TextView list = (TextView) findViewById(R.id.tempSensorList);
                             if (list != null && sensorRefreshing) {
                                 list.setText(text);
+                            }
+                            TextView status = (TextView) findViewById(R.id.tempThermalStatus);
+                            if (status != null && sensorRefreshing) {
+                                if (thermalStatus != null) {
+                                    status.setVisibility(View.VISIBLE);
+                                    status.setText(thermalStatus);
+                                } else {
+                                    status.setVisibility(View.GONE);
+                                }
                             }
                         }
                     });
@@ -886,16 +935,6 @@ public class FloatingMonitorActivity extends Activity {
     private String buildSensorText() {
         java.util.List<SystemStats.ThermalSensor> sensors = SystemStats.getThermalSensors();
         if (sensors.isEmpty()) {
-            // No per-sensor °C without root on most ROMs. The
-            // Android Thermal API still answers without root: show
-            // the platform's thermal STATUS, labelled as a status —
-            // never dressed up as a temperature.
-            int thermalStatus = SystemStats.getThermalStatus(this);
-            if (thermalStatus >= 0) {
-                return getString(R.string.temp_sensors_empty) + "\n"
-                        + getString(R.string.temp_thermal_status,
-                                getString(SystemStats.thermalStatusStringRes(thermalStatus)));
-            }
             return getString(R.string.temp_sensors_empty);
         }
         StringBuilder sb = new StringBuilder();
@@ -906,6 +945,20 @@ public class FloatingMonitorActivity extends Activity {
             sb.append(sensor.name).append(": ").append(sensor.tempC).append("°C");
         }
         return sb.toString();
+    }
+
+    // The thermal status line has its own row in the Sensor Suhu
+    // card (6.3.9). No per-sensor °C without root on most ROMs, but
+    // the Android Thermal API still answers without root: show the
+    // platform's thermal STATUS, labelled as a status — never
+    // dressed up as a temperature. Null when the API has no answer.
+    private String buildThermalStatusText() {
+        int thermalStatus = SystemStats.getThermalStatus(this);
+        if (thermalStatus < 0) {
+            return null;
+        }
+        return getString(R.string.temp_thermal_status,
+                getString(SystemStats.thermalStatusStringRes(thermalStatus)));
     }
 
     private void setupSeekBar(int id, String key, int defaultValue, int max, final SeekBarCallback callback) {
