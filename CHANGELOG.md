@@ -2,6 +2,10 @@
 
 # Changelog
 
+## 6.3.11
+- Fixed the Floating Monitor switches rendering as half pills on some phones — the knob is now drawn as part of the track, so on and off both show a complete pill.
+- Installs over 6.3.10, no need to uninstall.
+
 ## 6.3.10
 - Floating Monitor switches redesigned: compact pill switches in the app's colors, bright green when on.
 - App detection for FPS sessions: grant usage access once (new row in the FPS Recorder card) and sessions carry the tested app's name — and a session now splits automatically when you switch apps mid-recording.

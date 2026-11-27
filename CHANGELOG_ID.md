@@ -2,6 +2,10 @@
 
 # Catatan Rilis
 
+## 6.3.11
+- Fix sakelar di Floating Monitor yang tampil setengah pil di sebagian HP — kenopnya sekarang digambar menyatu dengan relnya, jadi posisi menyala dan mati sama-sama pil utuh.
+- Bisa langsung ditimpa dari 6.3.10, tidak perlu uninstall.
+
 ## 6.3.10
 - Sakelar di Floating Monitor diperbarui: bentuk pil ringkas dengan warna aplikasi, hijau terang saat menyala.
 - Deteksi aplikasi untuk sesi FPS: beri akses penggunaan sekali (baris baru di kartu Perekam FPS) dan nama aplikasi yang dites tercatat di sesi — sesi juga otomatis terpisah saat kamu pindah aplikasi di tengah rekaman.
