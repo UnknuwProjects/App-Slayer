@@ -214,6 +214,10 @@
     <string name="fps_record_title">Grabador de FPS</string>
     <string name="record_fps">Grabar FPS</string>
     <string name="record_fps_hint">Graba los FPS mientras juegas y luego mira el informe en la lista de sesiones. La grabación sigue al cerrar esta pantalla.</string>
+    <string name="usage_access_label">Detección de aplicaciones</string>
+    <string name="usage_access_hint">Con el acceso de uso activado, las sesiones de FPS registran el nombre de la aplicación probada y se dividen automáticamente cuando cambias de aplicación.</string>
+    <string name="usage_access_open">Abrir ajustes de acceso de uso</string>
+    <string name="usage_access_open_failed">Los ajustes de acceso de uso no están disponibles en este dispositivo</string>
     <string name="fps_recording_status">● Grabando %1$s · %2$d muestras</string>
     <string name="fps_record_idle">Sin grabar</string>
     <string name="btn_fps_sessions">Sesiones de FPS</string>

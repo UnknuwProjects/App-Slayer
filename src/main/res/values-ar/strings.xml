@@ -214,6 +214,10 @@
     <string name="fps_record_title">مسجل FPS</string>
     <string name="record_fps">تسجيل FPS</string>
     <string name="record_fps_hint">سجّل FPS أثناء اللعب، ثم اطّلع على التقرير في قائمة الجلسات. يستمر التسجيل بعد إغلاق هذه الشاشة.</string>
+    <string name="usage_access_label">اكتشاف التطبيقات</string>
+    <string name="usage_access_hint">عند تفعيل الوصول إلى الاستخدام، يُسجَّل اسم التطبيق الذي تختبره في جلسات FPS وتُقسَّم الجلسة تلقائيًا عند تبديل التطبيقات.</string>
+    <string name="usage_access_open">فتح إعدادات الوصول إلى الاستخدام</string>
+    <string name="usage_access_open_failed">إعدادات الوصول إلى الاستخدام غير متوفرة على هذا الجهاز</string>
     <string name="fps_recording_status">● جارٍ تسجيل %1$s · %2$d عينة</string>
     <string name="fps_record_idle">لا يوجد تسجيل</string>
     <string name="btn_fps_sessions">جلسات FPS</string>

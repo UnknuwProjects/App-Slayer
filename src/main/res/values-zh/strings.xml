@@ -214,6 +214,10 @@
     <string name="fps_record_title">FPS 记录器</string>
     <string name="record_fps">记录 FPS</string>
     <string name="record_fps_hint">玩游戏时记录 FPS，然后在会话列表中查看报告。关闭此屏幕后记录仍会继续。</string>
+    <string name="usage_access_label">应用检测</string>
+    <string name="usage_access_hint">开启使用情况访问后，FPS 会话会记录所测试应用的名称，并在你切换应用时自动拆分会话。</string>
+    <string name="usage_access_open">打开使用情况访问设置</string>
+    <string name="usage_access_open_failed">此设备上没有使用情况访问设置</string>
     <string name="fps_recording_status">● 正在记录 %1$s · %2$d 个样本</string>
     <string name="fps_record_idle">未在记录</string>
     <string name="btn_fps_sessions">FPS 会话</string>

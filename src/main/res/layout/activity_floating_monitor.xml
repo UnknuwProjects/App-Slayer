@@ -5,7 +5,10 @@ Diagnostik with label/value rows and app-style buttons, the
 Battery Status entry as a card row, Riwayat Baterai, Sensor Suhu,
 Setelan, Gaya Monitor, Monitor and Perekam FPS as cards, and the
 reset as a quiet red text button. Presentation only: every view
-id, handler and pref key is exactly what it was before. -->
+id, handler and pref key is exactly what it was before.
+6.3.10: each switch row is a label plus a compact pill switch
+(52x32dp) with custom track/thumb drawables — the stock Holo bar
+showed through the old tint-only styling. -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:background="#000000" android:padding="16dp" android:fitsSystemWindows="true" android:layout_width="match_parent" android:layout_height="match_parent">
     <LinearLayout android:orientation="vertical" android:id="@+id/monitorContainer" android:background="#111111" android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content">
         <LinearLayout android:orientation="vertical" android:background="@drawable/card_background" android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content">
@@ -81,13 +84,34 @@ id, handler and pref key is exactly what it was before. -->
             <SeekBar android:id="@+id/seekTransparency" android:layout_width="match_parent" android:layout_height="wrap_content"/>
             <TextView android:textSize="16sp" android:textColor="#ffffff" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="@string/text_size"/>
             <SeekBar android:id="@+id/seekTextSize" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp"/>
-            <Switch android:textSize="16sp" android:textColor="#ffffff" android:id="@+id/switchSnapToBar" android:showText="false" android:thumbTint="@color/switch_thumb_tint" android:trackTint="@color/switch_track_tint" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:text="@string/snap_to_bar"/>
-            <Switch android:textSize="16sp" android:textColor="#ffffff" android:id="@+id/switchClickThrough" android:showText="false" android:thumbTint="@color/switch_thumb_tint" android:trackTint="@color/switch_track_tint" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:text="@string/click_through"/>
-            <Switch android:textSize="16sp" android:textColor="#ffffff" android:id="@+id/switchFullscreen" android:showText="false" android:thumbTint="@color/switch_thumb_tint" android:trackTint="@color/switch_track_tint" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:text="@string/disable_fullscreen"/>
-            <Switch android:textSize="16sp" android:textColor="#ffffff" android:id="@+id/switchLandscape" android:showText="false" android:thumbTint="@color/switch_thumb_tint" android:trackTint="@color/switch_track_tint" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:text="@string/disable_landscape"/>
-            <Switch android:textSize="16sp" android:textColor="#ffffff" android:id="@+id/switchDarkText" android:showText="false" android:thumbTint="@color/switch_thumb_tint" android:trackTint="@color/switch_track_tint" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:text="@string/dark_text"/>
-            <Switch android:textSize="16sp" android:textColor="#ffffff" android:id="@+id/switchTextShadow" android:showText="false" android:thumbTint="@color/switch_thumb_tint" android:trackTint="@color/switch_track_tint" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:text="@string/text_shadow"/>
-            <Switch android:textSize="16sp" android:textColor="#ffffff" android:id="@+id/switchBoot" android:showText="false" android:thumbTint="@color/switch_thumb_tint" android:trackTint="@color/switch_track_tint" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/start_on_boot"/>
+            <LinearLayout android:orientation="horizontal" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp">
+                <TextView android:textSize="16sp" android:textColor="#ffffff" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/snap_to_bar"/>
+                <Switch android:id="@+id/switchSnapToBar" android:showText="false" android:track="@drawable/switch_track" android:thumb="@drawable/switch_thumb" android:layout_width="52dp" android:layout_height="32dp"/>
+            </LinearLayout>
+            <LinearLayout android:orientation="horizontal" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp">
+                <TextView android:textSize="16sp" android:textColor="#ffffff" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/click_through"/>
+                <Switch android:id="@+id/switchClickThrough" android:showText="false" android:track="@drawable/switch_track" android:thumb="@drawable/switch_thumb" android:layout_width="52dp" android:layout_height="32dp"/>
+            </LinearLayout>
+            <LinearLayout android:orientation="horizontal" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp">
+                <TextView android:textSize="16sp" android:textColor="#ffffff" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/disable_fullscreen"/>
+                <Switch android:id="@+id/switchFullscreen" android:showText="false" android:track="@drawable/switch_track" android:thumb="@drawable/switch_thumb" android:layout_width="52dp" android:layout_height="32dp"/>
+            </LinearLayout>
+            <LinearLayout android:orientation="horizontal" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp">
+                <TextView android:textSize="16sp" android:textColor="#ffffff" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/disable_landscape"/>
+                <Switch android:id="@+id/switchLandscape" android:showText="false" android:track="@drawable/switch_track" android:thumb="@drawable/switch_thumb" android:layout_width="52dp" android:layout_height="32dp"/>
+            </LinearLayout>
+            <LinearLayout android:orientation="horizontal" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp">
+                <TextView android:textSize="16sp" android:textColor="#ffffff" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/dark_text"/>
+                <Switch android:id="@+id/switchDarkText" android:showText="false" android:track="@drawable/switch_track" android:thumb="@drawable/switch_thumb" android:layout_width="52dp" android:layout_height="32dp"/>
+            </LinearLayout>
+            <LinearLayout android:orientation="horizontal" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp">
+                <TextView android:textSize="16sp" android:textColor="#ffffff" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/text_shadow"/>
+                <Switch android:id="@+id/switchTextShadow" android:showText="false" android:track="@drawable/switch_track" android:thumb="@drawable/switch_thumb" android:layout_width="52dp" android:layout_height="32dp"/>
+            </LinearLayout>
+            <LinearLayout android:orientation="horizontal" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content">
+                <TextView android:textSize="16sp" android:textColor="#ffffff" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/start_on_boot"/>
+                <Switch android:id="@+id/switchBoot" android:showText="false" android:track="@drawable/switch_track" android:thumb="@drawable/switch_thumb" android:layout_width="52dp" android:layout_height="32dp"/>
+            </LinearLayout>
         </LinearLayout>
         <LinearLayout android:orientation="vertical" android:background="@drawable/card_background" android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp">
             <TextView android:textSize="16sp" android:textStyle="bold" android:textColor="#448aff" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp" android:text="@string/monitor_style_title"/>
@@ -98,20 +122,53 @@ id, handler and pref key is exactly what it was before. -->
         </LinearLayout>
         <LinearLayout android:orientation="vertical" android:background="@drawable/card_background" android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp">
             <TextView android:textSize="16sp" android:textStyle="bold" android:textColor="#448aff" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp" android:text="@string/monitor_title"/>
-            <Switch android:textSize="16sp" android:textColor="#ffffff" android:id="@+id/switchCpu" android:showText="false" android:thumbTint="@color/switch_thumb_tint" android:trackTint="@color/switch_track_tint" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:text="@string/monitor_cpu"/>
-            <Switch android:textSize="16sp" android:textColor="#ffffff" android:id="@+id/switchTemp" android:showText="false" android:thumbTint="@color/switch_thumb_tint" android:trackTint="@color/switch_track_tint" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:text="@string/monitor_temp"/>
-            <Switch android:textSize="16sp" android:textColor="#ffffff" android:id="@+id/switchBattery" android:showText="false" android:thumbTint="@color/switch_thumb_tint" android:trackTint="@color/switch_track_tint" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:text="@string/monitor_battery"/>
-            <Switch android:textSize="16sp" android:textColor="#ffffff" android:id="@+id/switchRam" android:showText="false" android:thumbTint="@color/switch_thumb_tint" android:trackTint="@color/switch_track_tint" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:text="@string/monitor_ram"/>
-            <Switch android:textSize="16sp" android:textColor="#ffffff" android:id="@+id/switchBatteryCurrent" android:showText="false" android:thumbTint="@color/switch_thumb_tint" android:trackTint="@color/switch_track_tint" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:text="@string/monitor_current"/>
-            <Switch android:textSize="16sp" android:textColor="#ffffff" android:id="@+id/switchSignal" android:showText="false" android:thumbTint="@color/switch_thumb_tint" android:trackTint="@color/switch_track_tint" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:text="@string/monitor_signal"/>
-            <Switch android:textSize="16sp" android:textColor="#ffffff" android:id="@+id/switchFps" android:showText="false" android:thumbTint="@color/switch_thumb_tint" android:trackTint="@color/switch_track_tint" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:text="@string/monitor_fps"/>
-            <Switch android:textSize="16sp" android:textColor="#ffffff" android:id="@+id/switchProcess" android:showText="false" android:thumbTint="@color/switch_thumb_tint" android:trackTint="@color/switch_track_tint" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/monitor_process"/>
+            <LinearLayout android:orientation="horizontal" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp">
+                <TextView android:textSize="16sp" android:textColor="#ffffff" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/monitor_cpu"/>
+                <Switch android:id="@+id/switchCpu" android:showText="false" android:track="@drawable/switch_track" android:thumb="@drawable/switch_thumb" android:layout_width="52dp" android:layout_height="32dp"/>
+            </LinearLayout>
+            <LinearLayout android:orientation="horizontal" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp">
+                <TextView android:textSize="16sp" android:textColor="#ffffff" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/monitor_temp"/>
+                <Switch android:id="@+id/switchTemp" android:showText="false" android:track="@drawable/switch_track" android:thumb="@drawable/switch_thumb" android:layout_width="52dp" android:layout_height="32dp"/>
+            </LinearLayout>
+            <LinearLayout android:orientation="horizontal" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp">
+                <TextView android:textSize="16sp" android:textColor="#ffffff" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/monitor_battery"/>
+                <Switch android:id="@+id/switchBattery" android:showText="false" android:track="@drawable/switch_track" android:thumb="@drawable/switch_thumb" android:layout_width="52dp" android:layout_height="32dp"/>
+            </LinearLayout>
+            <LinearLayout android:orientation="horizontal" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp">
+                <TextView android:textSize="16sp" android:textColor="#ffffff" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/monitor_ram"/>
+                <Switch android:id="@+id/switchRam" android:showText="false" android:track="@drawable/switch_track" android:thumb="@drawable/switch_thumb" android:layout_width="52dp" android:layout_height="32dp"/>
+            </LinearLayout>
+            <LinearLayout android:orientation="horizontal" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp">
+                <TextView android:textSize="16sp" android:textColor="#ffffff" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/monitor_current"/>
+                <Switch android:id="@+id/switchBatteryCurrent" android:showText="false" android:track="@drawable/switch_track" android:thumb="@drawable/switch_thumb" android:layout_width="52dp" android:layout_height="32dp"/>
+            </LinearLayout>
+            <LinearLayout android:orientation="horizontal" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp">
+                <TextView android:textSize="16sp" android:textColor="#ffffff" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/monitor_signal"/>
+                <Switch android:id="@+id/switchSignal" android:showText="false" android:track="@drawable/switch_track" android:thumb="@drawable/switch_thumb" android:layout_width="52dp" android:layout_height="32dp"/>
+            </LinearLayout>
+            <LinearLayout android:orientation="horizontal" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp">
+                <TextView android:textSize="16sp" android:textColor="#ffffff" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/monitor_fps"/>
+                <Switch android:id="@+id/switchFps" android:showText="false" android:track="@drawable/switch_track" android:thumb="@drawable/switch_thumb" android:layout_width="52dp" android:layout_height="32dp"/>
+            </LinearLayout>
+            <LinearLayout android:orientation="horizontal" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content">
+                <TextView android:textSize="16sp" android:textColor="#ffffff" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/monitor_process"/>
+                <Switch android:id="@+id/switchProcess" android:showText="false" android:track="@drawable/switch_track" android:thumb="@drawable/switch_thumb" android:layout_width="52dp" android:layout_height="32dp"/>
+            </LinearLayout>
         </LinearLayout>
         <LinearLayout android:orientation="vertical" android:background="@drawable/card_background" android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp">
             <TextView android:textSize="16sp" android:textStyle="bold" android:textColor="#448aff" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp" android:text="@string/fps_record_title"/>
-            <Switch android:textSize="16sp" android:textColor="#ffffff" android:id="@+id/switchRecordFps" android:showText="false" android:thumbTint="@color/switch_thumb_tint" android:trackTint="@color/switch_track_tint" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp" android:text="@string/record_fps"/>
+            <LinearLayout android:orientation="horizontal" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp">
+                <TextView android:textSize="16sp" android:textColor="#ffffff" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/record_fps"/>
+                <Switch android:id="@+id/switchRecordFps" android:showText="false" android:track="@drawable/switch_track" android:thumb="@drawable/switch_thumb" android:layout_width="52dp" android:layout_height="32dp"/>
+            </LinearLayout>
             <TextView android:id="@+id/recordFpsStatus" android:textSize="13sp" android:textColor="#ffffff" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="4dp"/>
             <TextView android:textSize="13sp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" android:textColor="#9aa0a6" android:text="@string/record_fps_hint"/>
+            <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="6dp">
+                <TextView android:textSize="14sp" android:textColor="#9aa0a6" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/usage_access_label"/>
+                <TextView android:id="@+id/usageAccessStatus" android:textSize="14sp" android:textColor="#ffffff" android:gravity="end" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            </LinearLayout>
+            <TextView android:textSize="13sp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" android:textColor="#9aa0a6" android:text="@string/usage_access_hint"/>
+            <Button android:textSize="15sp" android:textColor="#ffffff" android:textAllCaps="false" android:background="@drawable/btn_card" android:id="@+id/btnUsageAccess" android:layout_width="match_parent" android:layout_height="44dp" android:layout_marginBottom="12dp" android:text="@string/usage_access_open"/>
             <Button android:textSize="15sp" android:textColor="#ffffff" android:textAllCaps="false" android:background="@drawable/btn_card" android:id="@+id/btnFpsSessions" android:layout_width="match_parent" android:layout_height="44dp" android:text="@string/btn_fps_sessions"/>
         </LinearLayout>
         <Button android:textSize="15sp" android:textColor="#ef5350" android:textAllCaps="false" android:background="@android:color/transparent" android:layout_gravity="center_horizontal" android:id="@+id/buttonReset" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:layout_marginBottom="8dp" android:text="@string/reset_settings"/>

@@ -160,6 +160,31 @@ public class FpsStatsTest {
         check("dominant of nothing is null", PureCalc.dominantPackage(new long[0], new String[0], 0L) == null);
         check("dominant of null is null", PureCalc.dominantPackage(null, null, 0L) == null);
 
+        // (m) Per-app session splitting: the recorder ends the
+        // current session and starts a new one only on a real app
+        // change — never on a detection gap or on this app itself.
+        String own = "com.appslayer.official";
+        check("same app -> no split", !PureCalc.shouldSplitSession("com.game.a", "com.game.a", own));
+        check("app A -> app B -> split", PureCalc.shouldSplitSession("com.game.a", "com.game.b", own));
+        check("app B -> null -> no split", !PureCalc.shouldSplitSession("com.game.b", null, own));
+        check("app B -> empty -> no split", !PureCalc.shouldSplitSession("com.game.b", "", own));
+        check("app B -> own package -> no split", !PureCalc.shouldSplitSession("com.game.b", own, own));
+        check("no app yet -> adopt, no split", !PureCalc.shouldSplitSession(null, "com.game.b", own));
+        check("nothing observed, nothing current -> no split", !PureCalc.shouldSplitSession(null, null, own));
+        // A -> B -> A must split twice: walk the sequence the way
+        // the recorder does, carrying the session's package along.
+        String current = null;
+        int splits = 0;
+        for (String observed : new String[]{"com.game.a", "com.game.b", "com.game.a"}) {
+            if (current == null) {
+                current = observed;
+            } else if (PureCalc.shouldSplitSession(current, observed, own)) {
+                splits++;
+                current = observed;
+            }
+        }
+        check("A -> B -> A splits twice", splits == 2 && "com.game.a".equals(current));
+
         System.out.println("FpsStatsTest: " + passed + " passed, " + failed + " failed");
         if (failed > 0) {
             System.exit(1);

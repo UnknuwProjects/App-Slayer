@@ -68,14 +68,13 @@ public class FpsReportActivity extends Activity {
         double avgGpuTemp = PureCalc.average(session.gpuTempArray());
         double avgPower = PureCalc.average(session.powerArray());
 
-        // Header: the app that was recorded, or a plain dash when
-        // no foreground app ever answered — not a sentence about
-        // an unknown app.
+        // Header: the app that was recorded, through the same
+        // formatter the sessions list uses — a plain dash when no
+        // foreground app ever answered, never a sentence about an
+        // unknown app.
         TextView app = (TextView) findViewById(R.id.reportApp);
         if (app != null) {
-            app.setText(session.packageName == null || session.packageName.isEmpty()
-                    ? "—"
-                    : FpsSessionsActivity.appLabel(this, session.packageName));
+            app.setText(FpsSessionsActivity.appLabel(this, session.packageName));
         }
         TextView meta = (TextView) findViewById(R.id.reportMeta);
         if (meta != null) {

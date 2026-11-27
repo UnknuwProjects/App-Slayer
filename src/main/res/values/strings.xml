@@ -214,6 +214,10 @@
     <string name="fps_record_title">Perekam FPS</string>
     <string name="record_fps">Rekam FPS</string>
     <string name="record_fps_hint">Rekam FPS saat bermain, lalu lihat laporannya di daftar sesi. Perekaman tetap jalan setelah layar ini ditutup.</string>
+    <string name="usage_access_label">Deteksi aplikasi</string>
+    <string name="usage_access_hint">Dengan akses penggunaan, nama aplikasi yang dites tercatat di sesi FPS dan sesi otomatis dipisah saat kamu berpindah aplikasi.</string>
+    <string name="usage_access_open">Buka Pengaturan Akses Penggunaan</string>
+    <string name="usage_access_open_failed">Pengaturan akses penggunaan tidak tersedia di perangkat ini</string>
     <string name="fps_recording_status">● Merekam %1$s · %2$d sampel</string>
     <string name="fps_record_idle">Tidak merekam</string>
     <string name="btn_fps_sessions">Sesi FPS</string>

@@ -569,6 +569,30 @@ public final class PureCalc {
         return best;
     }
 
+    // Whether a recording that is currently attributed to
+    // currentPackage must end and a new session begin, given a
+    // freshly observed foreground package. Split only on a real
+    // change: the observation must be a different app, and neither
+    // a gap in the observations (null/empty — detection may simply
+    // have no answer right now) nor this app itself (the user
+    // popping back to stop the recording) ever splits a session.
+    // A session with no app yet (currentPackage null) adopts the
+    // first observation instead of splitting.
+    public static boolean shouldSplitSession(String currentPackage,
+                                             String observedPackage,
+                                             String ownPackage) {
+        if (observedPackage == null || observedPackage.isEmpty()) {
+            return false;
+        }
+        if (currentPackage == null || currentPackage.isEmpty()) {
+            return false;
+        }
+        if (observedPackage.equals(currentPackage)) {
+            return false;
+        }
+        return ownPackage == null || !observedPackage.equals(ownPackage);
+    }
+
     // ------------------------------------------------------------------
     // Chart axes. The session graphs used to pad the raw data range
     // by 8% on both ends, which pushed the FPS axis below zero (a

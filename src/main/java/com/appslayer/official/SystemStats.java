@@ -1186,6 +1186,45 @@ public class SystemStats {
         return null;
     }
 
+    // Whether the user has granted this app usage access (the
+    // system toggle behind Settings.ACTION_USAGE_ACCESS_SETTINGS).
+    // The AppOps mode is the standard check; some ROMs keep
+    // reporting MODE_DEFAULT even with the toggle on, so a usage
+    // stats query that actually returns rows counts as granted
+    // too. Without the grant both probes come back empty — they
+    // never prompt and never throw.
+    public static boolean hasUsageAccess(Context context) {
+        if (context == null) {
+            return false;
+        }
+        try {
+            android.app.AppOpsManager ops = (android.app.AppOpsManager)
+                    context.getSystemService(Context.APP_OPS_SERVICE);
+            if (ops != null && ops.checkOpNoThrow(
+                    android.app.AppOpsManager.OPSTR_GET_USAGE_STATS,
+                    android.os.Process.myUid(), context.getPackageName())
+                    == android.app.AppOpsManager.MODE_ALLOWED) {
+                return true;
+            }
+        } catch (Exception ignored) {
+        }
+        try {
+            android.app.usage.UsageStatsManager manager =
+                    (android.app.usage.UsageStatsManager)
+                            context.getSystemService(Context.USAGE_STATS_SERVICE);
+            if (manager == null) {
+                return false;
+            }
+            long end = System.currentTimeMillis();
+            java.util.List<android.app.usage.UsageStats> stats = manager.queryUsageStats(
+                    android.app.usage.UsageStatsManager.INTERVAL_DAILY,
+                    end - 24L * 60 * 60 * 1000, end);
+            return stats != null && !stats.isEmpty();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     // The foreground app's package without root, from usage stats.
     // Answers only when the user has granted this app usage access
     // in the system settings — without the grant the query simply

@@ -214,6 +214,10 @@
     <string name="fps_record_title">FPS रिकॉर्डर</string>
     <string name="record_fps">FPS रिकॉर्ड करें</string>
     <string name="record_fps_hint">खेलते समय FPS रिकॉर्ड करें, फिर सत्र सूची में रिपोर्ट देखें। यह स्क्रीन बंद करने के बाद भी रिकॉर्डिंग चलती रहती है।</string>
+    <string name="usage_access_label">ऐप पहचान</string>
+    <string name="usage_access_hint">उपयोग पहुँच चालू होने पर FPS सत्र में टेस्ट किए गए ऐप का नाम दर्ज होता है और ऐप बदलने पर सत्र अपने आप अलग हो जाता है।</string>
+    <string name="usage_access_open">उपयोग पहुँच सेटिंग खोलें</string>
+    <string name="usage_access_open_failed">इस डिवाइस पर उपयोग पहुँच सेटिंग उपलब्ध नहीं है</string>
     <string name="fps_recording_status">● रिकॉर्ड हो रहा है %1$s · %2$d सैंपल</string>
     <string name="fps_record_idle">रिकॉर्ड नहीं हो रहा</string>
     <string name="btn_fps_sessions">FPS सत्र</string>

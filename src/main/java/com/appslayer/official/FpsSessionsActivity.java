@@ -153,11 +153,13 @@ public class FpsSessionsActivity extends Activity {
     }
 
     // Human label for a package ("Mobile Legends"), falling back to
-    // the package name, then to the unknown-app string when the
-    // session recorded no foreground app at all.
+    // the package name, then to a plain dash when the session
+    // recorded no foreground app at all — the same dash the report
+    // header shows, so the list and the report never disagree.
     public static String appLabel(Context context, String packageName) {
-        if (packageName == null || packageName.isEmpty()) {
-            return context.getString(R.string.fps_unknown_app);
+        if (packageName == null || packageName.isEmpty()
+                || isLegacyUnknownLabel(context, packageName)) {
+            return "—";
         }
         try {
             ApplicationInfo info = context.getPackageManager().getApplicationInfo(packageName, 0);
@@ -168,6 +170,22 @@ public class FpsSessionsActivity extends Activity {
         } catch (Exception ignored) {
         }
         return packageName;
+    }
+
+    // Session files from old versions can carry the unknown-app
+    // sentence where a package name belongs (the Indonesian
+    // original, its English translation, or whichever wording the
+    // current locale uses). Those rows mean "no app was recorded",
+    // not an app with that name, so they render as the dash too.
+    private static boolean isLegacyUnknownLabel(Context context, String value) {
+        if ("Aplikasi tidak dikenal".equals(value) || "Unknown app".equals(value)) {
+            return true;
+        }
+        try {
+            return value.equals(context.getString(R.string.fps_unknown_app));
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     // "H:MM:SS" past an hour, "M:SS" below it — session lengths

@@ -214,6 +214,10 @@
     <string name="fps_record_title">FPS Recorder</string>
     <string name="record_fps">Record FPS</string>
     <string name="record_fps_hint">Record FPS while playing, then check the report in the sessions list. Recording keeps running after this screen is closed.</string>
+    <string name="usage_access_label">App detection</string>
+    <string name="usage_access_hint">With usage access, the name of the app you test is recorded in FPS sessions, and a session splits automatically when you switch apps.</string>
+    <string name="usage_access_open">Open Usage Access Settings</string>
+    <string name="usage_access_open_failed">Usage access settings are not available on this device</string>
     <string name="fps_recording_status">● Recording %1$s · %2$d samples</string>
     <string name="fps_record_idle">Not recording</string>
     <string name="btn_fps_sessions">FPS Sessions</string>

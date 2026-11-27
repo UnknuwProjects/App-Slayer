@@ -243,6 +243,7 @@ public class FloatingMonitorActivity extends Activity {
             startOverlayService();
         }
         refreshDiagnostics();
+        refreshUsageAccessStatus();
         diagHandler.removeCallbacks(diagTick);
         diagHandler.post(diagTick);
         startSensorRefresh();
@@ -421,7 +422,38 @@ public class FloatingMonitorActivity extends Activity {
                 }
             });
         }
+        Button usageButton = (Button) findViewById(R.id.btnUsageAccess);
+        if (usageButton != null) {
+            usageButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS));
+                    } catch (Exception e) {
+                        DiagLog.log("SYS", "usage access settings unavailable: "
+                                + e.getClass().getSimpleName());
+                        Toast.makeText(FloatingMonitorActivity.this,
+                                R.string.usage_access_open_failed, Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+        }
+        refreshUsageAccessStatus();
         updateRecordStatus();
+    }
+
+    // App detection status in the recorder card: green when usage
+    // access is on, amber when it is not. Refreshed on resume, so
+    // coming back from the system settings shows the new state
+    // without reopening the screen.
+    private void refreshUsageAccessStatus() {
+        TextView status = (TextView) findViewById(R.id.usageAccessStatus);
+        if (status == null) {
+            return;
+        }
+        boolean granted = SystemStats.hasUsageAccess(this);
+        status.setText(granted ? R.string.state_on : R.string.state_off);
+        status.setTextColor(granted ? DIAG_COLOR_OK : DIAG_COLOR_WARN);
     }
 
     // Starts a recording through whichever measurement path is

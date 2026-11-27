@@ -19,7 +19,12 @@ import java.util.Locale;
 // at all. Samples land in a ".tmp" file under
 // filesDir/fps_sessions/ and the file is renamed to its final
 // ".csv" name when the recording stops, so the sessions list only
-// ever sees finished sessions. EVERY recording produces a session
+// ever sees finished sessions. While a recording runs, the
+// foreground app is polled every few seconds; when it changes to
+// a different app, the current session file is finalized exactly
+// as if the recording had stopped and a new one is opened for
+// the new app — one session per tested app, with the capture
+// running untouched across the split. EVERY recording produces a session
 // file — including one with zero samples, which the sessions list
 // shows marked as no-data instead of silently vanishing (the old
 // finalize deleted empty files, which is why recordings "never
@@ -34,10 +39,13 @@ public class FpsRecorder {
     public static final int SAMPLE_LIMIT_REACHED = 1;
     public static final int SAMPLE_NOT_RECORDING = 2;
 
-    // The foreground app is polled through dumpsys every few
-    // samples, not every second — the dump is large and the app in
-    // front rarely changes mid-session.
-    private static final int PACKAGE_CHECK_EVERY = 5;
+    // The foreground app is polled every few samples, not every
+    // second. The usage-stats poll is cheap; the root dumpsys
+    // fallback is not (two large dumps), so it is only consulted
+    // every ROOT_CHECK_EVERY package checks while usage stats
+    // have no answer.
+    private static final int PACKAGE_CHECK_EVERY = 3;
+    private static final int ROOT_CHECK_EVERY = 5;
 
     private static volatile boolean recording = false;
     private static volatile long startTimeMs = 0;
@@ -45,8 +53,12 @@ public class FpsRecorder {
 
     private static File sessionFile;
     private static BufferedWriter writer;
-    private static String lastPackage;
+    // The app the current session file belongs to: the first
+    // foreground app observed for it. A later, different app
+    // splits the session (PureCalc.shouldSplitSession).
+    private static String sessionPackage;
     private static int samplesSincePackageCheck;
+    private static int packageCheckCycles;
 
     // The recorder's own sampling loop and the context it samples
     // with (the application context captured at start()).
@@ -80,21 +92,12 @@ public class FpsRecorder {
             return false;
         }
         startTimeMs = System.currentTimeMillis();
-        sessionFile = new File(dir, "session_" + startTimeMs + ".tmp");
-        try {
-            writer = new BufferedWriter(new FileWriter(sessionFile, false));
-            writer.write("#start," + startTimeMs);
-            writer.newLine();
-            writer.flush();
-        } catch (Exception e) {
-            DiagLog.log(context, "FPS", "recording start failed: "
-                    + e.getClass().getSimpleName() + ": " + e.getMessage());
-            closeWriter();
-            sessionFile = null;
+        if (!openSessionFile(context)) {
             return false;
         }
         sampleCount = 0;
-        lastPackage = null;
+        sessionPackage = null;
+        packageCheckCycles = 0;
         samplesSincePackageCheck = PACKAGE_CHECK_EVERY; // check on the first sample
         recording = true;
         appContext = context.getApplicationContext();
@@ -221,19 +224,24 @@ public class FpsRecorder {
         samplesSincePackageCheck++;
         if (samplesSincePackageCheck >= PACKAGE_CHECK_EVERY) {
             samplesSincePackageCheck = 0;
+            packageCheckCycles++;
             // Non-root first (usage stats, when the user granted
-            // access), the root shell as the fallback.
+            // access); the root shell answers at a slower cadence
+            // while usage stats have nothing.
             String pkg = SystemStats.getForegroundPackageNoRoot(context);
-            if (pkg == null) {
+            if (pkg == null && packageCheckCycles % ROOT_CHECK_EVERY == 1) {
                 pkg = SystemStats.getForegroundPackage();
             }
-            if (pkg != null && !pkg.equals(lastPackage)) {
-                lastPackage = pkg;
-                try {
-                    writer.write("#app," + now + "," + pkg);
-                    writer.newLine();
-                    writer.flush();
-                } catch (Exception ignored) {
+            // This app itself never counts: the user popping back
+            // here to stop the recording must not split the session
+            // or claim it.
+            if (pkg != null && !pkg.equals(context.getPackageName())) {
+                if (sessionPackage == null) {
+                    sessionPackage = pkg;
+                    writeAppMarker(now, pkg);
+                } else if (PureCalc.shouldSplitSession(
+                        sessionPackage, pkg, context.getPackageName())) {
+                    splitSession(context, pkg, now);
                 }
             }
         }
@@ -265,6 +273,53 @@ public class FpsRecorder {
     private static void stopLocked() {
         recording = false;
         stopSamplingLoop();
+        finalizeSessionFile();
+    }
+
+    // Ends the current session because the foreground app changed:
+    // the file is finalized exactly as a normal stop would do it,
+    // then a fresh session opens for the new app. The sampling
+    // loop and the screen capture keep running — a split needs no
+    // consent prompt and no user action. If the new file cannot be
+    // opened the recording stops instead of sampling into nowhere.
+    private static void splitSession(Context context, String newPackage, long now) {
+        finalizeSessionFile();
+        DiagLog.log(context, "FPS", "session split: foreground app is now " + newPackage);
+        startTimeMs = now;
+        sampleCount = 0;
+        sessionPackage = newPackage;
+        samplesSincePackageCheck = 0;
+        if (!openSessionFile(context)) {
+            recording = false;
+            stopSamplingLoop();
+            return;
+        }
+        writeAppMarker(now, newPackage);
+    }
+
+    // Opens the ".tmp" file for the session starting at
+    // startTimeMs and stamps its "#start" line.
+    private static boolean openSessionFile(Context context) {
+        File dir = FpsSession.dir(context);
+        sessionFile = new File(dir, "session_" + startTimeMs + ".tmp");
+        try {
+            writer = new BufferedWriter(new FileWriter(sessionFile, false));
+            writer.write("#start," + startTimeMs);
+            writer.newLine();
+            writer.flush();
+            return true;
+        } catch (Exception e) {
+            DiagLog.log(context, "FPS", "recording start failed: "
+                    + e.getClass().getSimpleName() + ": " + e.getMessage());
+            closeWriter();
+            sessionFile = null;
+            return false;
+        }
+    }
+
+    // Stamps the "#end" line, closes the writer and renames the
+    // session file to its final ".csv" name.
+    private static void finalizeSessionFile() {
         if (writer != null) {
             try {
                 writer.write("#end," + System.currentTimeMillis());
@@ -281,6 +336,15 @@ public class FpsRecorder {
                 sessionFile.delete();
             }
             sessionFile = null;
+        }
+    }
+
+    private static void writeAppMarker(long now, String pkg) {
+        try {
+            writer.write("#app," + now + "," + pkg);
+            writer.newLine();
+            writer.flush();
+        } catch (Exception ignored) {
         }
     }
 

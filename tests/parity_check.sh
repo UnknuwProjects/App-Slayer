@@ -639,7 +639,11 @@ for lay in src/main/res/layout/activity_floating_monitor.xml src/main/res/layout
     check "history stats rows ($lay)" "$lay" 'batteryHistorySinceValue'
     check "thermal status row ($lay)" "$lay" 'tempThermalStatus'
     check "switches hide the text box ($lay)" "$lay" 'android:showText="false"'
-    check "switch thumb tint ($lay)" "$lay" '@color/switch_thumb_tint'
+    check_count "switches use the pill track ($lay)" "$lay" 'android:track="@drawable/switch_track"' 16
+    check_count "switches use the pill thumb ($lay)" "$lay" 'android:thumb="@drawable/switch_thumb"' 16
+    check_count "switches are pill sized ($lay)" "$lay" 'android:layout_width="52dp" android:layout_height="32dp"' 16
+    check_absent "switch thumb tint gone ($lay)" "$lay" 'switch_thumb_tint'
+    check_absent "switch track tint gone ($lay)" "$lay" 'switch_track_tint'
     check "reset is a quiet text button ($lay)" "$lay" 'android:textColor="#ef5350"'
 done
 check "diag values colored in refresh" "$SRC/FloatingMonitorActivity.java" 'DIAG_COLOR_OK'
@@ -657,6 +661,56 @@ done
 # 6.3.9: changelog entries.
 check "CHANGELOG has the 6.3.9 entry" "CHANGELOG.md" '## 6.3.9'
 check "CHANGELOG_ID has the 6.3.9 entry" "CHANGELOG_ID.md" '## 6.3.9'
+
+# 6.3.10: the switches get real custom drawables. On the owner's
+# phone the 6.3.9 tints still drew the stock Holo bar (long
+# rectangle, square thumb, dull dark green). Now every switch is
+# a 52x32dp pill: green track in the app's chart/battery green
+# when on, muted blue-grey when off, round thumb with an inset.
+# The tint color files are gone.
+check "switch track on uses the app green" "src/main/res/drawable/switch_track.xml" '#4caf50'
+check "switch track off is blue-grey" "src/main/res/drawable/switch_track.xml" '#39424e'
+check "switch track is a fixed pill" "src/main/res/drawable/switch_track.xml" '<size android:width="52dp" android:height="32dp"/>'
+check "switch thumb on is near-white" "src/main/res/drawable/switch_thumb.xml" '#f5f7fa'
+check "switch thumb off is light grey" "src/main/res/drawable/switch_thumb.xml" '#9aa5b1'
+check "switch thumb keeps its inset" "src/main/res/drawable/switch_thumb.xml" '<inset android:inset="2dp">'
+if [ ! -f src/main/res/color/switch_thumb_tint.xml ] && [ ! -f src/main/res/color/switch_track_tint.xml ]; then
+    echo "PASS switch tint color files removed"
+    PASS=$((PASS + 1))
+else
+    echo "FAIL switch tint color files removed"
+    FAIL=$((FAIL + 1))
+fi
+
+# 6.3.10: app detection for FPS sessions. Usage access is the
+# one system grant that makes the foreground app readable
+# without root: the manifest declares PACKAGE_USAGE_STATS (it
+# only lists the app in the usage access settings; nothing is
+# granted until the user turns it on there), the recorder card
+# shows the state and opens that settings page, recordings split
+# per app, and the unknown-app sentence no longer appears — the
+# list and the report both show a dash, for old files too.
+check "usage stats permission declared" "src/main/AndroidManifest.xml" 'android.permission.PACKAGE_USAGE_STATS'
+check "usage access probe exists" "$SRC/SystemStats.java" 'hasUsageAccess'
+check "usage access probe reads AppOps" "$SRC/SystemStats.java" 'OPSTR_GET_USAGE_STATS'
+check "split decision is pure" "$SRC/PureCalc.java" 'shouldSplitSession'
+check "recorder splits on app change" "$SRC/FpsRecorder.java" 'shouldSplitSession'
+check "recorder split finalizes the file" "$SRC/FpsRecorder.java" 'splitSession'
+check "app label dash for unknown" "$SRC/FpsSessionsActivity.java" 'return "—";'
+check "legacy unknown label handled" "$SRC/FpsSessionsActivity.java" 'isLegacyUnknownLabel'
+check_absent "unknown-app string no longer returned" "$SRC/FpsSessionsActivity.java" 'return context.getString(R.string.fps_unknown_app);'
+check "usage status wired on resume" "$SRC/FloatingMonitorActivity.java" 'refreshUsageAccessStatus()'
+check "usage settings intent" "$SRC/FloatingMonitorActivity.java" 'Settings.ACTION_USAGE_ACCESS_SETTINGS'
+for lay in src/main/res/layout/activity_floating_monitor.xml src/main/res/layout-v21/activity_floating_monitor.xml; do
+    check "usage access status in layout ($lay)" "$lay" 'usageAccessStatus'
+    check "usage access button in layout ($lay)" "$lay" 'btnUsageAccess'
+done
+check "usage access label string (ID)" "src/main/res/values/strings.xml" 'usage_access_label'
+check "usage access label string (AR)" "src/main/res/values-ar/strings.xml" 'usage_access_label'
+
+# 6.3.10: changelog entries.
+check "CHANGELOG has the 6.3.10 entry" "CHANGELOG.md" '## 6.3.10'
+check "CHANGELOG_ID has the 6.3.10 entry" "CHANGELOG_ID.md" '## 6.3.10'
 
 # String parity across ALL locales: same key count everywhere.
 BASE_COUNT=$(grep -c '<string ' src/main/res/values/strings.xml)
